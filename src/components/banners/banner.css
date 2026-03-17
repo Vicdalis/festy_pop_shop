@@ -1,0 +1,11 @@
+.dark-overlay{
+    inset: 0;
+    position: relative;
+}
+.dark-overlay::before{
+    border-radius: 1rem;
+    position: absolute;
+    inset: 0;
+    background-color: #00000080;
+    content: "";
+}

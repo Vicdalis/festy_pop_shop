@@ -1,0 +1,25 @@
+@theme {
+  /* --color-main: #BA4AF2; */
+  --color-main: #FE9A4E;
+  --color-light-main: #e6aa78;
+  --color-secondary: #ff3d7f;
+  --color-tertiary: #FEC930;
+  --color-blue: #0249F3;
+  --color-blue-light: #01ced1;
+  --color-green: #80D75E;
+  /* NEW PALETTE */
+  --color-orange: #FE9A4E;
+  --color-pink: #ff3d7f;
+  --color-light-cream: #fff7ed;
+  --color-new-green: #7ed958;
+  --color-light-orange: #e6aa78;
+  --color-light-pink: #e7467d;
+  --color-main-gradient: linear-gradient(90deg,rgba(230, 170, 120, 1) 0%, rgba(231, 70, 125, 1) 100%);
+  --color-horizontal: linear-gradient(180deg,rgba(230, 170, 120, 1) 0%, rgba(231, 70, 125, 1) 100%);
+
+
+  --text-titles: 2rem;
+  --text-subtitles: 1.5rem;
+  --text-body: 1rem;
+  --font-title: "Mannin", sans-serif;
+}
