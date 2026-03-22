@@ -47,18 +47,18 @@ export default function Header() {
         <header className=" top-0 z-50 w-full bg-card/80  backdrop-blur-md">
             {/* Pre-header: centered logo + login icon right */}
             <div className="relative flex h-12 items-center bg-main">
-                <div className="md:hidden flex absolute left-6  items-center h-10">
+                <div className="md:hidden flex absolute left-3  items-center h-10">
                     <button className="p-2" onClick={() => setOpen(!open)} aria-label="Toggle menu">
                         {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
                     </button>
                 </div>
-                <Link href="/" className="flex items-center gap-2 font-display text-2xl font-bold text-primary absolute left-12 md:left-8">
+                <Link href="/" className="flex items-center gap-2 font-display text-2xl font-bold text-primary absolute left-16 md:left-8">
                     <Image
                         src="/brand/logo_fiesta3.png"
                         alt="Marca VVVS"
-                        width={160}
+                        width={140}
                         height={40}
-                        className="object-contain"
+                        className="object-contain width-[140px] md:width-[160px]"
                         />
                 </Link>
                 <div className="hidden md:flex absolute left-0 right-0 justify-center pointer-events-none">
@@ -99,12 +99,12 @@ export default function Header() {
                         )
                     )}
                 </div>
-                    <div className="absolute right-28 flex items-center gap-3 text-muted-foreground">
+                    <div className="hidden md:absolute right-28 flex items-center gap-3 text-muted-foreground">
                             <a href={CONTACT.PHONE_LINK} className="text-sm hover:underline">{CONTACT.PHONE}</a>
                         <span className="hidden md:inline">|</span>
                     </div>
                 <a href="/login" target="_blank" rel="noopener noreferrer" className=" flex absolute right-8 gap-6 text-muted-foreground transition-colors">
-                    <div className='flex gap-2 hover:text-tertiary transition-colors'>
+                    <div className='hidden md:flex gap-2 hover:text-tertiary transition-colors'>
                         <UserCircle className="h-6 w-6" />
                     </div>
 

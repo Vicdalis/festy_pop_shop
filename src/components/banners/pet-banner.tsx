@@ -31,12 +31,12 @@ const PetBanner: React.FC<PetBannerProps> = ({ imagesUrl, altText = "Best Employ
     const keyframes = `@keyframes ${animationName} { ${keyframesParts.join(' ')} }`;
 
     return (
-    <div className="pet-banner bg-[url(/shop/background.jpg)] bg-cover bg-center bg-fixed flex items-center justify-space-around p-8 min-h-[220px] shadow-[0_2px_8px_rgba(0,0,0,0.07)]">
+    <div className="pet-banner bg-[url(/shop/background.jpg)] bg-cover bg-center bg-fixed flex flex-wrap md:flex-nowrap items-center justify-space-around p-8 min-h-[220px] shadow-[0_2px_8px_rgba(0,0,0,0.07)]">
         <div className="flex-1 z-1">
-            <h2 className='text-white m-0 bold text-3xl md:text-4xl font-bold'>
+            <h2 className='text-white m-0 bold text-3xl md:text-4xl font-bold text-center md:text-left'>
                 Conoce a nuestra mejor empleada!
             </h2>
-            <p className='text-white my-4 text-lg'>Te presentamos a Raya, nuestra empleada más solicitada</p>
+            <p className='text-white my-4 text-lg text-center md:text-left'>Te presentamos a Raya, nuestra empleada más solicitada</p>
         </div>
         <div className="gallery">
            

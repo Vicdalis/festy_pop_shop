@@ -30,7 +30,7 @@ export default function ProductBannerComponent() { //Filter Products from type o
                                 {/* Dark overlay - adjust opacity as needed */}
                                 <div className="absolute inset-0 bg-black/40 rounded-2xl"></div>
                                 {/* Content on top */}
-                                <span className="font-semibold z-1 text-shadow-lg text-subtitles font-title text-white uppercase">{product.name}</span>
+                                <span className="font-semibold z-1 text-shadow-lg md:text-subtitles text-[1.3rem] font-title text-white uppercase">{product.name}</span>
                             </motion.div>
                         </Link>
                     ))}

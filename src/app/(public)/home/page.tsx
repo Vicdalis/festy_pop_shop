@@ -12,7 +12,9 @@ import Image from 'next/image';
 import PetBanner from "@/components/banners/pet-banner";
 import ProductBannerComponent from "../../../components/banners/product-banner";
 import AnimatedPaintDropSeparator from "@/components/ui/separators.tsx/paint-drop-animated-separator";
-
+import ProductSlider from "@/components/ui/slider";
+import Product from '@/components/ui/product';
+import WavesSeparator from "@/components/ui/separators.tsx/waves-separator";
 
 const featured = MOCK_PRODUCTS.filter((p: any) => p.featured);
 
@@ -22,9 +24,11 @@ export default function HomePage() {
     { name: "Piñatas", price: "$299", image: "/products/pinatas/pinata1.jpg" },
     { name: "Figuras de Anime", price: "$149", image: "/products/pinatas/pinata_2.jpeg" },
     { name: "Chupeteras", price: "$199", image: "/products/pinatas/pinata_3.jpeg" },
-    // { name: "Corona de Adviento", price: "$249", image: "/products/pinatas/pinata_4.jpeg" },
-    // { name: "Mantel Navideño", price: "$89", image: "/products/pinatas/pinata_5.jpeg" },
-    // { name: "Set de Nochebuena", price: "$499", image: "/products/pinatas/pinata_6.jpg" },
+    { name: "Corona de Adviento", price: "$249", image: "/products/pinatas/pinata_4.jpeg" },
+    { name: "Mantel Navideño", price: "$89", image: "/products/pinatas/pinata_5.jpeg" },
+    { name: "Set de Nochebuena", price: "$499", image: "/products/pinatas/pinata_6.jpg" },
+    { name: "Set de Nochebuena", price: "$499", image: "/products/pinatas/pinata_7.jpg" },
+    { name: "Set de Nochebuena", price: "$499", image: "/products/pinatas/pinata_8.jpg" },
   ];
 
   const petImages = [
@@ -36,7 +40,6 @@ export default function HomePage() {
   return (
     <div>
       <div className="min-h-screen">
-        {/* Hero bg-[url(/shop/Tienda.jpg)] */}
         <div>
           <section className="relative overflow-hidden bg-[url(/shop/entrada1.jpg)] bg-cover bg-start bg-fixed before:absolute before:inset-0 before:bg-black/50 before:content-[''] py-20 md:py-32">
             <div className="container-custom text-center relative z-10">
@@ -95,8 +98,8 @@ export default function HomePage() {
                 <Title mainTitle="Productos Personalizados" subtitle="Realizamos pedidos a tu gusto por encargo " version="light" />
               </div>
               <div className="bg-white/15 backdrop-blur-sm rounded-2xl p-6 text-center hover:bg-white/25 transition-all duration-300 hover:scale-[1.03] mb-8 cursor-pointer border border-white/20">
-                <p className="mb-[22px] text-[20px] font-semibold text-left text-light-cream">¿Cómo hacer un pedido personalizado?</p>
-                <div className="flex text-left gap-[12px]">
+                <p className="mb-[22px] text-[20px] font-semibold text-center md:text-left text-light-cream">¿Cómo hacer un pedido personalizado?</p>
+                <div className="flex flex-wrap md:flex-nowrap text-left gap-[22px] md:gap-[12px]">
                   <p className="flex  gap-[19px]">
                     <span className="text-[30px] text-center font-semibold rounded-full w-[70px] text-main bg-light-cream self-center">1</span>
                     <div>
@@ -121,22 +124,10 @@ export default function HomePage() {
                 </div>
 
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {seasonProducts.map((product, index) => (
-                  <div
-                    key={product.name}
-                    className="text-center hover:bg-white/25 transition-all duration-300 hover:scale-[1.03] cursor-pointer"
-                  >
-                    <Image
-                      key={index}
-                      src={product.image}
-                      alt={`${product.name} ${index + 1}`}
-                      width={150}
-                      height={150}
-                      className="object-contain w-full h-full rounded-xl"
-                    />
-                  </div>
-                ))}
+
+              <ProductSlider seasonProducts={seasonProducts} />
+              <div className="w-full text-center mt-4">
+              <Button  className="mt-6 bg-main"> Hacer un pedido</Button>
               </div>
             </div>
           </section>
@@ -147,53 +138,28 @@ export default function HomePage() {
         <section className="py-16 bg-muted/50 bg-light-cream">
           <Title mainTitle="Temáticas Populares" subtitle="Encuentra todo lo que necesitas para cada celebración" />
 
-          <div className="grid grid-cols-2 px-16 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 px-16 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {OCCASIONS.map((occasion) => (
               <Link key={occasion} href={`/catalogue?occasion=${occasion}`}>
                 <motion.div
                   whileHover={{ scale: 1.05, y: -4 }}
-                  className={`flex flex-col items-center justify-start gap-6 p-6  rounded-2xl ${OCCASION_COLORS[occasion as keyof typeof OCCASION_COLORS]} border border-transparent hover:border-primary/50 hover:shadow-lg transition-shadow cursor-pointer h-94`}
+                  className={`flex flex-col items-center justify-start gap-6 p-6 rounded-2xl md:bg-size-[250px] ${OCCASION_COLORS[occasion as keyof typeof OCCASION_COLORS]} border border-transparent hover:border-primary/50 hover:shadow-lg transition-shadow cursor-pointer h-94`}
                 >
-                  <span className="font-semibold text-shadow-xs text-titles bold text-white uppercase bold">{occasion}</span>
+                  <span className="font-semibold text-shadow-xs text-subtitles bold text-white uppercase bold">{occasion}</span>
                 </motion.div>
               </Link>
             ))}
           </div>
+          
         </section>
         <PetBanner imagesUrl={petImages} />
-        <section className="py-16 bg-muted/50">
-          <Title mainTitle="Piñatas " subtitle="Tenemos piñatas de para cualquier tipo de celebración" />
+        <section className="py-16 bg-muted/50 bg-light-cream">
+          <Title mainTitle="Productos destacados " subtitle="Combos imperdibles" />
           <div className="container-custom">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {featured.map((product, i) => (
-                <motion.div
-                  key={product.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.1 }}
-                >
-                  <Link href={`/catalogue?product=${product.id}`}>
-                    <Card className="overflow-hidden group hover:shadow-xl transition-shadow border-2 border-transparent hover:border-primary/30">
-                      <div className="aspect-square overflow-hidden">
-                        <img
-                          src={product.image}
-                          alt={product.name}
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                          loading="lazy"
-                        />
-                      </div>
-                      <div className="p-4">
-                        <h3 className="font-display font-semibold text-lg mb-1 line-clamp-1">{product.name}</h3>
-                        <p className="text-muted-foreground text-sm mb-2 line-clamp-2">{product.description}</p>
-                        <span className="text-primary font-bold text-lg">${product.price.toFixed(2)}</span>
-                      </div>
-                    </Card>
-                  </Link>
-                </motion.div>
-              ))}
-            </div>
+              <Product />
           </div>
         </section>
+        <WavesSeparator color="bg-light-cream" />
 
         {/* CTA */}
         <ContactUsBanner />

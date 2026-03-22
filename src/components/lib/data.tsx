@@ -34,8 +34,8 @@ export const BALLOON_TYPES = [
 
     */
 export const OCCASION_COLORS: Record<string, string> = {
-    Cumpleaños: 'bg-[#99D92B] bg-[url(/shop/cumpleanos.png)]  bg-no-repeat bg-bottom bg-size-[250px]',
-    'Baby Shower': 'bg-[#36B5EB] bg-[url(/shop/ducha-de-bebe.png)] bg-no-repeat bg-bottom bg-size-[220px]',
+    Cumpleaños: 'bg-[#99D92B] bg-[url(/shop/cumpleanos.png)]  bg-no-repeat bg-bottom bg-size-[250px] ',
+    'Baby Shower': 'bg-[#36B5EB] bg-[url(/shop/ducha-de-bebe.png)] bg-no-repeat bg-bottom bg-size-[200px]',
     Navidad: 'bg-[#ff0034] bg-[url(/shop/monigote-de-nieve.png)] bg-no-repeat bg-bottom bg-size-[250px]',
     Halloween: 'bg-[#FF7033] bg-[url(/shop/calabaza.png)] bg-no-repeat bg-bottom bg-size-[220px]',
 };
