@@ -18,7 +18,7 @@ export default function ProductBannerComponent() { //Filter Products from type o
                 {/* Left Items select */}
                 <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
                     {products.map((product, index) => (
-                        <Link key={product.id} href={`/catalogue?product=${product.id}`}>
+                        <Link key={product.id} href={`/productos?product=${product.id}`}>
                             <motion.div
                                 whileHover={{ scale: 1.05, y: -4 }}
                                 className="relative flex flex-col items-center justify-center gap-6 p-6 border border-transparent cursor-pointer h-64"

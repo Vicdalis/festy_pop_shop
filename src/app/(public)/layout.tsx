@@ -11,7 +11,7 @@ export default function PublicLayout({
             <body>  
                 <Header/>
                 {children}
-                <Footer/>
+                <Footer />
             </body>
         </html>
     );

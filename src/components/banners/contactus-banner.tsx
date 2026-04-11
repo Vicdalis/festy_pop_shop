@@ -1,5 +1,4 @@
 import { motion } from "framer-motion";
-import Link from "next/link";
 import Button from "@/components/ui/button";
 import Title from "../ui/title";
 import { useState } from "react";
@@ -17,7 +16,6 @@ export default function ContactUsBanner() {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        // Placeholder: replace with real submit logic
         console.log("Contact form submitted:", formState);
     };
 
@@ -33,7 +31,7 @@ export default function ContactUsBanner() {
             >
                 <div className="grid grid-cols-1  md:grid-cols-2 gap-8 items-start text-black text-foreground ">
                     {/* Left: Contact form */}
-                    <div className="bg-card/50 rounded-2xl p-6 bg-[#FFF6EE]">
+                    <div className="bg-card/50 rounded-2xl p-6 bg-[#FFF6EE] h-full">
                         <h3 className="text-xl font-semibold mb-4 text-main">Escríbenos</h3>
                         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                             <label className="text-sm">Nombre</label>
@@ -57,16 +55,17 @@ export default function ContactUsBanner() {
                     {/* Right: Cards */}
                     <div className="flex flex-col gap-6 h-full">
                         <div className="bg-main text-white rounded-2xl p-6 flex flex-wrap md:flex-nowrap items-center gap-6 shadow-lg">
-                            <div className="p-4 rounded-lg bg-white/10">
-                                {/* <Phone className="h-12 w-12 text-white" /> */}
-                                <Image
-                                    src="/whatsapp.png"
-                                    alt="Whatssap logo"
-                                    width={40}
-                                    height={40}
-                                    className="object-contain"
-                                />
+                                <a href={CONTACT.PHONE_LINK} target="_blank" aria-label="WhatsApp" className="group">
+                            <div className="p-4 rounded-lg bg-white/10 transition duration-300 group-hover:scale-110 group-hover:bg-white/20 group-hover:shadow-lg">
+                                    <Image
+                                        src="/whatsapp.png"
+                                        alt="Whatssap logo"
+                                        width={40}
+                                        height={40}
+                                        className="object-contain transition duration-300 group-hover:rotate-6"
+                                    />
                             </div>
+                                </a>
                             <div>
                                 <p className="text-sm font-semibold uppercase opacity-90">Comunícate con nosotros </p>
                                 <p className="text-2xl md:text-3xl font-extrabold text-[#ffedfc] mt-1">{CONTACT.PHONE}</p>

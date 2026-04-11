@@ -8,20 +8,20 @@ import { useEffect, useRef, useState } from 'react';
 
 const NAV_LINKS = [
     { to: "/", label: "Inicio" },
-    { to: "/balloons", label: "Globos" },
+    { to: "/productos?tipo=Globos", label: "Globos" },
     {
-        to: "/catalogue?occasion=",
+        to: "/productos?occasion=",
         label: "Ocasiones",
         subItems: [
-            { to: "/catalogue?occasion=Kids", label: "Niños" },
-            { to: "/catalogue?occasion=Adults", label: "Adultos" },
-            { to: "/catalogue?occasion=Halloween", label: "Halloween" },
-            { to: "/catalogue?occasion=Christmas", label: "Navidad" },
-            { to: "/catalogue?occasion=Birthday", label: "Cumpleaños" },
-            { to: "/catalogue?occasion=Baby+Shower", label: "Baby Shower" },
+            { to: "/productos?occasion=Kids", label: "Niños" },
+            { to: "/productos?occasion=Adults", label: "Adultos" },
+            { to: "/productos?occasion=Halloween", label: "Halloween" },
+            { to: "/productos?occasion=Christmas", label: "Navidad" },
+            { to: "/productos?occasion=Birthday", label: "Cumpleaños" },
+            { to: "/productos?occasion=Baby+Shower", label: "Baby Shower" },
         ],
     },
-    { to: "/party", label: "Piñateria" },
+    { to: "/productos?label=Piñateria", label: "Piñateria" },
     { to: "/productos", label: "Catálogo" },
     { to: "/contacto", label: "Contacto" },
 ];
@@ -44,8 +44,7 @@ export default function Header() {
     }, []);
 
     return (
-        <header className=" top-0 z-50 w-full bg-card/80  backdrop-blur-md">
-            {/* Pre-header: centered logo + login icon right */}
+        <header className="relative top-0 z-50 w-full bg-card/80 backdrop-blur-md">
             <div className="relative flex h-12 items-center bg-main">
                 <div className="md:hidden flex absolute left-3  items-center h-10">
                     <button className="p-2" onClick={() => setOpen(!open)} aria-label="Toggle menu">
@@ -59,27 +58,28 @@ export default function Header() {
                         width={140}
                         height={40}
                         className="object-contain width-[140px] md:width-[160px]"
-                        />
+                    />
                 </Link>
-                <div className="hidden md:flex absolute left-0 right-0 justify-center pointer-events-none">
-                   {NAV_LINKS.map((link) =>
+                <nav className="hidden md:flex absolute inset-x-0 z-20 justify-center gap-2">
+                    {NAV_LINKS.map((link) =>
                         link.subItems ? (
-                            <div key={link.label} className="relative pointer-events-auto" ref={dropdownRef}>
+                            <div key={link.label} className="relative" ref={dropdownRef}>
                                 <button
+                                    type="button"
                                     onClick={() => setOccasionsOpen((v) => !v)}
-                                    className="px-4 py-1.5 cursor-pointer rounded-full text-sm font-semibold transition-colors hover:bg-muted flex items-center gap-1 bg-primary text-primary-foreground"
+                                    className="flex items-center gap-1 rounded-full bg-primary px-4 py-1.5 text-sm font-semibold text-primary-foreground transition-colors hover:text-light-pink"
                                 >
                                     {link.label}
                                     {!occasionsOpen ? <ChevronDown className="h-3.5 w-3.5 transition-transform" /> : <ChevronUp className="h-3.5 w-3.5 transition-transform" />}
                                 </button>
                                 {occasionsOpen && (
-                                    <div className="absolute top-full bg-white left-1/2 -translate-x-1/2 mt-2 w-48 bg-card  rounded-xl shadow-lg py-2 z-50">
+                                    <div className="absolute left-1/2 top-full z-[60] mt-2 w-48 -translate-x-1/2 rounded-xl bg-main py-2 shadow-lg ring-1 ring-white/15">
                                         {link.subItems.map((sub) => (
                                             <Link
                                                 key={sub.to}
                                                 href={sub.to}
                                                 onClick={() => setOccasionsOpen(false)}
-                                                className="block px-4 py-2 text-sm font-medium hover:bg-main hover:text-white transition-colors"
+                                                className="block px-4 py-2 text-sm font-medium text-white transition-colors hover:text-light-pink"
                                             >
                                                 {sub.label}
                                             </Link>
@@ -91,66 +91,26 @@ export default function Header() {
                             <Link
                                 key={link.to}
                                 href={link.to}
-                                className="px-4 py-1.5 rounded-full text-sm font-semibold transition-colors bg-primary text-primary-foreground pointer-events-auto"
+                                className="rounded-full bg-primary px-4 py-1.5 text-sm font-semibold text-primary-foreground transition-colors hover:text-light-pink"
 
                             >
                                 {link.label}
                             </Link>
                         )
                     )}
+                </nav>
+                <div className="hidden md:absolute right-28 flex items-center gap-3 text-muted-foreground">
+                    <a href={CONTACT.PHONE_LINK} className="text-sm hover:underline">{CONTACT.PHONE}</a>
+                    <span className="hidden md:inline">|</span>
                 </div>
-                    <div className="hidden md:absolute right-28 flex items-center gap-3 text-muted-foreground">
-                            <a href={CONTACT.PHONE_LINK} className="text-sm hover:underline">{CONTACT.PHONE}</a>
-                        <span className="hidden md:inline">|</span>
-                    </div>
-                <a href="/login" target="_blank" rel="noopener noreferrer" className=" flex absolute right-8 gap-6 text-muted-foreground transition-colors">
-                    <div className='hidden md:flex gap-2 hover:text-tertiary transition-colors'>
+                <a href="/login" target="_blank" rel="noopener noreferrer" className="flex absolute right-8 gap-6 text-primary-foreground transition-colors">
+                    <div className='hidden md:flex gap-2 transition-colors hover:text-light-pink'>
                         <UserCircle className="h-6 w-6" />
                     </div>
 
-                    <ShoppingBasket className="h-6 w-6 hover:text-tertiary transition-colors" />
+                    {/* <ShoppingBasket className="h-6 w-6 hover:text-tertiary transition-colors" /> */}
                 </a>
             </div>
-
-            {/* <nav className="hidden md:flex items-center bg-linear-65 bg-white border-b-[0.5] border-main justify-center gap-1 h-11 text-black font-bold">
-                {NAV_LINKS.map((link) =>
-                    link.subItems ? (
-                        <div key={link.label} className="relative " ref={dropdownRef}>
-                            <button
-                                onClick={() => setOccasionsOpen((v) => !v)}
-                                className="px-4 py-1.5 cursor-pointer rounded-full text-sm font-semibold transition-colors hover:bg-muted flex items-center gap-1 bg-primary text-primary-foreground"
-
-                            >
-                                {link.label}
-                                {!occasionsOpen ? <ChevronDown className="h-3.5 w-3.5 transition-transform" /> : <ChevronUp className="h-3.5 w-3.5 transition-transform" />}
-                            </button>
-                            {occasionsOpen && (
-                                <div className="absolute top-full bg-white left-1/2 -translate-x-1/2 mt-2 w-48 bg-card  rounded-xl shadow-lg py-2 z-50">
-                                    {link.subItems.map((sub) => (
-                                        <Link
-                                            key={sub.to}
-                                            href={sub.to}
-                                            onClick={() => setOccasionsOpen(false)}
-                                            className="block px-4 py-2 text-sm font-medium hover:bg-main hover:text-white transition-colors"
-                                        >
-                                            {sub.label}
-                                        </Link>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
-                    ) : (
-                        <Link
-                            key={link.to}
-                            href={link.to}
-                            className="px-4 py-1.5 rounded-full text-sm font-semibold transition-colors bg-primary text-primary-foreground"
-
-                        >
-                            {link.label}
-                        </Link>
-                    )
-                )}
-            </nav> */}
 
             {/* Mobile nav */}
             {open && (
@@ -186,12 +146,6 @@ export default function Header() {
                                 href={link.to}
                                 className="hover:bg-muted transition-colors"
                                 onClick={() => setOpen(false)}
-                            // className={cn(
-                            //     "px-4 py-3 rounded-xl text-sm font-semibold transition-colors text-center",
-                            //     location.pathname === link.to
-                            //         ? "bg-primary text-primary-foreground"
-                            //         : "hover:bg-muted"
-                            // )}
                             >
                                 {link.label}
                             </Link>

@@ -153,7 +153,7 @@ export default function ProductsPage() {
                                 Catalogo creativo para fiestas personalizadas
                             </span>
                             <h1 className="max-w-3xl text-4xl font-bold leading-tight text-[#4b2737] md:text-6xl">
-                                Encuentra productos por <span className="text-[#e7467d]">color</span> o
+                                Encuentra productos por <span className="text-[#e7467d]">ocasión</span> o
                                 {' '}
                                 <span className="text-[#fe9a4e]">personaje</span>
                             </h1>
@@ -161,17 +161,6 @@ export default function ProductsPage() {
                                 Armamos una vitrina pensada para que la busqueda sea rapida y visual. Filtra segun
                                 la paleta de tu fiesta o la tematica que quieres destacar.
                             </p>
-
-                            <div className="mt-8 flex flex-wrap gap-3">
-                                <div className="rounded-2xl bg-white/80 px-4 py-3 shadow-sm ring-1 ring-[#f6d3c0]">
-                                    <p className="text-sm text-[#8a6a76]">Productos</p>
-                                    <p className="text-2xl font-bold text-[#e7467d]">{products.length}</p>
-                                </div>
-                                <div className="rounded-2xl bg-white/80 px-4 py-3 shadow-sm ring-1 ring-[#f6d3c0]">
-                                    <p className="text-sm text-[#8a6a76]">Personajes</p>
-                                    <p className="text-2xl font-bold text-[#fe9a4e]">{characterOptions.length - 1}</p>
-                                </div>
-                            </div>
                         </div>
 
                         <motion.div
@@ -203,12 +192,14 @@ export default function ProductsPage() {
                                                 sizes="(max-width: 768px) 100vw, 20vw"
                                             />
                                         </div>
-                                        <div className="rounded-[1.5rem] bg-[linear-gradient(135deg,#e7467d_0%,#fe9a4e_100%)] p-5 text-white">
-                                            <p className="text-sm uppercase tracking-[0.18em] text-white/70">Filtro activo</p>
-                                            <p className="mt-2 text-2xl font-bold">{selectedColor}</p>
-                                            <p className="mt-1 text-sm text-white/85">
-                                                {selectedCharacter === 'Todos' ? 'Todos los personajes' : selectedCharacter}
-                                            </p>
+                                        <div className="relative min-h-[140px] overflow-hidden rounded-[1.5rem]">
+                                            <Image
+                                                src="/products/product-category/pinata_pony.jpg"
+                                                alt="Pinata colorida de My Little Pony"
+                                                fill
+                                                className="object-cover"
+                                                sizes="(max-width: 768px) 100vw, 20vw"
+                                            />
                                         </div>
                                     </div>
                                 </div>
