@@ -22,7 +22,7 @@ const NAV_LINKS = [
         ],
     },
     { to: "/party", label: "Piñateria" },
-    { to: "/catalogue", label: "Catálogo" },
+    { to: "/productos", label: "Catálogo" },
     { to: "/contacto", label: "Contacto" },
 ];
 

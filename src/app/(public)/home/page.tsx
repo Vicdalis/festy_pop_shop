@@ -4,7 +4,6 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { Sparkles } from "lucide-react";
 import Button from "@/components/ui/button";
-import Card from "@/components/ui/card";
 import { MOCK_PRODUCTS, OCCASIONS, OCCASION_COLORS } from "@/components/lib/data";
 import ContactUsBanner from "@/components/banners/contactus-banner";
 import Title from "@/components/ui/title";
@@ -13,7 +12,7 @@ import PetBanner from "@/components/banners/pet-banner";
 import ProductBannerComponent from "../../../components/banners/product-banner";
 import AnimatedPaintDropSeparator from "@/components/ui/separators.tsx/paint-drop-animated-separator";
 import ProductSlider from "@/components/ui/slider";
-import Product from '@/components/ui/product';
+import ProductCard, { eItemType, iProduct } from '@/components/ui/product';
 import WavesSeparator from "@/components/ui/separators.tsx/waves-separator";
 
 const featured = MOCK_PRODUCTS.filter((p: any) => p.featured);
@@ -29,6 +28,13 @@ export default function HomePage() {
     { name: "Set de Nochebuena", price: "$499", image: "/products/pinatas/pinata_6.jpg" },
     { name: "Set de Nochebuena", price: "$499", image: "/products/pinatas/pinata_7.jpg" },
     { name: "Set de Nochebuena", price: "$499", image: "/products/pinatas/pinata_8.jpg" },
+  ];
+
+  const featuredProducts: iProduct[] = [
+    { id: 1, name: "Banda y Cintillo F. Cumpleaños", description: "et de Cumpleaños “Feliz Cumpleaños”: Banda de Glitter + Cintillo Holográfico.", price: 34.99, image: "/products/destacados/feliz_cumple.jpg", category: "Decoración", colors: ["Azul", "Plateado", "Dorado", "Rosado", "Fucsia"], occasions: ["Birthday"], featured: true },
+    { id: 2, name: "Set globos Kuromi", description: "Set de globos de Kuromi, 5 piezas. Sirve para aire y helio ", price: 28.99, image: "/products/destacados/kuromi_balloon.jpg", category: "Balloons", colors: ["Rosado", "Negro"], occasions: ["Birthday", "Party Kits"], featured: true },
+    { id: 3, name: "Combo de piñata Mickey", description: " Combo de piñatas cuadrada con 25 piezas de chuchería para rellenar", price: 45.99, image: "/products/destacados/combo.jpg", category: "Combo Piñatas", colors: [], occasions: ["Birthday"] },
+    { id: 4, name: "Set de Globos Labubu", description: "Set de globos labubu, 5 piezas. Disponible en 2 colores", price: 24.99, image: "/products/destacados/labubu.jpg", category: "Balloons", colors: ["Marron", "Rosado"], occasions: ["Birthday", "Party Kits"] },
   ];
 
   const petImages = [
@@ -100,34 +106,34 @@ export default function HomePage() {
               <div className="bg-white/15 backdrop-blur-sm rounded-2xl p-6 text-center hover:bg-white/25 transition-all duration-300 hover:scale-[1.03] mb-8 cursor-pointer border border-white/20">
                 <p className="mb-[22px] text-[20px] font-semibold text-center md:text-left text-light-cream">¿Cómo hacer un pedido personalizado?</p>
                 <div className="flex flex-wrap md:flex-nowrap text-left gap-[22px] md:gap-[12px]">
-                  <p className="flex  gap-[19px]">
+                  <div className="flex  gap-[19px]">
                     <span className="text-[30px] text-center font-semibold rounded-full w-[70px] text-main bg-light-cream self-center">1</span>
                     <div>
                       <span className="text-[18px] font-semibold">15 Días de Anticipación</span>
                       <p>Contáctanos con 15 días de anticipación para asegurar tu pedido</p>
                     </div>
-                  </p>
-                  <p className="flex gap-[19px]">
+                  </div>
+                  <div className="flex gap-[19px]">
                     <span className="text-[30px] text-center font-semibold rounded-full w-[70px] text-main bg-light-cream self-center">2</span>
                     <div>
                       <span className="text-[18px] font-semibold">50% Adelantado</span>
                       <p>Realiza un depósito del 50% para confirmar tu pedido</p>
                     </div>
-                  </p>
-                  <p className="flex gap-[19px]">
+                  </div>
+                  <div className="flex gap-[19px]">
                     <span className="text-[30px] text-center font-semibold rounded-full w-[70px] text-main bg-light-cream self-center">3</span>
                     <div>
                       <span className="text-[18px] font-semibold">Entrega Puntual</span>
                       <p>Recibe tu pedido personalizado en la fecha acordada</p>
                     </div>
-                  </p>
+                  </div>
                 </div>
 
               </div>
 
               <ProductSlider seasonProducts={seasonProducts} />
               <div className="w-full text-center mt-4">
-              <Button  className="mt-6 bg-main"> Hacer un pedido</Button>
+                <Button className="mt-6 bg-main"> Hacer un pedido</Button>
               </div>
             </div>
           </section>
@@ -150,13 +156,25 @@ export default function HomePage() {
               </Link>
             ))}
           </div>
-          
+
         </section>
         <PetBanner imagesUrl={petImages} />
         <section className="py-16 bg-muted/50 bg-light-cream">
           <Title mainTitle="Productos destacados " subtitle="Combos imperdibles" />
           <div className="container-custom">
-              <Product />
+            {
+              featuredProducts.map((product: iProduct) => (
+                <motion.div
+                  key={product.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: product.id * 0.1 }}
+                >
+
+                  <ProductCard buttonType={eItemType.Contact} product={product} />
+                </motion.div>
+              ))
+            }
           </div>
         </section>
         <WavesSeparator color="bg-light-cream" />
