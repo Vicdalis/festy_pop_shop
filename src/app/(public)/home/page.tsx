@@ -2,9 +2,9 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Sparkles } from "lucide-react";
+import { PartyPopper, Sparkles } from "lucide-react";
 import Button from "@/components/ui/button";
-import { MOCK_PRODUCTS, OCCASIONS, OCCASION_COLORS } from "@/components/lib/data";
+import { OCCASIONS, OCCASION_COLORS } from "@/components/lib/data";
 import ContactUsBanner from "@/components/banners/contactus-banner";
 import Title from "@/components/ui/title";
 import Image from 'next/image';
@@ -12,10 +12,9 @@ import PetBanner from "@/components/banners/pet-banner";
 import ProductBannerComponent from "../../../components/banners/product-banner";
 import AnimatedPaintDropSeparator from "@/components/ui/separators.tsx/paint-drop-animated-separator";
 import ProductSlider from "@/components/ui/slider";
-import ProductCard, { eItemType, iProduct } from '@/components/ui/product';
+import { iProduct } from '@/components/ui/product';
 import WavesSeparator from "@/components/ui/separators.tsx/waves-separator";
-
-const featured = MOCK_PRODUCTS.filter((p: any) => p.featured);
+import ProductShowcaseCard from "@/components/products/product-showcase-card";
 
 export default function HomePage() {
 
@@ -55,7 +54,7 @@ export default function HomePage() {
                 transition={{ duration: 0.6 }}
               >
                 <span className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1.5 text-md font-semibold text-primary mb-6">
-                  <Sparkles className="h-4 w-4 text-tertiary" /> Comienza la fiesta con nosotros!
+                  <PartyPopper className="h-6 w-6 text-tertiary" /> Comienza la fiesta con nosotros!
                 </span>
                 <div className="flex items-center justify-center">
 
@@ -78,7 +77,7 @@ export default function HomePage() {
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
                   <Link href="/catalogue">
-                    <Button className="text-lg gap-2">
+                    <Button className="text-lg gap-2 bg-main">
                       Ver Catálogo
                     </Button>
                   </Link>
@@ -161,23 +160,14 @@ export default function HomePage() {
         <PetBanner imagesUrl={petImages} />
         <section className="py-16 bg-muted/50 bg-light-cream">
           <Title mainTitle="Productos destacados " subtitle="Combos imperdibles" />
-          <div className="container-custom">
-            {
-              featuredProducts.map((product: iProduct) => (
-                <motion.div
-                  key={product.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: product.id * 0.1 }}
-                >
-
-                  <ProductCard buttonType={eItemType.Contact} product={product} />
-                </motion.div>
-              ))
-            }
+          <div className="container-custom mx-auto max-w-7xl px-5">
+            <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+              {featuredProducts.map((product: iProduct, index) => (
+                <ProductShowcaseCard key={product.id} product={product} index={index} />
+              ))}
+            </div>
           </div>
         </section>
-        <WavesSeparator color="bg-light-cream" />
 
         {/* CTA */}
         <ContactUsBanner />

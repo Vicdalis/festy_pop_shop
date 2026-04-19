@@ -20,7 +20,7 @@ export default function ContactUsBanner() {
     };
 
     return (
-        <section className="py-20 container-custom">
+        <section className="py-15 container-custom">
             <Title mainTitle="Vísitanos" subtitle="Descubre cómo podemos hacer que tu próxima celebración sea inolvidable" />
 
             <motion.div

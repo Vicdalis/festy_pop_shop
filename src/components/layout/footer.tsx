@@ -82,7 +82,7 @@ export default function Footer() {
                                     <a href={CONTACT.SUPPORT_EMAIL_LINK} className="hover:underline">{CONTACT.SUPPORT_EMAIL}</a>
                                 </li>
                                 <li className="flex items-center gap-2">
-                                    <MapPin className="h-8 w-4 text-tertiary" />
+                                    <MapPin className="h-8 w-8 text-tertiary" />
                                     {CONTACT.ADDRESS}
                                 </li>
                             </ul>

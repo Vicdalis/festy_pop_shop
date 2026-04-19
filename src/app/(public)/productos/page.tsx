@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { ChevronDown, Palette, Sparkles, Tag } from 'lucide-react';
 import Title from '@/components/ui/title';
+import ProductShowcaseCard from '@/components/products/product-showcase-card';
 
 type CatalogProduct = {
     id: number;
@@ -150,7 +151,7 @@ export default function ProductsPage() {
                         <div>
                             <span className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/70 bg-white/75 px-4 py-2 text-sm font-semibold text-[#d64271] shadow-sm backdrop-blur">
                                 <Sparkles className="h-4 w-4" />
-                                Catalogo creativo para fiestas personalizadas
+                                Realizamos pedidos personalizados
                             </span>
                             <h1 className="max-w-3xl text-4xl font-bold leading-tight text-[#4b2737] md:text-6xl">
                                 Encuentra productos por <span className="text-[#e7467d]">ocasión</span> o
@@ -158,8 +159,7 @@ export default function ProductsPage() {
                                 <span className="text-[#fe9a4e]">personaje</span>
                             </h1>
                             <p className="mt-5 max-w-2xl text-base leading-7 text-[#6b4b56] md:text-lg">
-                                Armamos una vitrina pensada para que la busqueda sea rapida y visual. Filtra segun
-                                la paleta de tu fiesta o la tematica que quieres destacar.
+                                Conoce lo que podemos ofrecer para tus fiestas especiales o inspírate para realizar un pedido enfocado en ti
                             </p>
                         </div>
 
@@ -169,11 +169,11 @@ export default function ProductsPage() {
                             transition={{ duration: 0.5 }}
                             className="relative"
                         >
-                            <div className="absolute -left-4 top-8 h-24 w-24 rounded-[2rem] bg-[#ffcad8] rotate-12" />
+                            <div className="absolute -left-4 top-8 h-24 w-24 rounded-2xl bg-[#ffcad8] rotate-12" />
                             <div className="absolute -right-3 bottom-8 h-28 w-28 rounded-full bg-[#ffd78d]" />
-                            <div className="relative overflow-hidden rounded-[2rem] border border-white/60 bg-white/70 p-3 shadow-[0_25px_80px_rgba(231,70,125,0.14)] backdrop-blur">
+                            <div className="relative overflow-hidden rounded-2xl border border-white/60 bg-white/70 p-3 shadow-[0_25px_80px_rgba(231,70,125,0.14)] backdrop-blur">
                                 <div className="grid gap-3 sm:grid-cols-2">
-                                    <div className="relative min-h-[220px] overflow-hidden rounded-[1.5rem]">
+                                    <div className="relative min-h-[220px] overflow-hidden rounded-2xl">
                                         <Image
                                             src="/products/destacados/kuromi_balloon.jpg"
                                             alt="Decoracion de Kuromi"
@@ -183,7 +183,7 @@ export default function ProductsPage() {
                                         />
                                     </div>
                                     <div className="grid gap-3">
-                                        <div className="relative min-h-[104px] overflow-hidden rounded-[1.5rem]">
+                                        <div className="relative min-h-[104px] overflow-hidden rounded-2xl">
                                             <Image
                                                 src="/products/pinatas/pinata_frozen.png"
                                                 alt="Pinata de Frozen"
@@ -192,7 +192,7 @@ export default function ProductsPage() {
                                                 sizes="(max-width: 768px) 100vw, 20vw"
                                             />
                                         </div>
-                                        <div className="relative min-h-[140px] overflow-hidden rounded-[1.5rem]">
+                                        <div className="relative min-h-[140px] overflow-hidden rounded-2xl">
                                             <Image
                                                 src="/products/product-category/pinata_pony.jpg"
                                                 alt="Pinata colorida de My Little Pony"
@@ -211,19 +211,16 @@ export default function ProductsPage() {
 
             <section className="container-custom mx-auto max-w-7xl px-5 py-12 md:py-16">
                 <Title
-                    mainTitle="Filtra y combina"
-                    subtitle="Explora el catalogo con una distribucion estilo ecommerce: filtros al lado izquierdo y productos al frente."
+                    mainTitle="Catálogo"
+                    subtitle="Explora nuestros productos disponibles y algunos encargos anteriores que podrían inspirarte"
                 />
 
                 <div className="grid gap-8 lg:grid-cols-[280px_minmax(0,1fr)] lg:items-start">
                     <aside className="lg:sticky lg:top-24">
-                        <div className="max-h-[calc(100vh-7rem)] overflow-hidden rounded-[2rem] border border-[#f3d7c6] bg-white shadow-[0_18px_45px_rgba(161,96,70,0.08)]">
+                        <div className="max-h-[calc(100vh-7rem)] overflow-hidden rounded-2xl border border-[#f3d7c6] bg-white shadow-[0_18px_45px_rgba(161,96,70,0.08)]">
                             <div className="bg-[linear-gradient(135deg,#fff5ee_0%,#fff0f5_100%)] p-5">
                                 <p className="text-xs font-bold uppercase tracking-[0.22em] text-[#b86c45]">Filtros</p>
                                 <h2 className="mt-2 text-2xl font-bold text-[#4b2737]">Refina tu busqueda</h2>
-                                <p className="mt-2 text-sm leading-6 text-[#6f5b65]">
-                                    Combina color y personaje para ver productos que encajan mejor con tu celebracion.
-                                </p>
                             </div>
 
                             <div className="max-h-[calc(100vh-14rem)] space-y-6 overflow-y-auto p-5">
@@ -356,9 +353,9 @@ export default function ProductsPage() {
                     </aside>
 
                     <div className="space-y-6">
-                        <div className="flex flex-col gap-4 rounded-[2rem] border border-[#f3d7c6] bg-white/80 p-5 shadow-sm md:flex-row md:items-center md:justify-between">
+                        <div className="flex flex-col gap-4 rounded-2xl border border-[#f3d7c6] bg-white/80 p-5 shadow-sm md:flex-row md:items-center md:justify-between">
                             <div>
-                                <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#b47b62]">Catalogo</p>
+                                <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#b47b62]">Catálogo</p>
                                 <p className="mt-2 text-sm text-[#6f5b65]">
                                     Mostrando <span className="font-bold text-[#e7467d]">{filteredProducts.length}</span> productos
                                     {selectedColor !== 'Todos' && ` en ${selectedColor}`}
@@ -381,65 +378,18 @@ export default function ProductsPage() {
 
                         <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
                     {filteredProducts.map((product, index) => (
-                        <motion.article
+                        <ProductShowcaseCard
                             key={product.id}
-                            initial={{ opacity: 0, y: 18 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.35, delay: index * 0.05 }}
-                            className="group flex h-full flex-col overflow-hidden rounded-[2rem] border border-[#f1ddce] bg-white shadow-[0_20px_50px_rgba(161,96,70,0.08)]"
-                        >
-                            <div className="relative h-72 overflow-hidden">
-                                <Image
-                                    src={product.image}
-                                    alt={product.name}
-                                    fill
-                                    className="object-cover transition duration-500 group-hover:scale-105"
-                                    sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
-                                />
-                                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/50 to-transparent p-5">
-                                    <span className="inline-flex rounded-full bg-white/90 px-3 py-1 text-xs font-bold uppercase tracking-[0.18em] text-[#7f4c5e]">
-                                        {product.category}
-                                    </span>
-                                </div>
-                            </div>
-
-                            <div className="flex flex-1 flex-col gap-4 p-5">
-                                <div className="flex items-start justify-between gap-3">
-                                    <div>
-                                        <h3 className="text-2xl font-bold text-[#4b2737]">{product.name}</h3>
-                                        <p className="mt-1 text-sm font-semibold text-[#e7467d]">{product.character}</p>
-                                    </div>
-                                </div>
-
-                                <p className="text-sm leading-6 text-[#6f5b65]">{product.description}</p>
-
-                                <div className="flex flex-wrap gap-2">
-                                    {product.colors.map((color) => (
-                                        <span
-                                            key={`${product.id}-${color}`}
-                                            className="inline-flex items-center gap-2 rounded-full bg-[#fff4ec] px-3 py-1.5 text-xs font-semibold text-[#7a5662]"
-                                        >
-                                            <span className={`h-3 w-3 rounded-full border border-black/10 ${colorClasses[color] ?? 'bg-neutral-200'}`} />
-                                            {color}
-                                        </span>
-                                    ))}
-                                </div>
-
-                                <a
-                                    href={`https://wa.me/584242214781?text=Hola,%20quiero%20cotizar%20${encodeURIComponent(product.name)}`}
-                                    target="_blank"
-                                    rel="noreferrer"
-                                    className="mt-auto inline-flex w-full items-center justify-center rounded-full bg-[linear-gradient(135deg,#e7467d_0%,#fe9a4e_100%)] px-4 py-3 text-sm font-bold text-white transition hover:opacity-95"
-                                >
-                                    Cotizar este producto
-                                </a>
-                            </div>
-                        </motion.article>
+                            product={product}
+                            index={index}
+                            subtitle={product.character}
+                            sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
+                        />
                     ))}
                         </div>
 
                         {filteredProducts.length === 0 && (
-                            <div className="rounded-[2rem] border border-dashed border-[#efc9b8] bg-white/80 px-6 py-14 text-center">
+                            <div className="rounded-2xl border border-dashed border-[#efc9b8] bg-white/80 px-6 py-14 text-center">
                                 <p className="text-2xl font-bold text-[#4b2737]">No encontramos coincidencias</p>
                                 <p className="mt-3 text-[#6f5b65]">
                                     Prueba otra combinacion de color o personaje para seguir explorando el catalogo.

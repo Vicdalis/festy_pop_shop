@@ -40,7 +40,7 @@ export default function ProductCard({ buttonType, product }: { buttonType: eItem
                             <h3 className="font-display font-semibold text-lg mb-1 line-clamp-1">{product.name}</h3>
                             <p className="text-muted-foreground text-sm mb-2 line-clamp-2">{product.description}</p>
                             <div className="w-full flex justify-center">
-                                <Button className="flex gap-2 mt-6" 
+                                <Button className="mt-6 flex gap-2 uppercase" 
                                 
                                 >Cotizar <Image
                                     src={buttonType === eItemType.Contact ? '' : ''}

@@ -17,10 +17,6 @@ export default function ContactPage(){
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.5 }}
                         >
-                            <span className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/70 bg-white/80 px-4 py-2 text-sm font-semibold text-[#d64271] shadow-sm backdrop-blur">
-                                <Sparkles className="h-4 w-4" />
-                                Estamos listos para ayudarte
-                            </span>
                             <h1 className="max-w-3xl text-4xl font-bold leading-tight text-[#4b2737] md:text-6xl">
                                 Hablemos de tu
                                 {' '}
