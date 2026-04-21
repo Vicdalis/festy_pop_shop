@@ -1,7 +1,7 @@
 "use client";
 
 import { CONTACT } from '@/config/site';
-import { ChevronDown, ChevronUp, Menu, ShoppingBasket, UserCircle, X } from 'lucide-react';
+import { ChevronDown, ChevronUp, Menu, X } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
@@ -10,18 +10,18 @@ const NAV_LINKS = [
     { to: "/", label: "Inicio" },
     { to: "/productos?tipo=Globos", label: "Globos" },
     {
-        to: "/productos?occasion=",
+        to: "/productos?ocasion=",
         label: "Ocasiones",
         subItems: [
-            { to: "/productos?occasion=Kids", label: "Niños" },
-            { to: "/productos?occasion=Adults", label: "Adultos" },
-            { to: "/productos?occasion=Halloween", label: "Halloween" },
-            { to: "/productos?occasion=Christmas", label: "Navidad" },
-            { to: "/productos?occasion=Birthday", label: "Cumpleaños" },
-            { to: "/productos?occasion=Baby+Shower", label: "Baby Shower" },
+            { to: "/productos?ocasion=Niños", label: "Niños" },
+            { to: "/productos?ocasion=Adultos", label: "Adultos" },
+            { to: "/productos?ocasion=Halloween", label: "Halloween" },
+            { to: "/productos?ocasion=Navidad", label: "Navidad" },
+            { to: "/productos?ocasion=Cumpleaños", label: "Cumpleaños" },
+            { to: "/productos?ocasion=Baby+Shower", label: "Baby Shower" },
         ],
     },
-    { to: "/productos?label=Piñateria", label: "Piñateria" },
+    { to: "/productos?tipo=Piñatas", label: "Piñateria" },
     { to: "/productos", label: "Catálogo" },
     { to: "/contacto", label: "Contacto" },
 ];
@@ -103,13 +103,6 @@ export default function Header() {
                     <a href={CONTACT.PHONE_LINK} className="text-sm hover:underline">{CONTACT.PHONE}</a>
                     <span className="hidden md:inline">|</span>
                 </div>
-                <a href="/login" target="_blank" rel="noopener noreferrer" className="flex absolute right-8 gap-6 text-primary-foreground transition-colors">
-                    <div className='hidden md:flex gap-2 transition-colors hover:text-light-pink'>
-                        <UserCircle className="h-6 w-6" />
-                    </div>
-
-                    {/* <ShoppingBasket className="h-6 w-6 hover:text-tertiary transition-colors" /> */}
-                </a>
             </div>
 
             {/* Mobile nav */}

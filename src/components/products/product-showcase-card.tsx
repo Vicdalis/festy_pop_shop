@@ -72,7 +72,14 @@ export default function ProductShowcaseCard({
                     rel="noreferrer"
                     className="mt-auto block w-full"
                 >
-                    <Button className="w-full bg-main py-3 text-sm font-bold uppercase transition hover:opacity-95">
+                    <Button className="flex w-full items-center justify-center gap-2 bg-main py-3 text-sm font-bold uppercase transition hover:opacity-95">
+                        <Image
+                            src="/whatsapp.png"
+                            alt="Logo de WhatsApp"
+                            width={18}
+                            height={18}
+                            className="object-contain"
+                        />
                         Cotizar
                     </Button>
                 </a>

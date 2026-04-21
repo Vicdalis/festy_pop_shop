@@ -15,6 +15,7 @@ import ProductSlider from "@/components/ui/slider";
 import { iProduct } from '@/components/ui/product';
 import WavesSeparator from "@/components/ui/separators.tsx/waves-separator";
 import ProductShowcaseCard from "@/components/products/product-showcase-card";
+import { CONTACT } from "@/config/site";
 
 export default function HomePage() {
 
@@ -76,7 +77,7 @@ export default function HomePage() {
                   Contamos con globos, cortinas, bolsas de regalo, piñatas y todo lo que necesitas para hacer de tu celebración un evento memorable.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                  <Link href="/catalogue">
+                  <Link href="/productos">
                     <Button className="text-lg gap-2 bg-main">
                       Ver Catálogo
                     </Button>
@@ -132,7 +133,9 @@ export default function HomePage() {
 
               <ProductSlider seasonProducts={seasonProducts} />
               <div className="w-full text-center mt-4">
-                <Button className="mt-6 bg-main"> Hacer un pedido</Button>
+                <a href={CONTACT.PHONE_LINK} target="_blank" rel="noreferrer">
+                  <Button className="mt-6 bg-main"> Hacer un pedido</Button>
+                </a>
               </div>
             </div>
           </section>
@@ -145,7 +148,7 @@ export default function HomePage() {
 
           <div className="grid grid-cols-1 px-16 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {OCCASIONS.map((occasion) => (
-              <Link key={occasion} href={`/catalogue?occasion=${occasion}`}>
+              <Link key={occasion} href={`/productos?ocasion=${encodeURIComponent(occasion)}`}>
                 <motion.div
                   whileHover={{ scale: 1.05, y: -4 }}
                   className={`flex flex-col items-center justify-start gap-6 p-6 rounded-2xl md:bg-size-[250px] ${OCCASION_COLORS[occasion as keyof typeof OCCASION_COLORS]} border border-transparent hover:border-primary/50 hover:shadow-lg transition-shadow cursor-pointer h-94`}
@@ -165,6 +168,13 @@ export default function HomePage() {
               {featuredProducts.map((product: iProduct, index) => (
                 <ProductShowcaseCard key={product.id} product={product} index={index} />
               ))}
+            </div>
+            <div className="mt-8 flex justify-center">
+              <Link href="/productos">
+                <Button className="bg-main px-8 py-3 text-sm font-bold uppercase transition hover:opacity-95">
+                  Ver Más
+                </Button>
+              </Link>
             </div>
           </div>
         </section>

@@ -4,12 +4,12 @@ import './banner.css';
 
 export default function ProductBannerComponent() { //Filter Products from type of category 
     const products = [
-        { name: "Globos", id: 'globos', image: "bg-[url(/products/product-category/decoracion3.jpg)]", color: "bg-blue-500" },
-        { name: "Velas", id: 'velas', image: "bg-[url(/products/product-category/velas.jpg)]", color: "bg-yellow-500" },
-        { name: "Piñatas", id: 'piñatas',  image: "bg-[url(/products/product-category/pinata_pony.jpg)]", color: "bg-green-500" },
-        { name: "Afiches", id: 'afiches', image:  "bg-[url(/products/product-category/afiche2.jpg)]", color: "bg-red-500" },
-        { name: "Hora Loca", id: 'hora-locA', image: "bg-[url(/products/product-category/hora_loca.jpg)]",  color: "bg-purple-500" },
-        { name: "Decoración", id: 'decoracion-fiesta', image: "bg-[url(/products/product-category/decoracion2.jpg)]", color: "bg-pink-500" },
+        { name: "Globos", filter: "Globos", image: "bg-[url(/products/product-category/decoracion3.jpg)]", color: "bg-blue-500" },
+        { name: "Velas", filter: "Velas", image: "bg-[url(/products/product-category/velas.jpg)]", color: "bg-yellow-500" },
+        { name: "Piñatas", filter: "Piñatas",  image: "bg-[url(/products/product-category/pinata_pony.jpg)]", color: "bg-green-500" },
+        { name: "Afiches", filter: "Afiches", image:  "bg-[url(/products/product-category/afiche2.jpg)]", color: "bg-red-500" },
+        { name: "Hora Loca", filter: "Hora Loca", image: "bg-[url(/products/product-category/hora_loca.jpg)]",  color: "bg-purple-500" },
+        { name: "Decoración", filter: "Decoración", image: "bg-[url(/products/product-category/decoracion2.jpg)]", color: "bg-pink-500" },
     ];
 
     return (
@@ -18,7 +18,7 @@ export default function ProductBannerComponent() { //Filter Products from type o
                 {/* Left Items select */}
                 <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
                     {products.map((product, index) => (
-                        <Link key={product.id} href={`/productos?product=${product.id}`}>
+                        <Link key={product.filter} href={`/productos?tipo=${encodeURIComponent(product.filter)}`}>
                             <motion.div
                                 whileHover={{ scale: 1.05, y: -4 }}
                                 className="relative flex flex-col items-center justify-center gap-6 p-6 border border-transparent cursor-pointer h-64"

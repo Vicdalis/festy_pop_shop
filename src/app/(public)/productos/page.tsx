@@ -1,9 +1,10 @@
 'use client';
 
 import Image from 'next/image';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { ChevronDown, Palette, Sparkles, Tag } from 'lucide-react';
+import { ChevronDown, Palette, Search, Sparkles, Tag } from 'lucide-react';
+import { useSearchParams } from 'next/navigation';
 import Title from '@/components/ui/title';
 import ProductShowcaseCard from '@/components/products/product-showcase-card';
 
@@ -14,6 +15,7 @@ type CatalogProduct = {
     category: string;
     character: string;
     colors: string[];
+    occasions: string[];
     description: string;
 };
 
@@ -25,16 +27,18 @@ const products: CatalogProduct[] = [
         category: 'Globos',
         character: 'Kuromi',
         colors: ['Rosado', 'Negro'],
+        occasions: ['Birthday', 'Kids'],
         description: 'Combo tematico de 5 piezas para aire o helio, ideal para mesas principales.',
     },
     {
         id: 2,
-        name: 'Combo de Pinata Mickey',
+        name: 'Combo de Piñata Mickey',
         image: '/products/destacados/combo.jpg',
-        category: 'Pinatas',
+        category: 'Piñatas',
         character: 'Mickey',
         colors: ['Rojo', 'Amarillo', 'Negro'],
-        description: 'Pinata cuadrada con relleno incluido para celebraciones infantiles llenas de color.',
+        occasions: ['Birthday', 'Kids'],
+        description: 'Piñata cuadrada con relleno incluido para celebraciones infantiles llenas de color.',
     },
     {
         id: 3,
@@ -43,24 +47,27 @@ const products: CatalogProduct[] = [
         category: 'Globos',
         character: 'Labubu',
         colors: ['Marron', 'Rosado'],
+        occasions: ['Birthday', 'Kids'],
         description: 'Arreglo de globos con acabado tierno y moderno para fiestas personalizadas.',
     },
     {
         id: 4,
-        name: 'Pinata Frozen',
+        name: 'Piñata Frozen',
         image: '/products/pinatas/pinata_frozen.png',
-        category: 'Pinatas',
+        category: 'Piñatas',
         character: 'Frozen',
         colors: ['Azul', 'Blanco'],
+        occasions: ['Birthday', 'Kids'],
         description: 'Diseño escarchado con presencia protagonista para cumpleaños inspirados en hielo y fantasia.',
     },
     {
         id: 5,
-        name: 'Pinata Pony',
+        name: 'Piñata Pony',
         image: '/products/product-category/pinata_pony.jpg',
-        category: 'Pinatas',
+        category: 'Piñatas',
         character: 'My Little Pony',
         colors: ['Morado', 'Rosado', 'Celeste'],
+        occasions: ['Birthday', 'Kids'],
         description: 'Acabado alegre y pastel para fiestas infantiles con una paleta dulce y brillante.',
     },
     {
@@ -70,6 +77,7 @@ const products: CatalogProduct[] = [
         category: 'Afiches',
         character: 'Spiderman',
         colors: ['Rojo', 'Azul'],
+        occasions: ['Birthday', 'Kids'],
         description: 'Afiche decorativo para destacar la mesa principal o la entrada de la celebracion.',
     },
     {
@@ -79,15 +87,17 @@ const products: CatalogProduct[] = [
         category: 'Decoracion',
         character: 'Cumpleanos',
         colors: ['Fucsia', 'Dorado', 'Azul'],
+        occasions: ['Birthday'],
         description: 'Banda y cintillo holografico para una celebracion vibrante y lista para fotos.',
     },
     {
         id: 8,
-        name: 'Pinata Artesanal Fiesta',
+        name: 'Piñata Artesanal Fiesta',
         image: '/products/pinatas/pinata1.jpg',
-        category: 'Pinatas',
+        category: 'Piñatas',
         character: 'Personalizado',
         colors: ['Rosado', 'Azul', 'Amarillo'],
+        occasions: ['Birthday', 'Kids'],
         description: 'Modelo base adaptable a la tematica del cliente, pensado para pedidos especiales.',
     },
 ];
@@ -111,20 +121,78 @@ const colorClasses: Record<string, string> = {
     Todos: 'bg-[var(--color-main)]',
 };
 
+const occasionAliases: Record<string, string[]> = {
+    cumpleanos: ['cumpleanos', 'cumpleaños', 'birthday'],
+    'baby shower': ['baby shower'],
+    navidad: ['navidad', 'christmas'],
+    halloween: ['halloween'],
+    ninos: ['ninos', 'niños', 'kids'],
+    adultos: ['adultos', 'adults'],
+};
+
+function normalizeText(value: string) {
+    return value
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '');
+}
+
+function normalizeFilterValue(value: string | null) {
+    if (!value) {
+        return '';
+    }
+
+    return normalizeText(value.replace(/\+/g, ' ').trim());
+}
+
+function resolveOccasionKey(value: string) {
+    const normalizedValue = normalizeText(value);
+
+    return Object.entries(occasionAliases).find(([, aliases]) => aliases.includes(normalizedValue))?.[0] ?? normalizedValue;
+}
+
 export default function ProductsPage() {
+    const searchParams = useSearchParams();
+    const requestedTypeLabel = searchParams.get('tipo')?.replace(/\+/g, ' ').trim() ?? '';
+    const requestedOccasionLabel = searchParams.get('ocasion')?.replace(/\+/g, ' ').trim() ?? '';
+    const requestedType = normalizeFilterValue(searchParams.get('tipo'));
+    const requestedOccasion = normalizeFilterValue(searchParams.get('ocasion'));
+    const matchedCategory = categoryOptions.find(
+        (category) => normalizeText(category) === requestedType,
+    );
+    const hasTypeFilterFromUrl = requestedType.length > 0;
+    const hasOccasionFilterFromUrl = requestedOccasion.length > 0;
+    const hasValidTypeFilter = !hasTypeFilterFromUrl || Boolean(matchedCategory);
     const [selectedColor, setSelectedColor] = useState('Todos');
     const [selectedCharacter, setSelectedCharacter] = useState('Todos');
     const [selectedCategory, setSelectedCategory] = useState('Todos');
+    const [selectedOccasion, setSelectedOccasion] = useState('');
     const [isColorOpen, setIsColorOpen] = useState(false);
     const [isCharacterOpen, setIsCharacterOpen] = useState(false);
-    const [isCategoryOpen, setIsCategoryOpen] = useState(false);
+    const [isCategoryOpen, setIsCategoryOpen] = useState(true);
+    const [searchTerm, setSearchTerm] = useState('');
+
+    useEffect(() => {
+        setSelectedCategory(matchedCategory ?? 'Todos');
+        setSelectedOccasion(requestedOccasion ? resolveOccasionKey(requestedOccasion) : '');
+    }, [matchedCategory, requestedOccasion]);
 
     const filteredProducts = products.filter((product) => {
+        const matchesRequestedType = hasValidTypeFilter
+            && (!hasTypeFilterFromUrl || normalizeText(product.category) === requestedType);
         const matchesColor = selectedColor === 'Todos' || product.colors.includes(selectedColor);
         const matchesCharacter = selectedCharacter === 'Todos' || product.character === selectedCharacter;
         const matchesCategory = selectedCategory === 'Todos' || product.category === selectedCategory;
+        const matchesOccasion =
+            selectedOccasion.length === 0
+            || product.occasions.some((occasion) => resolveOccasionKey(occasion) === selectedOccasion);
+        const normalizedSearch = normalizeText(searchTerm.trim());
+        const searchableFields = [product.category, product.character, ...product.colors];
+        const matchesSearch =
+            normalizedSearch.length === 0
+            || searchableFields.some((field) => normalizeText(field).includes(normalizedSearch));
 
-        return matchesColor && matchesCharacter && matchesCategory;
+        return matchesRequestedType && matchesColor && matchesCharacter && matchesCategory && matchesOccasion && matchesSearch;
     });
 
     const visibleColorOptions = isColorOpen
@@ -140,7 +208,7 @@ export default function ProductsPage() {
         : categoryOptions.filter((category) => category === selectedCategory);
 
     return (
-        <main className="bg-light-cream text-[#3B2830]">
+        <main className="bg-white text-[#3B2830]">
             <section className="relative overflow-hidden">
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(255,61,127,0.16),_transparent_36%),radial-gradient(circle_at_bottom_right,_rgba(254,154,78,0.22),_transparent_32%),linear-gradient(180deg,#fff7ed_0%,#fff2e2_100%)]" />
                 <div className="absolute left-[-4rem] top-12 h-36 w-36 rounded-full bg-[#ffbfd3]/60 blur-3xl" />
@@ -186,7 +254,7 @@ export default function ProductsPage() {
                                         <div className="relative min-h-[104px] overflow-hidden rounded-2xl">
                                             <Image
                                                 src="/products/pinatas/pinata_frozen.png"
-                                                alt="Pinata de Frozen"
+                                                alt="Piñata de Frozen"
                                                 fill
                                                 className="object-cover"
                                                 sizes="(max-width: 768px) 100vw, 20vw"
@@ -195,7 +263,7 @@ export default function ProductsPage() {
                                         <div className="relative min-h-[140px] overflow-hidden rounded-2xl">
                                             <Image
                                                 src="/products/product-category/pinata_pony.jpg"
-                                                alt="Pinata colorida de My Little Pony"
+                                                alt="Piñata colorida de My Little Pony"
                                                 fill
                                                 className="object-cover"
                                                 sizes="(max-width: 768px) 100vw, 20vw"
@@ -343,6 +411,8 @@ export default function ProductsPage() {
                                         setSelectedCategory('Todos');
                                         setSelectedColor('Todos');
                                         setSelectedCharacter('Todos');
+                                        setSelectedOccasion('');
+                                        setSearchTerm('');
                                     }}
                                     className="w-full rounded-full border border-[#efc9b8] px-4 py-3 text-sm font-semibold text-[#7a5662] transition hover:border-[#e7467d] hover:text-[#9f2051]"
                                 >
@@ -358,22 +428,28 @@ export default function ProductsPage() {
                                 <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#b47b62]">Catálogo</p>
                                 <p className="mt-2 text-sm text-[#6f5b65]">
                                     Mostrando <span className="font-bold text-[#e7467d]">{filteredProducts.length}</span> productos
+                                    {selectedCategory !== 'Todos' && ` de ${selectedCategory}`}
+                                    {selectedOccasion === 'cumpleanos' && ' para cumpleaños'}
+                                    {selectedOccasion === 'baby shower' && ' para baby shower'}
+                                    {selectedOccasion === 'navidad' && ' para Navidad'}
+                                    {selectedOccasion === 'halloween' && ' para Halloween'}
+                                    {selectedOccasion === 'ninos' && ' para niños'}
+                                    {selectedOccasion === 'adultos' && ' para adultos'}
                                     {selectedColor !== 'Todos' && ` en ${selectedColor}`}
                                     {selectedCharacter !== 'Todos' && ` para ${selectedCharacter}`}
                                 </p>
                             </div>
 
-                            <div className="flex flex-wrap gap-2">
-                                <span className="rounded-full bg-[#fff4ec] px-4 py-2 text-sm font-semibold text-[#7a5662]">
-                                    Tipo: {selectedCategory}
-                                </span>
-                                <span className="rounded-full bg-[#fff4ec] px-4 py-2 text-sm font-semibold text-[#7a5662]">
-                                    Color: {selectedColor}
-                                </span>
-                                <span className="rounded-full bg-[#fff4ec] px-4 py-2 text-sm font-semibold text-[#7a5662]">
-                                    Personaje: {selectedCharacter}
-                                </span>
-                            </div>
+                            <label className="relative block w-full md:max-w-md">
+                                <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#b47b62]" />
+                                <input
+                                    type="search"
+                                    value={searchTerm}
+                                    onChange={(event) => setSearchTerm(event.target.value)}
+                                    placeholder="Buscar productos..."
+                                    className="w-full rounded-full border border-[#efc9b8] bg-white px-11 py-3 text-sm text-[#4b2737] outline-none transition placeholder:text-[#b58b7a] focus:border-[#e7467d] focus:ring-2 focus:ring-[#ffd4e3]"
+                                />
+                            </label>
                         </div>
 
                         <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
@@ -392,7 +468,11 @@ export default function ProductsPage() {
                             <div className="rounded-2xl border border-dashed border-[#efc9b8] bg-white/80 px-6 py-14 text-center">
                                 <p className="text-2xl font-bold text-[#4b2737]">No encontramos coincidencias</p>
                                 <p className="mt-3 text-[#6f5b65]">
-                                    Prueba otra combinacion de color o personaje para seguir explorando el catalogo.
+                                    {hasTypeFilterFromUrl && requestedTypeLabel
+                                        ? `No hay productos disponibles para el filtro "${requestedTypeLabel}".`
+                                        : hasOccasionFilterFromUrl && requestedOccasionLabel
+                                            ? `No hay productos disponibles para la ocasión "${requestedOccasionLabel}".`
+                                            : 'Prueba otra combinacion de filtros o ajusta la busqueda para seguir explorando el catalogo.'}
                                 </p>
                             </div>
                         )}

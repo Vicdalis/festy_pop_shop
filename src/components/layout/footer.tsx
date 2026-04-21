@@ -1,5 +1,7 @@
 
-import { PartyPopper, Instagram, Facebook, Mail, Phone, MapPin } from "lucide-react";
+import { Instagram, Facebook, Mail, Phone, MapPin } from "lucide-react";
+import { FaTiktok } from "react-icons/fa6";
+import { FaPinterest } from "react-icons/fa";
 import Link from 'next/link';
 import Image from 'next/image';
 import PaintDropSeparator from "../ui/separators.tsx/paint-drop-separator";
@@ -7,8 +9,8 @@ import { CONTACT } from '@/config/site';
 
 const NAV_LINKS = [
     { to: "/", label: "Inicio" },
-    { to: "/balloons", label: "Globos" },
-    { to: "/catalogue", label: "Catálogo" },
+    { to: "/productos?tipo=Globos", label: "Globos" },
+    { to: "/productos", label: "Catálogo" },
     { to: "/contacto", label: "Contacto" },
 ];
 
@@ -34,14 +36,17 @@ export default function Footer() {
                                Dónde empieza la alegría
                             </p>
                             <div className="flex gap-3 mt-2 justify-center md:justify-start">
-                                <a href="https://www.instagram.com/pinateria_vvvs/" target="_blank" className="p-2 rounded-full bg-tertiary/10 hover:bg-blue/20 transition-colors" aria-label="Instagram">
+                                <a href={CONTACT.INSTAGRAM_LINK} target="_blank" className="p-2 rounded-full bg-tertiary/10 hover:bg-blue/20 transition-colors" aria-label="Instagram">
                                     <Instagram className="h-5 w-5" />
                                 </a>
-                                <a href="https://www.facebook.com/pinateriavvvs?locale=es_LA" target="_blank" className="p-2 rounded-full bg-tertiary/10 hover:bg-blue/20 transition-colors" aria-label="Facebook">
+                                <a href={CONTACT.FACEBOOK_LINK} target="_blank" className="p-2 rounded-full bg-tertiary/10 hover:bg-blue/20 transition-colors" aria-label="Facebook">
                                     <Facebook className="h-5 w-5" />
                                 </a>
-                                <a href={CONTACT.SUPPORT_EMAIL_LINK} target="_blank" className="p-2 rounded-full bg-tertiary/10 hover:bg-blue/20 transition-colors" aria-label="Email">
-                                    <Mail className="h-5 w-5" />
+                                <a href={CONTACT.TIKTOK_LINK} target="_blank" className="p-2 rounded-full bg-tertiary/10 hover:bg-blue/20 transition-colors" aria-label="TikTok">
+                                    <FaTiktok className="h-5 w-5" />
+                                </a>
+                                <a href={CONTACT.PINTEREST_LINK} target="_blank" className="p-2 rounded-full bg-tertiary/10 hover:bg-blue/20 transition-colors" aria-label="Pinterest">
+                                    <FaPinterest className="h-5 w-5" />
                                 </a>
                                 <a href={CONTACT.PHONE_LINK} target="_blank" className="p-2 rounded-full bg-tertiary/10 hover:bg-blue/20 transition-colors" aria-label="WhatsApp">
                                     <Image
