@@ -7,104 +7,7 @@ import { ChevronDown, Palette, Search, Sparkles, Tag } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 import Title from '@/components/ui/title';
 import ProductShowcaseCard from '@/components/products/product-showcase-card';
-
-type CatalogProduct = {
-    id: number;
-    name: string;
-    image: string;
-    category: string;
-    character: string;
-    colors: string[];
-    occasions: string[];
-    description: string;
-};
-
-const products: CatalogProduct[] = [
-    {
-        id: 1,
-        name: 'Set de Globos Kuromi',
-        image: '/products/destacados/kuromi_balloon.jpg',
-        category: 'Globos',
-        character: 'Kuromi',
-        colors: ['Rosado', 'Negro'],
-        occasions: ['Birthday', 'Kids'],
-        description: 'Combo tematico de 5 piezas para aire o helio, ideal para mesas principales.',
-    },
-    {
-        id: 2,
-        name: 'Combo de Piñata Mickey',
-        image: '/products/destacados/combo.jpg',
-        category: 'Piñatas',
-        character: 'Mickey',
-        colors: ['Rojo', 'Amarillo', 'Negro'],
-        occasions: ['Birthday', 'Kids'],
-        description: 'Piñata cuadrada con relleno incluido para celebraciones infantiles llenas de color.',
-    },
-    {
-        id: 3,
-        name: 'Set de Globos Labubu',
-        image: '/products/destacados/labubu.jpg',
-        category: 'Globos',
-        character: 'Labubu',
-        colors: ['Marron', 'Rosado'],
-        occasions: ['Birthday', 'Kids'],
-        description: 'Arreglo de globos con acabado tierno y moderno para fiestas personalizadas.',
-    },
-    {
-        id: 4,
-        name: 'Piñata Frozen',
-        image: '/products/pinatas/pinata_frozen.png',
-        category: 'Piñatas',
-        character: 'Frozen',
-        colors: ['Azul', 'Blanco'],
-        occasions: ['Birthday', 'Kids'],
-        description: 'Diseño escarchado con presencia protagonista para cumpleaños inspirados en hielo y fantasia.',
-    },
-    {
-        id: 5,
-        name: 'Piñata Pony',
-        image: '/products/product-category/pinata_pony.jpg',
-        category: 'Piñatas',
-        character: 'My Little Pony',
-        colors: ['Morado', 'Rosado', 'Celeste'],
-        occasions: ['Birthday', 'Kids'],
-        description: 'Acabado alegre y pastel para fiestas infantiles con una paleta dulce y brillante.',
-    },
-    {
-        id: 6,
-        name: 'Afiche Spiderman',
-        image: '/products/afiches/spiderman.jpeg',
-        category: 'Afiches',
-        character: 'Spiderman',
-        colors: ['Rojo', 'Azul'],
-        occasions: ['Birthday', 'Kids'],
-        description: 'Afiche decorativo para destacar la mesa principal o la entrada de la celebracion.',
-    },
-    {
-        id: 7,
-        name: 'Decoracion Feliz Cumple',
-        image: '/products/destacados/feliz_cumple.jpg',
-        category: 'Decoracion',
-        character: 'Cumpleanos',
-        colors: ['Fucsia', 'Dorado', 'Azul'],
-        occasions: ['Birthday'],
-        description: 'Banda y cintillo holografico para una celebracion vibrante y lista para fotos.',
-    },
-    {
-        id: 8,
-        name: 'Piñata Artesanal Fiesta',
-        image: '/products/pinatas/pinata1.jpg',
-        category: 'Piñatas',
-        character: 'Personalizado',
-        colors: ['Rosado', 'Azul', 'Amarillo'],
-        occasions: ['Birthday', 'Kids'],
-        description: 'Modelo base adaptable a la tematica del cliente, pensado para pedidos especiales.',
-    },
-];
-
-const colorOptions = ['Todos', ...Array.from(new Set(products.flatMap((product) => product.colors)))];
-const characterOptions = ['Todos', ...Array.from(new Set(products.map((product) => product.character)))];
-const categoryOptions = ['Todos', ...Array.from(new Set(products.map((product) => product.category)))];
+import { useProducts } from '@/store/hooks/use-products';
 
 const colorClasses: Record<string, string> = {
     Amarillo: 'bg-yellow-300',
@@ -153,10 +56,14 @@ function resolveOccasionKey(value: string) {
 
 export default function ProductsPage() {
     const searchParams = useSearchParams();
+    const { products, isLoading, error, source } = useProducts();
     const requestedTypeLabel = searchParams.get('tipo')?.replace(/\+/g, ' ').trim() ?? '';
     const requestedOccasionLabel = searchParams.get('ocasion')?.replace(/\+/g, ' ').trim() ?? '';
     const requestedType = normalizeFilterValue(searchParams.get('tipo'));
     const requestedOccasion = normalizeFilterValue(searchParams.get('ocasion'));
+    const colorOptions = ['Todos', ...Array.from(new Set(products.flatMap((product) => product.colors)))];
+    const characterOptions = ['Todos', ...Array.from(new Set(products.map((product) => product.character)))];
+    const categoryOptions = ['Todos', ...Array.from(new Set(products.map((product) => product.category)))];
     const matchedCategory = categoryOptions.find(
         (category) => normalizeText(category) === requestedType,
     );
@@ -452,19 +359,28 @@ export default function ProductsPage() {
                             </label>
                         </div>
 
-                        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-                    {filteredProducts.map((product, index) => (
-                        <ProductShowcaseCard
-                            key={product.id}
-                            product={product}
-                            index={index}
-                            subtitle={product.character}
-                            sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
-                        />
-                    ))}
-                        </div>
+                        {isLoading ? (
+                            <div className="rounded-2xl border border-[#f3d7c6] bg-white/80 px-6 py-14 text-center shadow-sm">
+                                <p className="text-2xl font-bold text-[#4b2737]">Cargando productos...</p>
+                                <p className="mt-3 text-[#6f5b65]">
+                                    Estamos consultando el catálogo para mostrarte los productos disponibles.
+                                </p>
+                            </div>
+                        ) : (
+                            <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+                                {filteredProducts.map((product, index) => (
+                                    <ProductShowcaseCard
+                                        key={product.id}
+                                        product={product}
+                                        index={index}
+                                        subtitle={product.character}
+                                        sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
+                                    />
+                                ))}
+                            </div>
+                        )}
 
-                        {filteredProducts.length === 0 && (
+                        {!isLoading && filteredProducts.length === 0 && (
                             <div className="rounded-2xl border border-dashed border-[#efc9b8] bg-white/80 px-6 py-14 text-center">
                                 <p className="text-2xl font-bold text-[#4b2737]">No encontramos coincidencias</p>
                                 <p className="mt-3 text-[#6f5b65]">
@@ -474,6 +390,12 @@ export default function ProductsPage() {
                                             ? `No hay productos disponibles para la ocasión "${requestedOccasionLabel}".`
                                             : 'Prueba otra combinacion de filtros o ajusta la busqueda para seguir explorando el catalogo.'}
                                 </p>
+                            </div>
+                        )}
+
+                        {!isLoading && source === 'mock' && error && (
+                            <div className="rounded-2xl border border-[#efc9b8] bg-[#fff8f4] px-6 py-5 text-sm text-[#7a5662]">
+                                {error}
                             </div>
                         )}
                     </div>

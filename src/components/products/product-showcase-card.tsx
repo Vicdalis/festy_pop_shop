@@ -3,15 +3,9 @@
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import Button from '@/components/ui/button';
+import type { Product } from '@/types/product';
 
-type ProductShowcase = {
-    id: number;
-    name: string;
-    description: string;
-    image: string;
-    category: string;
-    colors: string[];
-};
+type ProductCardPreview = Pick<Product, 'id' | 'name' | 'description' | 'image' | 'category' | 'colors'>;
 
 export default function ProductShowcaseCard({
     product,
@@ -19,7 +13,7 @@ export default function ProductShowcaseCard({
     subtitle,
     sizes = '(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 25vw',
 }: {
-    product: ProductShowcase;
+    product: ProductCardPreview;
     index?: number;
     subtitle?: string;
     sizes?: string;
