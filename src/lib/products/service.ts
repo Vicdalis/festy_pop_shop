@@ -16,6 +16,7 @@ function normalizeProduct(item: ProductApiItem, index: number): Product {
         id: Number(item.id ?? index + 1),
         name: item.name ?? 'Producto sin nombre',
         image: item.image ?? '/products/destacados/combo.jpg',
+        price: item.price ?? null,
         category: item.category ?? 'Sin categoria',
         character: item.character ?? 'General',
         colors: Array.isArray(item.colors) ? item.colors : [],

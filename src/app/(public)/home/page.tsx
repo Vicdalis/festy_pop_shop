@@ -1,9 +1,9 @@
 'use client';
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import { Heart, Sparkles } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import Button from "@/components/ui/button";
 import { OCCASIONS, OCCASION_COLORS } from "@/components/lib/data";
 import ContactUsBanner from "@/components/banners/contactus-banner";
@@ -13,14 +13,13 @@ import PetBanner from "@/components/banners/pet-banner";
 import ProductBannerComponent from "../../../components/banners/product-banner";
 import AnimatedPaintDropSeparator from "@/components/ui/separators.tsx/paint-drop-animated-separator";
 import ProductSlider from "@/components/ui/slider";
-import { iProduct } from '@/components/ui/product';
 import { CONTACT } from "@/config/site";
 import Subtitle from "@/components/ui/subtitle";
+import type { Product } from "@/types/product";
+import ProductCard from "@/components/products/product-card";
 
 export default function HomePage() {
   const confettiCanvasRef = useRef<HTMLCanvasElement | null>(null);
-  const [wishedProducts, setWishedProducts] = useState<Record<number, boolean>>({});
-  const [quotedProducts, setQuotedProducts] = useState<Record<number, boolean>>({});
 
   const handleScrollToCustom = (event: React.MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault();
@@ -117,27 +116,14 @@ export default function HomePage() {
     { name: "Piñatas", price: "$299", tag: "POPULAR", tagColor: "#e7467d", image: "/products/pinatas/pinata1.jpg" },
     { name: "Figuras de Anime", price: "$149", tag: "RÁPIDO", tagColor: "#7ed958", image: "/products/moana.jpeg" },
     { name: "Chupeteras", price: "$199", tag: "ESPECIAL", tagColor: "#8a3dc1", image: "/products/chupetera.jpeg" },
-    // { name: "Corona de Adviento", price: "$249", tag: "TEMPORADA", tagColor: "#eeca21", image: "/products/pinatas/pinata_4.jpeg" },
-    // { name: "Mantel Navideño", price: "$89", tag: "NUEVO", tagColor: "#e7467d", image: "/products/pinatas/pinata_5.jpeg" },
-    // { name: "Set de Nochebuena", price: "$499", tag: "COMPLETO", tagColor: "#8a3dc1", image: "/products/pinatas/pinata_6.jpg" },
-    // { name: "Set de Nochebuena", price: "$499", tag: "COMPLETO", tagColor: "#8a3dc1", image: "/products/pinatas/pinata_7.jpg" },
-    // { name: "Set de Nochebuena", price: "$499", tag: "COMPLETO", tagColor: "#8a3dc1", image: "/products/pinatas/pinata_8.jpg" },
   ];
 
-  const featuredProducts: Array<iProduct & { badge: string; badgeColor: string }> = [
-    { id: 1, name: "Banda y Cintillo F. Cumpleaños", description: "Set de cumpleaños “Feliz Cumpleaños”: banda de glitter + cintillo holográfico.", price: 34.99, image: "/products/destacados/feliz_cumple.jpg", category: "Decoración", colors: ["Azul", "Plateado", "Dorado", "Rosado", "Fucsia"], occasions: ["Birthday"], featured: true, badge: "Más vendido", badgeColor: "#e7467d" },
-    { id: 2, name: "Set de Globos Kuromi", description: "Set de globos de Kuromi, 5 piezas. Sirve para aire y helio.", price: 28.99, image: "/products/destacados/kuromi_balloon.jpg", category: "Globos", colors: ["Rosado", "Negro"], occasions: ["Birthday", "Party Kits"], featured: true, badge: "Nuevo", badgeColor: "#28c7c0" },
-    { id: 3, name: "Combo de Piñata Mickey", description: "Combo de piñata cuadrada con 25 piezas de chuchería para rellenar.", price: 45.99, image: "/products/destacados/combo.jpg", category: "Piñatas", colors: [], occasions: ["Birthday"], badge: "Combo", badgeColor: "#8a3dc1" },
-    { id: 4, name: "Set de Globos Labubu", description: "Set de globos Labubu, 5 piezas. Disponible en 2 colores.", price: 24.99, image: "/products/destacados/labubu.jpg", category: "Globos", colors: ["Marron", "Rosado"], occasions: ["Birthday", "Party Kits"], badge: "Especial", badgeColor: "#f08a24" },
+  const featuredProducts: Array<Product & { price: number; badge: string; badgeColor: string; featured?: boolean }> = [
+    { id: 1, name: "Banda y Cintillo F. Cumpleaños", description: "Set de cumpleaños “Feliz Cumpleaños”: banda de glitter + cintillo holográfico.", price: 34.99, image: "/products/destacados/feliz_cumple.jpg", category: "Decoración", character: "Cumpleaños", colors: ["Azul", "Plateado", "Dorado", "Rosado", "Fucsia"], occasions: ["Birthday"], featured: true, badge: "Más vendido", badgeColor: "#e7467d" },
+    { id: 2, name: "Set de Globos Kuromi", description: "Set de globos de Kuromi, 5 piezas. Sirve para aire y helio.", price: 28.99, image: "/products/destacados/kuromi_balloon.jpg", category: "Globos", character: "Kuromi", colors: ["Rosado", "Negro"], occasions: ["Birthday", "Party Kits"], featured: true, badge: "Nuevo", badgeColor: "#28c7c0" },
+    { id: 3, name: "Combo de Piñata Mickey", description: "Combo de piñata cuadrada con 25 piezas de chuchería para rellenar.", price: 45.99, image: "/products/destacados/combo.jpg", category: "Piñatas", character: "Mickey", colors: [], occasions: ["Birthday"], badge: "Combo", badgeColor: "#8a3dc1" },
+    { id: 4, name: "Set de Globos Labubu", description: "Set de globos Labubu, 5 piezas. Disponible en 2 colores.", price: 24.99, image: "/products/destacados/labubu.jpg", category: "Globos", character: "Labubu", colors: ["Marron", "Rosado"], occasions: ["Birthday", "Party Kits"], badge: "Especial", badgeColor: "#f08a24" },
   ];
-
-  const handleQuoteProduct = (productId: number) => {
-    setQuotedProducts((current) => ({ ...current, [productId]: true }));
-
-    window.setTimeout(() => {
-      setQuotedProducts((current) => ({ ...current, [productId]: false }));
-    }, 1600);
-  };
 
   const petImages = [
     "/pet/raya1.jpg",
@@ -355,88 +341,14 @@ export default function HomePage() {
           <div className="container-custom mx-auto max-w-7xl px-5">
             <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
               {featuredProducts.map((product) => (
-                <motion.article
+                <ProductCard
                   key={product.id}
-                  whileHover={{ y: -6 }}
-                  className="group overflow-hidden rounded-[28px] border border-white/70 bg-white shadow-[0_18px_45px_rgba(38,16,51,0.10)] transition-all duration-300 hover:shadow-[0_24px_55px_rgba(38,16,51,0.16)]"
-                >
-                  <div className="relative aspect-[0.95/1] overflow-hidden rounded-b-[24px] bg-[linear-gradient(180deg,#fff7ed_0%,#ffe7f0_100%)]">
-                    <Image
-                      src={product.image}
-                      alt={product.name}
-                      fill
-                      className="object-cover transition-transform duration-500 group-hover:scale-105"
-                      sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 25vw"
-                    />
-                    <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#261033]/55 via-[#261033]/15 to-transparent" />
-                    <span
-                      className="absolute left-4 top-4 rounded-full px-3 py-1 text-[0.68rem] font-black uppercase tracking-[0.05em] text-white shadow-[0_8px_18px_rgba(38,16,51,0.18)]"
-                      style={{ backgroundColor: product.badgeColor }}
-                    >
-                      {product.badge}
-                    </span>
-                    <button
-                      type="button"
-                      className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-white/95 text-main-purple shadow-[0_8px_18px_rgba(38,16,51,0.12)] transition hover:scale-110"
-                      aria-label={`Guardar ${product.name}`}
-                      onClick={() =>
-                        setWishedProducts((current) => ({
-                          ...current,
-                          [product.id]: !current[product.id],
-                        }))
-                      }
-                    >
-                      <Heart
-                        className={`h-4 w-4 transition-colors ${wishedProducts[product.id] ? "fill-[#e7467d] text-[#e7467d]" : ""}`}
-                      />
-                    </button>
-                  </div>
-
-                  <div className="space-y-4 p-5">
-                    <div className="space-y-2">
-                      <p className="text-[0.72rem] font-black uppercase tracking-[0.12em] text-[#8a3dc1]">
-                        {product.category}
-                      </p>
-                      <h3 className="min-h-[3.25rem] font-display text-[1rem] font-black leading-5 text-[#261033]">
-                        {product.name}
-                      </h3>
-                    </div>
-
-                    <div className="flex items-end justify-between gap-3">
-                      <div>
-                        <p className="text-[0.72rem] font-bold uppercase tracking-[0.08em] text-[#9f8a95]">
-                          Desde
-                        </p>
-                        <p className="font-display text-[1.45rem] font-black leading-none text-main-purple">
-                          {`$${product.price?.toFixed(2) ?? '0.00'}`}
-                        </p>
-                      </div>
-                      <div className="rounded-full bg-[#f8eefc] px-3 py-1 text-[0.7rem] font-bold text-[#8a3dc1]">
-                        {product.colors.length > 0 ? `${product.colors.length} colores` : "Personalizable"}
-                      </div>
-                    </div>
-
-                    <div className="flex gap-2">
-                      <a
-                        href={`https://wa.me/584242214781?text=Hola,%20quiero%20cotizar%20${encodeURIComponent(product.name)}`}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="flex-1"
-                        // onClick={() => handleQuoteProduct(product.id)}
-                      >
-                        <span
-                          className={`flex w-full items-center justify-center rounded-full px-4 py-3 text-[0.82rem] font-black transition ${
-                            quotedProducts[product.id]
-                              ? "bg-[#33c36b] text-white"
-                              : "bg-main-purple text-white hover:bg-light-pink"
-                          }`}
-                        >
-                          {quotedProducts[product.id] ? "Cotizado" : "Cotizar"}
-                        </span>
-                      </a>
-                    </div>
-                  </div>
-                </motion.article>
+                  product={product}
+                  badge={product.badge}
+                  badgeColor={product.badgeColor}
+                  metaChip={product.colors.length > 0 ? `${product.colors.length} colores` : 'Personalizable'}
+                  viewHref={`/productos?ocasion=${encodeURIComponent(product.occasions[0] ?? '')}`}
+                />
               ))}
             </div>
             <div className="mt-8 flex justify-center">

@@ -20,6 +20,7 @@ export function useProducts() {
                 const result = await getProducts();
 
                 if (isMounted) {
+                    console.log(result.products)
                     setProducts(result.products);
                     setSource(result.source);
                     setError(result.errorMessage ?? null);

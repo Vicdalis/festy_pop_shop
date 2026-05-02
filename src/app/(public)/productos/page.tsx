@@ -6,7 +6,7 @@ import { motion } from 'framer-motion';
 import { ChevronDown, Palette, Search, Sparkles, Tag } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 import Title from '@/components/ui/title';
-import ProductShowcaseCard from '@/components/products/product-showcase-card';
+import ProductCard from '@/components/products/product-card';
 import { useProducts } from '@/store/hooks/use-products';
 
 const colorClasses: Record<string, string> = {
@@ -369,11 +369,15 @@ export default function ProductsPage() {
                         ) : (
                             <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
                                 {filteredProducts.map((product, index) => (
-                                    <ProductShowcaseCard
+                                    <ProductCard
                                         key={product.id}
                                         product={product}
                                         index={index}
-                                        subtitle={product.character}
+                                        badge={product.character === 'General' ? product.category : product.character}
+                                        badgeColor={product.character === 'General' ? '#8a3dc1' : '#e7467d'}
+                                        metaChip={product.colors.length > 0 ? `${product.colors.length} colores` : 'Pedido especial'}
+                                        viewHref={`/productos?tipo=${encodeURIComponent(product.category)}`}
+                                        viewLabel="Filtrar"
                                         sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
                                     />
                                 ))}
