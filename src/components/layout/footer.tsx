@@ -6,21 +6,26 @@ import Link from 'next/link';
 import Image from 'next/image';
 import PaintDropSeparator from "../ui/separators.tsx/paint-drop-separator";
 import { CONTACT } from '@/config/site';
+import { mockOcassions } from "@/lib/ocassions/mock-ocassions";
 
 const NAV_LINKS = [
     { to: "/", label: "Inicio" },
-    { to: "/productos?tipo=Globos", label: "Globos" },
+    { to: "/productos?ocasion=Globos", label: "Globos" },
     { to: "/productos", label: "Catálogo" },
     { to: "/contacto", label: "Contacto" },
 ];
 
+const TEAM_LINKS = mockOcassions.slice(0,4).map((ocassion) => {
+    return { to: "/" + ocassion.code, label: ocassion.label}
+})
+
 export default function Footer() {
     return (
         <section>
-            <PaintDropSeparator color="#2B2326" />
-            <footer className="bg-[#2B2326] text-primary-foreground">
+            <PaintDropSeparator color="#5d1588" />
+            <footer className="bg-[#5d1588] text-primary-foreground">
                 <div className="container-custom py-12">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
                         {/* Brand */}
                         <div className="flex flex-col gap-4 justify-center md:justify-start">
                             <Link href="/" className="flex items-center gap-2 font-display text-2xl font-bold justify-center md:justify-start">
@@ -36,19 +41,19 @@ export default function Footer() {
                                Dónde empieza la alegría
                             </p>
                             <div className="flex gap-3 mt-2 justify-center md:justify-start">
-                                <a href={CONTACT.INSTAGRAM_LINK} target="_blank" className="p-2 rounded-full bg-tertiary/10 hover:bg-blue/20 transition-colors" aria-label="Instagram">
+                                <a href={CONTACT.INSTAGRAM_LINK} target="_blank" className="p-2 rounded-full bg-tertiary/10 hover:text-hover transition-colors" aria-label="Instagram">
                                     <Instagram className="h-5 w-5" />
                                 </a>
-                                <a href={CONTACT.FACEBOOK_LINK} target="_blank" className="p-2 rounded-full bg-tertiary/10 hover:bg-blue/20 transition-colors" aria-label="Facebook">
+                                <a href={CONTACT.FACEBOOK_LINK} target="_blank" className="p-2 rounded-full bg-tertiary/10 hover:text-hover transition-colors" aria-label="Facebook">
                                     <Facebook className="h-5 w-5" />
                                 </a>
-                                <a href={CONTACT.TIKTOK_LINK} target="_blank" className="p-2 rounded-full bg-tertiary/10 hover:bg-blue/20 transition-colors" aria-label="TikTok">
+                                <a href={CONTACT.TIKTOK_LINK} target="_blank" className="p-2 rounded-full bg-tertiary/10 hover:text-hover transition-colors" aria-label="TikTok">
                                     <FaTiktok className="h-5 w-5" />
                                 </a>
-                                <a href={CONTACT.PINTEREST_LINK} target="_blank" className="p-2 rounded-full bg-tertiary/10 hover:bg-blue/20 transition-colors" aria-label="Pinterest">
+                                <a href={CONTACT.PINTEREST_LINK} target="_blank" className="p-2 rounded-full bg-tertiary/10 hover:text-hover transition-colors" aria-label="Pinterest">
                                     <FaPinterest className="h-5 w-5" />
                                 </a>
-                                <a href={CONTACT.PHONE_LINK} target="_blank" className="p-2 rounded-full bg-tertiary/10 hover:bg-blue/20 transition-colors" aria-label="WhatsApp">
+                                <a href={CONTACT.PHONE_LINK} target="_blank" className="p-2 rounded-full bg-tertiary/10 hover:text-hover transition-colors" aria-label="WhatsApp">
                                     <Image
                                         src="/whatsapp.png"
                                         alt="Whatssap logo"
@@ -60,13 +65,12 @@ export default function Footer() {
                             </div>
                         </div>
 
-                        {/* Quick Links */}
                         <div>
-                            <h3 className="font-display text-lg font-bold mb-4">Enlaces</h3>
+                            <h3 className="font-display text-lg font-bold mb-4">Temáticas</h3>
                             <ul className="flex flex-col gap-2">
-                                {NAV_LINKS.map((link) => (
+                                {TEAM_LINKS.map((link) => (
                                     <li key={link.to}>
-                                        <Link href={link.to} className="text-main-foreground/80 hover:text-tertiary transition-colors text-sm font-medium">
+                                        <Link href={link.to} className="text-light-pink-foreground/80 hover:text-hover transition-colors text-sm font-medium">
                                             {link.label}
                                         </Link>
                                     </li>
@@ -74,10 +78,26 @@ export default function Footer() {
                             </ul>
                         </div>
 
+                        {/* Quick Links */}
+                        <div>
+                            <h3 className="font-display text-lg font-bold mb-4">Enlaces</h3>
+                            <ul className="flex flex-col gap-2">
+                                {NAV_LINKS.map((link) => (
+                                    <li key={link.to}>
+                                        <Link href={link.to} className="text-light-pink-foreground/80 hover:text-hover transition-colors text-sm font-medium">
+                                            {link.label}
+                                        </Link>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+
+                        
+
                         {/* Contact Info */}
                         <div>
                             <h3 className="font-display text-lg font-bold mb-4">Contáctanos</h3>
-                            <ul className="flex flex-col gap-3 text-sm text-main-foreground/80">
+                            <ul className="flex flex-col gap-3 text-sm text-light-pink-foreground/80">
                                 <li className="flex items-center gap-2">
                                     <Phone className="h-4 w-4 text-tertiary" />
                                     <a href={CONTACT.PHONE_LINK} className="hover:underline">{CONTACT.PHONE}</a>
@@ -97,7 +117,7 @@ export default function Footer() {
 
                 {/* Bottom bar */}
                 <div className="border-t border-main-foreground/10">
-                    <div className="container-custom py-4 flex flex-col md:flex-row items-center justify-between text-xs text-main-foreground/60 gap-2">
+                    <div className="container-custom py-4 flex flex-col md:flex-row items-center justify-between text-xs text-light-pink-foreground/60 gap-2">
                         <span>© 2026 Inversiones VVVS. Todos los derechos reservados.</span>
                         <span>Realizado por <a href="https://www.linkedin.com/in/vicdalis-anazco/" target="_blank" className="hover:text-blue/80 transition-colors">Vicdalis Añazco</a></span>
                     </div>

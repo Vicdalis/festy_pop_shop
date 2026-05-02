@@ -1,7 +1,8 @@
 @theme {
-  --color-main: #FE9A4E;
+  --color-main: #5d1588;
   --color-light-main: #e6aa78;
   --color-secondary: #ff3d7f;
+  --color-hero-accent: #eeca21;
   /* NEW PALETTE */
   --color-pink: #ff3d7f;
   --color-light-cream: #fff7ed;
@@ -11,8 +12,14 @@
   --color-main-gradient: linear-gradient(90deg,rgba(230, 170, 120, 1) 0%, rgba(231, 70, 125, 1) 100%);
   --color-horizontal: linear-gradient(180deg,rgba(230, 170, 120, 1) 0%, rgba(231, 70, 125, 1) 100%);
 
+  --color-main-purple: #5d1588;
+  --color-secondary-purple: #80278C;
+  /* #118ab2 Azul de prueba para proxima sesion  */
+
+  /* Textos */
   --text-titles: 2rem;
   --text-subtitles: 1.7rem;
   --text-body: 1rem;
   --font-title: "Mannin", sans-serif;
+  --color-hover: #eeca21
 }

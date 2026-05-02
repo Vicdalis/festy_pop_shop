@@ -1,9 +1,12 @@
-import { useState, useEffect, useCallback } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import Image from 'next/image';
 
 interface Product {
     name: string;
     image: string;
+    price?: string;
+    tag?: string;
+    tagColor?: string;
 }
 
 interface ProductSliderProps {
@@ -11,117 +14,82 @@ interface ProductSliderProps {
     autoPlayInterval?: number;
 }
 
-export default function ProductSlider ({ seasonProducts, autoPlayInterval = 5000 }: ProductSliderProps) {
-    const [startIndex, setStartIndex] = useState<number>(0);
-    const [isTransitioning, setIsTransitioning] = useState<boolean>(false);
-    const [isHovered, setIsHovered] = useState<boolean>(false);
-    //   const autoPlayInterval = props.autoPlayInterval || 5000;
-    const productsPerView: number = 3;
-
-    const totalGroups = Math.ceil(seasonProducts.length / productsPerView);
-    const currentGroup = Math.floor(startIndex / productsPerView);
-
-    const handleSlideChange = (newIndex: number): void => {
-        if (isTransitioning) return;
-        setIsTransitioning(true);
-        setStartIndex(newIndex);
-    };
-
-    const nextSlide = useCallback((): void => {
-        if (isTransitioning) return;
-        setIsTransitioning(true);
-        handleSlideChange((startIndex + 1) % seasonProducts.length);
-        setStartIndex((prevIndex) => (prevIndex + 1) % seasonProducts.length);
-    }, [isTransitioning, seasonProducts.length]);
-
-    const prevSlide = (): void => {
-        handleSlideChange(startIndex === 0 ? seasonProducts.length - 1 : startIndex - 1);
-    };
+export default function ProductSlider({
+    seasonProducts,
+    autoPlayInterval = 3000,
+}: ProductSliderProps) {
+    const [activeIndex, setActiveIndex] = useState(0);
 
     useEffect(() => {
-        const timer = setTimeout(() => setIsTransitioning(false), 300);
-        return () => clearTimeout(timer);
-    }, [startIndex]);
-
-    useEffect(() => {
-        let timer: NodeJS.Timeout;
-
-        if (!isHovered) {
-            timer = setInterval(() => {
-                nextSlide();
-            }, autoPlayInterval);
+        if (seasonProducts.length <= 1) {
+            return;
         }
 
+        const timer = window.setInterval(() => {
+            setActiveIndex((current) => (current + 1) % seasonProducts.length);
+        }, autoPlayInterval);
+
         return () => {
-            if (timer) {
-                clearInterval(timer);
-            }
+            window.clearInterval(timer);
         };
-    }, [isHovered, autoPlayInterval, startIndex]);
+    }, [autoPlayInterval, seasonProducts.length]);
 
     return (
-        <div className="relative w-full group ">
-            {/* Slider container */}
-            <div className="overflow-hidden rounded-xl mr-[40px] ml-[40px]" onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
-                <div
-                    className="flex transition-transform duration-300 ease-out"
-                    style={{ transform: `translateX(-${startIndex * (100 / productsPerView)}%)` }}
-                >
-                    {seasonProducts.map((product, index) => (
-                        <div key={`${product.name}-${index}`} className="flex-shrink-0 w-full max-h-[450px] sm:w-1/2 lg:w-1/3 px-3">
-                            <div className="text-center hover:bg-white/25 h-full  transition-all duration-300 hover:scale-[1.03] cursor-pointer">
-                                <img
-                                    src={product.image}
-                                    alt={product.name}
-                                    width={100}
-                                    height={100}
-                                    className="object-cover w-full h-full rounded-xl"
-                                    loading="lazy"
-                                />
-                            </div>
+        <div className="relative">
+            <div className="flex gap-4 overflow-x-auto pb-2 md:overflow-hidden">
+                {seasonProducts.map((product, index) => (
+                    <div
+                        key={`${product.name}-${index}`}
+                        className="min-w-[200px] flex-1 rounded-[20px] bg-white p-4 transition-all duration-400 ease-out"
+                        style={{
+                            opacity: index === activeIndex ? 1 : 0.5,
+                            transform: index === activeIndex ? 'scale(1.04)' : 'scale(0.96)',
+                        }}
+                    >
+                        <div className="relative mb-3 aspect-square overflow-hidden rounded-[14px]">
+                            <Image
+                                src={product.image}
+                                alt={product.name}
+                                fill
+                                className="object-cover"
+                                sizes="(max-width: 768px) 70vw, (max-width: 1280px) 33vw, 220px"
+                            />
                         </div>
-                    ))}
-                </div>
+                        <div className="font-display text-[0.95rem] font-bold text-[#261033]">
+                            {product.name}
+                        </div>
+                        {product.price && (
+                            <div className="mt-1 font-display text-base font-extrabold text-[#8a3dc1]">
+                               Desde {product.price}
+                            </div>
+                        )}
+                        {product.tag && (
+                            <span
+                                className="mt-2 inline-block rounded-full px-3 py-1 text-[0.65rem] font-bold text-white"
+                                style={{ backgroundColor: product.tagColor ?? '#ff6b9d' }}
+                            >
+                                {product.tag}
+                            </span>
+                        )}
+                    </div>
+                ))}
             </div>
 
-            {/* Navigation buttons with hover effect */}
-            <button
-                onClick={prevSlide}
-                disabled={isTransitioning}
-                className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/90 rounded-full p-2 shadow-lg 
-                   bg-new-green hover:bg-white hover:scale-110 transition-all group-hover:opacity-100 
-                   disabled:opacity-30 disabled:cursor-not-allowed z-10 cursor-pointer"
-                aria-label="Anterior"
-            >
-                <ChevronLeft className="w-5 h-5 text-black" />
-            </button>
-
-            <button
-                onClick={nextSlide}
-                disabled={isTransitioning}
-                className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/90 rounded-full p-2 shadow-lg 
-                   bg-new-green hover:bg-white hover:scale-110 transition-all group-hover:opacity-100 
-                   disabled:opacity-30 disabled:cursor-not-allowed z-10 cursor-pointer"
-                aria-label="Siguiente"
-            >
-                <ChevronRight className="w-5 h-5 text-black" />
-            </button>
-
-            {/* Dots indicator - single active dot */}
-            <div className="flex justify-center mt-4 gap-1.5">
-                {Array.from({ length: totalGroups }).map((_, index) => (
+            <div className="mt-4 flex justify-center gap-2">
+                {seasonProducts.map((_, index) => (
                     <button
                         key={index}
-                        onClick={() => handleSlideChange(index * productsPerView)}
-                        disabled={isTransitioning}
-                        className={`transition-all duration-300 ${currentGroup === index
-                            ? 'w-6 h-2 bg-main rounded-full'
-                            : 'w-2 h-2 bg-gray-300 rounded-full hover:bg-gray-400'
-                            }`}
-                        aria-label={`Ir a grupo ${index + 1}`}
+                        type="button"
+                        onClick={() => setActiveIndex(index)}
+                        className={`h-2 rounded-full transition-all duration-200 ${
+                            index === activeIndex
+                                ? 'w-6 bg-[var(--color-hero-accent)]'
+                                : 'w-2 bg-white/30'
+                        }`}
+                        aria-label={`Ir al producto ${index + 1}`}
                     />
                 ))}
             </div>
         </div>
     );
-};
+}

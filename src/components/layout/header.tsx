@@ -1,151 +1,223 @@
 "use client";
 
-import { CONTACT } from '@/config/site';
 import { ChevronDown, ChevronUp, Menu, X } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 
 const NAV_LINKS = [
-    { to: "/", label: "Inicio" },
-    { to: "/productos?tipo=Globos", label: "Globos" },
+    { to: '/', label: 'Inicio' },
+    { to: '/productos', label: 'Catálogo' },
     {
-        to: "/productos?ocasion=",
-        label: "Ocasiones",
+        to: '/productos?ocasion=',
+        label: 'Temáticas',
         subItems: [
-            { to: "/productos?ocasion=Niños", label: "Niños" },
-            { to: "/productos?ocasion=Adultos", label: "Adultos" },
-            { to: "/productos?ocasion=Halloween", label: "Halloween" },
-            { to: "/productos?ocasion=Navidad", label: "Navidad" },
-            { to: "/productos?ocasion=Cumpleaños", label: "Cumpleaños" },
-            { to: "/productos?ocasion=Baby+Shower", label: "Baby Shower" },
+            { to: '/productos?ocasion=Niños', label: 'Niños' },
+            { to: '/productos?ocasion=Adultos', label: 'Adultos' },
+            { to: '/productos?ocasion=Halloween', label: 'Halloween' },
+            { to: '/productos?ocasion=Navidad', label: 'Navidad' },
+            { to: '/productos?ocasion=Cumpleaños', label: 'Cumpleaños' },
+            { to: '/productos?ocasion=Baby+Shower', label: 'Baby Shower' },
         ],
     },
-    { to: "/productos?tipo=Piñatas", label: "Piñateria" },
-    { to: "/productos", label: "Catálogo" },
-    { to: "/contacto", label: "Contacto" },
+    { to: '/#personalizados', label: 'Personalizar' },
 ];
 
 export default function Header() {
     const [open, setOpen] = useState(false);
-    const [occasionsOpen, setOccasionsOpen] = useState(false);
-    const [mobileOccasionsOpen, setMobileOccasionsOpen] = useState(false);
+    const [themesOpen, setThemesOpen] = useState(false);
+    const [mobileThemesOpen, setMobileThemesOpen] = useState(false);
+    const [compact, setCompact] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
 
-    // Close dropdown on outside click
+    const handleScrollToCustom = (
+        event: React.MouseEvent<HTMLAnchorElement | HTMLButtonElement>,
+        closeMobileMenu = false,
+    ) => {
+        const targetSection = document.getElementById('personalizados');
+
+        if (!targetSection) {
+            return;
+        }
+
+        event.preventDefault();
+        targetSection.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start',
+        });
+
+        if (closeMobileMenu) {
+            setOpen(false);
+        }
+    };
+
     useEffect(() => {
-        const handler = (e: MouseEvent) => {
-            if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
-                setOccasionsOpen(false);
+        const handleScroll = () => {
+            setCompact(window.scrollY > 60);
+        };
+
+        const handleClickOutside = (event: MouseEvent) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+                setThemesOpen(false);
             }
         };
-        document.addEventListener("mousedown", handler);
-        return () => document.removeEventListener("mousedown", handler);
+
+        window.addEventListener('scroll', handleScroll);
+        document.addEventListener('mousedown', handleClickOutside);
+
+        return () => {
+            window.removeEventListener('scroll', handleScroll);
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
     }, []);
 
     return (
-        <header className="relative top-0 z-50 w-full bg-card/80 backdrop-blur-md">
-            <div className="relative flex h-12 items-center bg-main">
-                <div className="md:hidden flex absolute left-3  items-center h-10">
-                    <button className="p-2" onClick={() => setOpen(!open)} aria-label="Toggle menu">
-                        {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-                    </button>
-                </div>
-                <Link href="/" className="flex items-center gap-2 font-display text-2xl font-bold text-primary absolute left-16 md:left-8">
+        <header className="sticky top-0 z-[100] bg-[#5d1588] px-4 shadow-[0_2px_20px_rgba(35,9,53,0.3)] transition-all duration-300 md:px-8">
+            <div className={`mx-auto flex max-w-7xl items-center justify-between transition-all duration-300 ${compact ? 'h-[52px]' : 'h-16'}`}>
+                <Link href="/" className="flex items-center gap-2 no-underline">
                     <Image
                         src="/brand/logo_fiesta3.png"
                         alt="Marca VVVS"
-                        width={140}
+                        width={148}
                         height={40}
-                        className="object-contain width-[140px] md:width-[160px]"
+                        className="h-auto w-[132px] object-contain md:w-[148px]"
                     />
                 </Link>
-                <nav className="hidden md:flex absolute inset-x-0 z-20 justify-center gap-2">
+
+                <nav className="hidden items-center gap-6 md:flex">
                     {NAV_LINKS.map((link) =>
                         link.subItems ? (
-                            <div key={link.label} className="relative" ref={dropdownRef}>
+                            <div key={link.label} ref={dropdownRef} className="relative">
                                 <button
                                     type="button"
-                                    onClick={() => setOccasionsOpen((v) => !v)}
-                                    className="flex items-center gap-1 rounded-full bg-primary px-4 py-1.5 text-sm font-semibold text-primary-foreground transition-colors hover:text-light-pink"
+                                    onClick={() => setThemesOpen((current) => !current)}
+                                    className="inline-flex items-center gap-1 text-sm font-semibold text-[#f6edd8] transition-colors hover:text-[#eeca21]"
                                 >
                                     {link.label}
-                                    {!occasionsOpen ? <ChevronDown className="h-3.5 w-3.5 transition-transform" /> : <ChevronUp className="h-3.5 w-3.5 transition-transform" />}
+                                    {themesOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                                 </button>
-                                {occasionsOpen && (
-                                    <div className="absolute left-1/2 top-full z-[60] mt-2 w-48 -translate-x-1/2 rounded-xl bg-main py-2 shadow-lg ring-1 ring-white/15">
-                                        {link.subItems.map((sub) => (
+
+                                {themesOpen && (
+                                    <div className="absolute left-1/2 top-full z-[120] mt-3 w-52 -translate-x-1/2 rounded-2xl bg-[#5d1588] py-2 shadow-[0_18px_40px_rgba(35,9,53,0.35)] ring-1 ring-white/15">
+                                        {link.subItems.map((subItem) => (
                                             <Link
-                                                key={sub.to}
-                                                href={sub.to}
-                                                onClick={() => setOccasionsOpen(false)}
-                                                className="block px-4 py-2 text-sm font-medium text-white transition-colors hover:text-light-pink"
+                                                key={subItem.to}
+                                                href={subItem.to}
+                                                onClick={() => setThemesOpen(false)}
+                                                className="block px-4 py-2 text-sm font-medium text-[#f6edd8] transition-colors hover:text-[#eeca21]"
                                             >
-                                                {sub.label}
+                                                {subItem.label}
                                             </Link>
                                         ))}
                                     </div>
                                 )}
                             </div>
                         ) : (
-                            <Link
-                                key={link.to}
-                                href={link.to}
-                                className="rounded-full bg-primary px-4 py-1.5 text-sm font-semibold text-primary-foreground transition-colors hover:text-light-pink"
-
-                            >
-                                {link.label}
-                            </Link>
-                        )
+                            link.label === 'Personalizar' ? (
+                                <Link
+                                    key={link.to}
+                                    href={link.to}
+                                    onClick={(event) => handleScrollToCustom(event)}
+                                    className="text-sm font-semibold text-[#f6edd8] transition-colors hover:text-[#eeca21]"
+                                >
+                                    {link.label}
+                                </Link>
+                            ) : (
+                                <Link
+                                    key={link.to}
+                                    href={link.to}
+                                    className="text-sm font-semibold text-[#f6edd8] transition-colors hover:text-[#eeca21]"
+                                >
+                                    {link.label}
+                                </Link>
+                            )
+                        ),
                     )}
+
+                    <Link
+                        href="/contacto"
+                        className="inline-flex items-center rounded-full bg-light-pink px-[18px] py-2 text-[0.85rem] font-bold text-white transition duration-150 hover:scale-105 hover:brightness-110"
+                    >
+                        Contáctanos
+                    </Link>
                 </nav>
-                <div className="hidden md:absolute right-28 flex items-center gap-3 text-muted-foreground">
-                    <a href={CONTACT.PHONE_LINK} className="text-sm hover:underline">{CONTACT.PHONE}</a>
-                    <span className="hidden md:inline">|</span>
-                </div>
+
+                <button
+                    type="button"
+                    onClick={() => setOpen((current) => !current)}
+                    className="inline-flex items-center justify-center p-2 text-white md:hidden"
+                    aria-label="Toggle menu"
+                >
+                    {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+                </button>
             </div>
 
-            {/* Mobile nav */}
             {open && (
-                <nav className="md:hidden bg-card bg-light-main p-4 flex flex-col gap-2">
-                    {NAV_LINKS.map((link) =>
-                        link.subItems ? (
-                            <div key={link.label} >
-                                <button
-                                    className='cursor-pointer'
-                                    onClick={() => setMobileOccasionsOpen((v) => !v)}
-                                >
-                                    {link.label}
-                                    {mobileOccasionsOpen ? <ChevronUp className="h-3.5 w-3.5 transition-transform inline" /> : <ChevronDown className="h-3.5 w-3.5 transition-transform inline" />}
-                                </button>
-                                {mobileOccasionsOpen && (
-                                    <div className="mt-1 ml-4 flex flex-col gap-1">
-                                        {link.subItems.map((sub) => (
-                                            <Link
-                                                key={sub.to}
-                                                href={sub.to}
-                                                onClick={() => { setOpen(false); setMobileOccasionsOpen(false); }}
-                                                className="px-2  rounded-lg text-sm font-medium hover:bg-muted transition-colors text-start"
-                                            >
-                                                {sub.label}
-                                            </Link>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
-                        ) : (
-                            <Link
-                                key={link.to}
-                                href={link.to}
-                                className="hover:bg-muted transition-colors"
-                                onClick={() => setOpen(false)}
-                            >
-                                {link.label}
-                            </Link>
-                        )
-                    )}
+                <nav className="border-t border-white/10 py-4 md:hidden">
+                    <div className="flex flex-col gap-3">
+                        {NAV_LINKS.map((link) =>
+                            link.subItems ? (
+                                <div key={link.label}>
+                                    <button
+                                        type="button"
+                                        onClick={() => setMobileThemesOpen((current) => !current)}
+                                        className="flex w-full items-center justify-between text-left text-sm font-semibold text-[#f6edd8]"
+                                    >
+                                        {link.label}
+                                        {mobileThemesOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                                    </button>
+
+                                    {mobileThemesOpen && (
+                                        <div className="mt-2 flex flex-col gap-2 pl-4">
+                                            {link.subItems.map((subItem) => (
+                                                <Link
+                                                    key={subItem.to}
+                                                    href={subItem.to}
+                                                    onClick={() => {
+                                                        setOpen(false);
+                                                        setMobileThemesOpen(false);
+                                                    }}
+                                                    className="text-sm font-medium text-[#f6edd8]/90 transition-colors hover:text-[#eeca21]"
+                                                >
+                                                    {subItem.label}
+                                                </Link>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                            ) : (
+                                link.label === 'Personalizar' ? (
+                                    <Link
+                                        key={link.to}
+                                        href={link.to}
+                                        onClick={(event) => handleScrollToCustom(event, true)}
+                                        className="text-sm font-semibold text-[#f6edd8] transition-colors hover:text-[#eeca21]"
+                                    >
+                                        {link.label}
+                                    </Link>
+                                ) : (
+                                    <Link
+                                        key={link.to}
+                                        href={link.to}
+                                        onClick={() => setOpen(false)}
+                                        className="text-sm font-semibold text-[#f6edd8] transition-colors hover:text-[#eeca21]"
+                                    >
+                                        {link.label}
+                                    </Link>
+                                )
+                            ),
+                        )}
+
+                        <Link
+                            href="/contacto"
+                            onClick={() => setOpen(false)}
+                            className="mt-2 inline-flex w-fit items-center rounded-full bg-[var(--color-header-cta)] px-[18px] py-2 text-[0.85rem] font-bold text-white transition duration-150 hover:scale-105 hover:brightness-110"
+                        >
+                            Contáctanos
+                        </Link>
+                    </div>
                 </nav>
             )}
         </header>
-    )
+    );
 }

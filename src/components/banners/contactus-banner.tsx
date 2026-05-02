@@ -5,6 +5,7 @@ import { useState } from "react";
 import { Phone, Mail, MapPinned } from "lucide-react";
 import { CONTACT } from '@/config/site';
 import Image from 'next/image';
+import Subtitle from "../ui/subtitle";
 
 export default function ContactUsBanner() {
     const [formState, setFormState] = useState({ name: "", email: "", phone: "", message: "" });
@@ -21,6 +22,9 @@ export default function ContactUsBanner() {
 
     return (
         <section className="py-15 container-custom">
+            <div className="text-center">
+                <Subtitle title="Estamos aquí" color="main-purple" />
+            </div>
             <Title mainTitle="Vísitanos" subtitle="Descubre cómo podemos hacer que tu próxima celebración sea inolvidable" />
 
             <motion.div
@@ -32,7 +36,7 @@ export default function ContactUsBanner() {
                 <div className="grid grid-cols-1  md:grid-cols-2 gap-8 items-start text-black text-foreground ">
                     {/* Left: Contact form */}
                     <div className="bg-card/50 rounded-2xl p-6 bg-[#FFF6EE] h-full">
-                        <h3 className="text-xl font-semibold mb-4 text-main">Escríbenos</h3>
+                        <h3 className="text-xl font-semibold mb-4 text-light-pink">Escríbenos</h3>
                         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                             <label className="text-sm">Nombre</label>
                             <input name="name" value={formState.name} onChange={handleChange} required className="px-3 py-2 rounded-lg border border-input bg-transparent" />
@@ -55,8 +59,8 @@ export default function ContactUsBanner() {
                     {/* Right: Cards */}
                     <div className="flex flex-col gap-6 h-full">
                         <div className="bg-main text-white rounded-2xl p-6 flex flex-wrap md:flex-nowrap items-center gap-6 shadow-lg">
-                                <a href={CONTACT.PHONE_LINK} target="_blank" aria-label="WhatsApp" className="group">
-                            <div className="p-4 rounded-lg bg-white/10 transition duration-300 group-hover:scale-110 group-hover:bg-white/20 group-hover:shadow-lg">
+                            <a href={CONTACT.PHONE_LINK} target="_blank" aria-label="WhatsApp" className="group">
+                                <div className="p-4 rounded-lg bg-white/10 transition duration-300 group-hover:scale-110 group-hover:bg-white/20 group-hover:shadow-lg">
                                     <Image
                                         src="/whatsapp.png"
                                         alt="Whatssap logo"
@@ -64,8 +68,8 @@ export default function ContactUsBanner() {
                                         height={40}
                                         className="object-contain transition duration-300 group-hover:rotate-6"
                                     />
-                            </div>
-                                </a>
+                                </div>
+                            </a>
                             <div>
                                 <p className="text-sm font-semibold uppercase opacity-90">Comunícate con nosotros </p>
                                 <p className="text-2xl md:text-3xl font-extrabold text-[#ffedfc] mt-1">{CONTACT.PHONE}</p>

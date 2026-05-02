@@ -1,71 +1,40 @@
-import React from 'react';
-import Image from 'next/image';
-import './pet-banner.css';
+import Link from 'next/link';
 
 interface PetBannerProps {
-    imagesUrl: string[];
+    imagesUrl?: string[];
     altText?: string;
 }
 
-const PetBanner: React.FC<PetBannerProps> = ({ imagesUrl, altText = "Best Employee" }) => {
-    const n = imagesUrl.length;
-    const d = 10; // animation duration in seconds (matches CSS variable --d)
-
-    let originY = 50; // default centered
-    if (n > 1) {
-        originY = (50 / Math.sin(Math.PI / n)) + 50; // computes percent for transform-origin
-    }
-
-    const animationName = `m-${n}`;
-    // build keyframes per the SCSS logic
-    const keyframesParts: string[] = [];
-    keyframesParts.push(`0%,3% { transform: rotate(0deg); }`);
-    for (let i = 1; i <= n; i++) {
-        const pct = (i / n) * 100;
-        const lower = pct - 2;
-        const upper = pct + 3;
-        const angle = (i / n) * -360;
-        keyframesParts.push(`${lower}%,${upper}% { transform: rotate(${angle}deg); }`);
-    }
-    keyframesParts.push(`98%,100% { transform: rotate(-360deg); }`);
-    const keyframes = `@keyframes ${animationName} { ${keyframesParts.join(' ')} }`;
-
+const PetBanner: React.FC<PetBannerProps> = () => {
     return (
-    <div className="pet-banner bg-[url(/shop/background.jpg)] bg-cover bg-center bg-fixed flex flex-wrap md:flex-nowrap items-center justify-space-around p-8 min-h-[220px] shadow-[0_2px_8px_rgba(0,0,0,0.07)]">
-        <div className="flex-1 z-1">
-            <h2 className='text-white m-0 bold text-3xl md:text-4xl font-bold text-center md:text-left'>
-                Conoce a nuestra mejor empleada!
-            </h2>
-            <p className='text-white my-4 text-lg text-center md:text-left'>Te presentamos a Raya, nuestra empleada más solicitada</p>
-        </div>
-        <div className="gallery">
-           
-                {/* inject generated keyframes for this instance */}
-                <style>{keyframes}</style>
+        <section className="relative overflow-hidden bg-light-pink px-5 py-12 md:px-8">
+            <div className="absolute -left-12 top-1/2 h-40 w-40 -translate-y-1/2 rounded-full bg-white/10" />
+            <div className="absolute right-8 top-8 h-24 w-24 rounded-full bg-white/10" />
+            <div className="absolute bottom-[-2.5rem] right-1/3 h-32 w-32 rounded-full bg-white/8" />
 
-                {imagesUrl.map((url, index) => {
-                    const i = index + 1; // matches SCSS 1..n
-                    const delaySeconds = ((1 - i) / n) * d;
-                    return (
-                        <Image
-                            key={index}
-                            src={url}
-                            alt={`${altText} ${index + 1}`}
-                            width={200}
-                            height={200}
-                            style={{
-                                transformOrigin: `50% ${originY}%`,
-                                animationName,
-                                animationDuration: `${d}s`,
-                                animationTimingFunction: 'cubic-bezier(.5,-0.2,.5,1.2)',
-                                animationIterationCount: 'infinite',
-                                animationDelay: `${delaySeconds}s`,
-                            }}
-                        />
-                    );
-                })}
-        </div>
-    </div>
-); }
+            <div className="relative z-10 mx-auto flex max-w-7xl flex-col items-center justify-between gap-8 text-center md:flex-row md:text-left">
+                <div className="flex-1">
+                    <h2 className="font-display text-3xl font-black leading-tight text-white md:text-4xl">
+                        ¿Lista tu fiesta?
+                        <br />
+                        ¡Pide hoy con envío gratis! 🎉
+                    </h2>
+                    <p className="mt-3 text-base leading-7 text-white/90">
+                        Consulta disponibilidad, tiempos de entrega y condiciones de pedido para organizar tu celebración sin contratiempos.
+                    </p>
+                </div>
+
+                <div className="flex-shrink-0">
+                    <Link
+                        href="/contacto"
+                        className="inline-flex items-center rounded-full bg-white px-7 py-3 font-display text-base font-extrabold text-light-pink shadow-[0_4px_20px_rgba(38,16,51,0.18)] transition duration-150 hover:-translate-y-0.5"
+                    >
+                        Ver condiciones →
+                    </Link>
+                </div>
+            </div>
+        </section>
+    );
+};
 
 export default PetBanner;

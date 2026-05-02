@@ -23,13 +23,10 @@ export default function ProductBannerComponent() { //Filter Products from type o
                                 whileHover={{ scale: 1.05, y: -4 }}
                                 className="relative flex flex-col items-center justify-center gap-6 p-6 border border-transparent cursor-pointer h-64"
                             >
-                                {/* Background image or color */}
                                 <div 
                                     className={`absolute inset-0 bg-cover bg-center ${product.image ?? product.color}  no-repeat bg-center-bottom bg-size[250px] rounded-2xl`}
                                 ></div>
-                                {/* Dark overlay - adjust opacity as needed */}
                                 <div className="absolute inset-0 bg-black/40 rounded-2xl"></div>
-                                {/* Content on top */}
                                 <span className="font-semibold z-1 text-shadow-lg md:text-subtitles text-[1.3rem] font-title text-white uppercase">{product.name}</span>
                             </motion.div>
                         </Link>
