@@ -25,9 +25,24 @@ type ProductCardProps = {
     badge?: string;
     badgeColor?: string;
     metaChip?: string;
+    colorDisplay?: 'count' | 'swatches';
     viewHref?: string;
     viewLabel?: string;
     quoteHref?: string;
+};
+
+const colorSwatchMap: Record<string, string> = {
+    Amarillo: '#ffd21f',
+    Azul: '#1463ff',
+    Blanco: '#ffffff',
+    Celeste: '#8fd3ff',
+    Dorado: '#e5b84c',
+    Fucsia: '#e91e9a',
+    Marron: '#8b5a3c',
+    Morado: '#8d1fe8',
+    Negro: '#1c1c1c',
+    Rojo: '#ef3340',
+    Rosado: '#ff7ab8',
 };
 
 export default function ProductCard({
@@ -37,6 +52,7 @@ export default function ProductCard({
     badge = 'Destacado',
     badgeColor = '#8a3dc1',
     metaChip,
+    colorDisplay = 'count',
     viewHref,
     viewLabel = 'Ver',
     quoteHref,
@@ -60,6 +76,38 @@ export default function ProductCard({
         window.setTimeout(() => {
             setIsQuoted(false);
         }, 1600);
+    };
+
+    const renderColorMeta = () => {
+        if (colorDisplay === 'swatches') {
+            if (product.colors.length === 0) {
+                return (
+                    <div className="rounded-full bg-[#f8eefc] px-3 py-1 text-[0.7rem] font-bold text-[#8a3dc1]">
+                        {resolvedMetaChip}
+                    </div>
+                );
+            }
+
+            return (
+                <div className="flex items-center gap-1.5 rounded-full bg-[#f8eefc] px-3 py-2">
+                    {product.colors.map((color) => (
+                        <span
+                            key={`${product.id}-${color}`}
+                            className="h-4 w-4 rounded-full border border-black/10 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.18)]"
+                            style={{ backgroundColor: colorSwatchMap[color] ?? '#d9c2f3' }}
+                            title={color}
+                            aria-label={color}
+                        />
+                    ))}
+                </div>
+            );
+        }
+
+        return (
+            <div className="rounded-full bg-[#f8eefc] px-3 py-1 text-[0.7rem] font-bold text-[#8a3dc1]">
+                {resolvedMetaChip}
+            </div>
+        );
     };
 
     return (
@@ -110,21 +158,19 @@ export default function ProductCard({
                 </div>
 
                 <div className="flex items-end justify-between gap-3">
-                    {
-                        hasPrice ? (
-                            <div>
-                                <p className="text-[0.72rem] font-bold uppercase tracking-[0.08em] text-[#9f8a95]">
-                                    Desde
-                                </p>
-                                <p className="font-display text-[1.45rem] font-black leading-none text-main-purple">
-                                    ${product.price?.toFixed(2) ?? '0.00'} 
-                                </p>
-                            </div>
-                        ) : null
-                    }
+                    {hasPrice ? (
+                        <div>
+                            <p className="text-[0.72rem] font-bold uppercase tracking-[0.08em] text-[#9f8a95]">
+                                Desde
+                            </p>
+                            <p className="font-display text-[1.45rem] font-black leading-none text-main-purple">
+                                ${product.price?.toFixed(2) ?? '0.00'}
+                            </p>
+                        </div>
+                    ) : null}
 
-                    <div className="rounded-full bg-[#f8eefc] px-3 py-1 text-[0.7rem] font-bold text-[#8a3dc1]">
-                        {resolvedMetaChip}
+                    <div className={`${hasPrice ? '' : 'ml-auto'}`}>
+                        {renderColorMeta()}
                     </div>
                 </div>
 

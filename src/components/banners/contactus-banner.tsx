@@ -58,7 +58,7 @@ export default function ContactUsBanner() {
 
                     {/* Right: Cards */}
                     <div className="flex flex-col gap-6 h-full">
-                        <div className="bg-main text-white rounded-2xl p-6 flex flex-wrap md:flex-nowrap items-center gap-6 shadow-lg">
+                        <div className="bg-[#F89651] text-white rounded-2xl p-6 flex flex-wrap md:flex-nowrap items-center gap-6 shadow-lg">
                             <a href={CONTACT.PHONE_LINK} target="_blank" aria-label="WhatsApp" className="group">
                                 <div className="p-4 rounded-lg bg-white/10 transition duration-300 group-hover:scale-110 group-hover:bg-white/20 group-hover:shadow-lg">
                                     <Image

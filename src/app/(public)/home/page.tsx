@@ -361,8 +361,6 @@ export default function HomePage() {
           </div>
         </section>
 
-
-
         {/* CTA */}
         <ContactUsBanner />
       </div>

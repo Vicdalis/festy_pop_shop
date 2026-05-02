@@ -376,6 +376,7 @@ export default function ProductsPage() {
                                         badge={product.character === 'General' ? product.category : product.character}
                                         badgeColor={product.character === 'General' ? '#8a3dc1' : '#e7467d'}
                                         metaChip={product.colors.length > 0 ? `${product.colors.length} colores` : 'Pedido especial'}
+                                        colorDisplay="swatches"
                                         viewHref={`/productos?tipo=${encodeURIComponent(product.category)}`}
                                         viewLabel="Filtrar"
                                         sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
