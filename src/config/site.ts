@@ -1,7 +1,8 @@
 // Global site configuration values
 export const CONTACT = {
     PHONE: "+58 (424) 221-4781",
-    PHONE_LINK: "https://wa.me/message/CXAYPAB7TZM7G1",
+    PHONE_LINK_MAYOR: "https://wa.me/584242214781?text=Hola!+quiero+cotizar+un+pedido+al+mayor",
+    PHONE_LINK: "https://wa.me/message/CXAYPAB7TZM7G1?text=Hola!+FestyPop+vi+tu+website+y+quiero+",
     SUPPORT_EMAIL: "INV.VVVS@GMAIL.COM",
     SUPPORT_EMAIL_LINK: `mailto:inv.vvvs@gmail.com`,
     INSTAGRAM_LINK: "https://www.instagram.com/festypop_ccs/",

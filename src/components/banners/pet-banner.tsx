@@ -1,3 +1,4 @@
+import { CONTACT } from '@/config/site';
 import Link from 'next/link';
 
 interface PetBannerProps {
@@ -14,22 +15,23 @@ const PetBanner: React.FC<PetBannerProps> = () => {
 
             <div className="relative z-10 mx-auto flex max-w-7xl flex-col items-center justify-between gap-8 text-center md:flex-row md:text-left">
                 <div className="flex-1">
-                    <h2 className="font-display text-3xl font-black leading-tight text-white md:text-4xl">
-                        ¿Lista tu fiesta?
+                    <h2 className="font-display text-2xl font-black leading-tight text-white md:text-3xl">
+                        ¿Buscas precios al mayor?
                         <br />
-                        ¡Pide hoy con envío gratis! 🎉
+                        ¡Pide hoy con envío por MRW y ZOOM! 📦
                     </h2>
                     <p className="mt-3 text-base leading-7 text-white/90">
-                        Consulta disponibilidad, tiempos de entrega y condiciones de pedido para organizar tu celebración sin contratiempos.
+                        Consulta disponibilidad, y cantidades minimas para hacer un pedido.
                     </p>
                 </div>
 
                 <div className="flex-shrink-0">
                     <Link
-                        href="/contacto"
+                        href={CONTACT.PHONE_LINK_MAYOR}
+                        target="_blank"
                         className="inline-flex items-center rounded-full bg-white px-7 py-3 font-display text-base font-extrabold text-light-pink shadow-[0_4px_20px_rgba(38,16,51,0.18)] transition duration-150 hover:-translate-y-0.5"
                     >
-                        Ver condiciones →
+                        Consultar por mayor →
                     </Link>
                 </div>
             </div>
