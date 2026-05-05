@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 
 interface Product {
@@ -19,6 +19,8 @@ export default function ProductSlider({
     autoPlayInterval = 3000,
 }: ProductSliderProps) {
     const [activeIndex, setActiveIndex] = useState(0);
+    const sliderRef = useRef<HTMLDivElement | null>(null);
+    const itemRefs = useRef<Array<HTMLDivElement | null>>([]);
 
     useEffect(() => {
         if (seasonProducts.length <= 1) {
@@ -34,16 +36,43 @@ export default function ProductSlider({
         };
     }, [autoPlayInterval, seasonProducts.length]);
 
+    useEffect(() => {
+        const slider = sliderRef.current;
+        const activeItem = itemRefs.current[activeIndex];
+
+        if (!slider || !activeItem) {
+            return;
+        }
+
+        if (!window.matchMedia('(max-width: 767px)').matches) {
+            return;
+        }
+
+        const targetScrollLeft =
+            activeItem.offsetLeft - (slider.clientWidth / 2) + (activeItem.clientWidth / 2);
+
+        slider.scrollTo({
+            left: Math.max(0, targetScrollLeft),
+            behavior: 'smooth',
+        });
+    }, [activeIndex]);
+
     return (
-        <div className="relative">
-            <div className="flex gap-4 overflow-x-auto pb-2 md:overflow-hidden">
+        <div className="relative w-full max-w-full overflow-hidden">
+            <div
+                ref={sliderRef}
+                className="flex w-full snap-x snap-mandatory gap-3 overflow-x-auto px-1 pb-2 sm:gap-4 md:overflow-hidden"
+            >
                 {seasonProducts.map((product, index) => (
                     <div
                         key={`${product.name}-${index}`}
-                        className="min-w-[200px] flex-1 rounded-[20px] bg-white p-4 transition-all duration-400 ease-out"
+                        ref={(element) => {
+                            itemRefs.current[index] = element;
+                        }}
+                        className="min-w-0 shrink-0 basis-[78%] snap-center rounded-[20px] bg-white p-3 transition-all duration-400 ease-out sm:basis-[62%] sm:p-4 md:basis-0 md:flex-1"
                         style={{
                             opacity: index === activeIndex ? 1 : 0.5,
-                            transform: index === activeIndex ? 'scale(1.04)' : 'scale(0.96)',
+                            transform: index === activeIndex ? 'scale(1)' : 'scale(0.96)',
                         }}
                     >
                         <div className="relative mb-3 aspect-square overflow-hidden rounded-[14px]">
@@ -55,11 +84,11 @@ export default function ProductSlider({
                                 sizes="(max-width: 768px) 70vw, (max-width: 1280px) 33vw, 220px"
                             />
                         </div>
-                        <div className="font-display text-[0.95rem] font-bold text-[#261033]">
+                        <div className="break-words font-display text-[0.95rem] font-bold text-[#261033]">
                             {product.name}
                         </div>
                         {product.price && (
-                            <div className="mt-1 font-display text-base font-extrabold text-[#8a3dc1]">
+                            <div className="mt-1 font-display text-sm font-extrabold text-[#8a3dc1] sm:text-base">
                                Desde {product.price}
                             </div>
                         )}

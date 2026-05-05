@@ -1,7 +1,7 @@
 'use client';
 
 import Link from "next/link";
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { Sparkles } from "lucide-react";
 import Button from "@/components/ui/button";
@@ -15,11 +15,62 @@ import AnimatedPaintDropSeparator from "@/components/ui/separators.tsx/paint-dro
 import ProductSlider from "@/components/ui/slider";
 import { CONTACT } from "@/config/site";
 import Subtitle from "@/components/ui/subtitle";
-import type { Product } from "@/types/product";
 import ProductCard from "@/components/products/product-card";
+import { useProducts } from "@/store/hooks/use-products";
+
+const FEATURED_CATEGORY_FILTERS = [
+  "Todo",
+  "Globos",
+  "Afiches",
+  "Piñatas",
+  "Personalizados",
+  "Anime",
+  "Cotillones",
+] as const;
+
+function normalizeText(value: string) {
+  return value
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+}
+
+function matchesFeaturedCategory(category: string, product: {
+  category: string;
+  character: string;
+  name: string;
+  description: string;
+}) {
+  const searchableText = [
+    product.category,
+    product.character,
+    product.name,
+    product.description,
+  ]
+    .map(normalizeText)
+    .join(" ");
+
+  const normalizedCategory = normalizeText(category);
+
+  if (normalizedCategory === "pinatas") {
+    return searchableText.includes("pinata") || searchableText.includes("pinatas");
+  }
+
+  if (normalizedCategory === "personalizados") {
+    return searchableText.includes("personaliz");
+  }
+
+  if (normalizedCategory === "cotillones") {
+    return searchableText.includes("cotillon") || searchableText.includes("cotillones");
+  }
+
+  return searchableText.includes(normalizedCategory);
+}
 
 export default function HomePage() {
   const confettiCanvasRef = useRef<HTMLCanvasElement | null>(null);
+  const { products, isLoading } = useProducts();
+  const [selectedFeaturedCategory, setSelectedFeaturedCategory] = useState<string | null>(null);
 
   const handleScrollToCustom = (event: React.MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault();
@@ -118,18 +169,19 @@ export default function HomePage() {
     { name: "Chupeteras", price: "$199", tag: "ESPECIAL", tagColor: "#8a3dc1", image: "/products/chupetera.jpeg" },
   ];
 
-  const featuredProducts: Array<Product & { price: number; badge: string; badgeColor: string; featured?: boolean }> = [
-    { id: 1, name: "Banda y Cintillo F. Cumpleaños", description: "Set de cumpleaños “Feliz Cumpleaños”: banda de glitter + cintillo holográfico.", price: 34.99, image: "/products/destacados/feliz_cumple.jpg", category: "Decoración", character: "Cumpleaños", colors: ["Azul", "Plateado", "Dorado", "Rosado", "Fucsia"], occasions: ["Birthday"], featured: true, badge: "Más vendido", badgeColor: "#e7467d" },
-    { id: 2, name: "Set de Globos Kuromi", description: "Set de globos de Kuromi, 5 piezas. Sirve para aire y helio.", price: 28.99, image: "/products/destacados/kuromi_balloon.jpg", category: "Globos", character: "Kuromi", colors: ["Rosado", "Negro"], occasions: ["Birthday", "Party Kits"], featured: true, badge: "Nuevo", badgeColor: "#28c7c0" },
-    { id: 3, name: "Combo de Piñata Mickey", description: "Combo de piñata cuadrada con 25 piezas de chuchería para rellenar.", price: 45.99, image: "/products/destacados/combo.jpg", category: "Piñatas", character: "Mickey", colors: [], occasions: ["Birthday"], badge: "Combo", badgeColor: "#8a3dc1" },
-    { id: 4, name: "Set de Globos Labubu", description: "Set de globos Labubu, 5 piezas. Disponible en 2 colores.", price: 24.99, image: "/products/destacados/labubu.jpg", category: "Globos", character: "Labubu", colors: ["Marron", "Rosado"], occasions: ["Birthday", "Party Kits"], badge: "Especial", badgeColor: "#f08a24" },
-  ];
-
   const petImages = [
     "/pet/raya1.jpg",
     "/pet/raya2.jpg",
     "/pet/raya3.jpg",
   ];
+
+  const visibleFeaturedProducts = useMemo(() => {
+    const filteredProducts = selectedFeaturedCategory && selectedFeaturedCategory !== "Todo"
+      ? products.filter((product) => matchesFeaturedCategory(selectedFeaturedCategory, product))
+      : products;
+
+    return filteredProducts.slice(0, 9);
+  }, [products, selectedFeaturedCategory]);
 
   return (
     <div>
@@ -241,59 +293,59 @@ export default function HomePage() {
           <AnimatedPaintDropSeparator color="var(--color-main-purple)" />
           <section
             id="personalizados"
-            className="relative overflow-hidden bg-main-purple px-5 py-16 md:px-8 md:py-24"
+            className="relative overflow-hidden bg-main-purple px-4 py-16 sm:px-5 md:px-8 md:py-24"
           >
             <div className="absolute inset-0 bg-[linear-gradient(180deg,#5D1588_0%,#ff6b9d38_100%),linear-gradient(180deg,#eeca211a_0%,rgba(93,21,136,0)_100%)]" />
-            <div className="relative z-10 mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-[1fr_1.2fr]">
-              <div>
+            <div className="relative z-10 mx-auto grid max-w-7xl items-center gap-10 lg:gap-12 lg:grid-cols-[1fr_1.2fr]">
+              <div className="min-w-0 text-center lg:text-left">
                 <Subtitle title="Especiales" />
-                <h2 className="mt-4 font-display text-4xl font-black leading-tight text-white md:text-6xl">
+                <h2 className="mt-4 break-words font-display text-3xl font-black leading-tight text-white sm:text-4xl md:text-6xl">
                   Productos
                   <br />
                   Personalizados
                 </h2>
-                <p className="mt-4 max-w-xl text-base leading-7 text-white/75 md:text-lg">
+                <p className="mx-auto mt-4 max-w-xl text-sm leading-6 text-white/75 sm:text-base sm:leading-7 md:text-lg lg:mx-0">
                   Realizamos pedidos a tu gusto por encargo.
                 </p>
 
                 <div className="mt-8">
-                  <p className="mb-6 text-left text-xl font-semibold text-white">¿Cómo hacer un pedido personalizado?</p>
-                  <div className="flex flex-col gap-5">
-                    <div className="flex items-start gap-4">
+                  <p className="mb-6 text-center text-lg font-semibold text-white sm:text-xl lg:text-left">¿Cómo hacer un pedido personalizado?</p>
+                  <div className="flex flex-col gap-5 text-left">
+                    <div className="flex items-start gap-3 sm:gap-4">
                       <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-hero-accent font-display text-base font-black text-[#261033]">
                         1
                       </span>
-                      <div>
+                      <div className="min-w-0">
                         <span className="font-display text-base font-bold text-white">Elige tu producto</span>
-                        <p className="mt-1 text-sm leading-6 text-white/70">
+                        <p className="mt-1 break-words text-sm leading-6 text-white/70">
                           Contáctanos con 15 días de anticipación para asegurar tu pedido y brindarte opciones sobre tu idea
                         </p>
                       </div>
                     </div>
-                    <div className="flex items-start gap-4">
+                    <div className="flex items-start gap-3 sm:gap-4">
                       <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-hero-accent font-display text-base font-black text-[#261033]">
                         2
                       </span>
-                      <div>
+                      <div className="min-w-0">
                         <span className="font-display text-base font-bold text-white">50% Adelantado</span>
-                        <p className="mt-1 text-sm leading-6 text-white/70">
+                        <p className="mt-1 break-words text-sm leading-6 text-white/70">
                           Realiza un depósito del 50% para confirmar tu pedido
                         </p>
                       </div>
                     </div>
-                    <div className="flex items-start gap-4">
+                    <div className="flex items-start gap-3 sm:gap-4">
                       <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-hero-accent font-display text-base font-black text-[#261033]">
                         3
                       </span>
-                      <div>
+                      <div className="min-w-0">
                         <span className="font-display text-base font-bold text-white">Retira tu pedido</span>
-                        <p className="mt-1 text-sm leading-6 text-white/70">
+                        <p className="mt-1 break-words text-sm leading-6 text-white/70">
                           Retira tu pedido en nuestra sede en la fecha acordada
                         </p>
                       </div>
                     </div>
                   </div>
-                  <div className="mt-8 text-center lg:text-left">
+                  <div className="mt-8 flex justify-center lg:justify-start">
                     <a href={CONTACT.PHONE_LINK} target="_blank" rel="noreferrer">
                       <Button className="bg-hero-accent text-[#261033] shadow-[0_8px_30px_rgba(238,202,33,0.35)] hover:-translate-y-0.5 hover:opacity-100">
                         Hacer un pedido
@@ -303,7 +355,7 @@ export default function HomePage() {
                 </div>
               </div>
 
-              <div>
+              <div className="min-w-0 overflow-hidden">
                 <ProductSlider seasonProducts={seasonProducts} />
               </div>
             </div>
@@ -338,19 +390,54 @@ export default function HomePage() {
             <Subtitle title="Destacados" color="main-purple" />
           </div>
           <Title mainTitle="Productos destacados " subtitle="Combos imperdibles" />
-          <div className="container-custom mx-auto max-w-7xl px-5">
-            <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
-              {featuredProducts.map((product) => (
-                <ProductCard
-                  key={product.id}
-                  product={product}
-                  badge={product.badge}
-                  badgeColor={product.badgeColor}
-                  metaChip={product.colors.length > 0 ? `${product.colors.length} colores` : 'Personalizable'}
-                  viewHref={`/productos?ocasion=${encodeURIComponent(product.occasions[0] ?? '')}`}
-                />
-              ))}
+          <div className="container-custom mx-auto max-w-7xl px-5 md:px-8 xl:px-14">
+            <div className="mb-8 flex flex-wrap justify-center gap-3">
+              {FEATURED_CATEGORY_FILTERS.map((category) => {
+                const isActive = selectedFeaturedCategory === category;
+
+                return (
+                  <button
+                    key={category}
+                    type="button"
+                    onClick={() => setSelectedFeaturedCategory(category)}
+                    className={`rounded-full border px-4 py-2 text-sm font-bold transition-all ${
+                      (category === "Todo" && selectedFeaturedCategory === null) || isActive
+                        ? "border-[#e7467d] bg-[#e7467d] text-white shadow-[0_8px_18px_rgba(231,70,125,0.22)]"
+                        : "border-[#efc9b8] bg-white text-[#7a5662] hover:border-[#e7467d] hover:text-[#9f2051]"
+                    }`}
+                  >
+                    {category}
+                  </button>
+                );
+              })}
             </div>
+
+            {isLoading ? (
+              <div className="rounded-3xl border border-[#f3d7c6] bg-white/80 px-6 py-12 text-center shadow-sm">
+                <p className="text-lg font-bold text-[#4b2737]">Cargando productos destacados...</p>
+              </div>
+            ) : visibleFeaturedProducts.length > 0 ? (
+              <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+                {visibleFeaturedProducts.map((product, index) => (
+                  <ProductCard
+                    key={product.id}
+                    product={product}
+                    index={index}
+                    badge={product.character === 'General' ? product.category : product.character}
+                    badgeColor={product.character === 'General' ? '#8a3dc1' : '#e7467d'}
+                    metaChip={product.colors.length > 0 ? `${product.colors.length} colores` : 'Pedido especial'}
+                    colorDisplay="swatches"
+                    viewHref={`/productos?tipo=${encodeURIComponent(product.category)}`}
+                    viewLabel="Filtrar"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="rounded-3xl border border-dashed border-[#efc9b8] bg-white/80 px-6 py-12 text-center">
+                <p className="text-lg font-bold text-[#4b2737]">No hay productos en esta categoría por ahora.</p>
+              </div>
+            )}
             <div className="mt-8 flex justify-center">
               <Link href="/productos">
                 <Button variant="outlined" color="var(--color-main)" >

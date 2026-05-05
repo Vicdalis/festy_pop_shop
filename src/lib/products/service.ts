@@ -12,10 +12,17 @@ export type ProductsResult = {
 };
 
 function normalizeProduct(item: ProductApiItem, index: number): Product {
+    const fallbackImage = '/products/destacados/combo.jpg';
+    const normalizedImages = Array.isArray(item.images)
+        ? item.images.filter((image): image is string => typeof image === 'string' && image.length > 0)
+        : [];
+    const primaryImage = item.image ?? normalizedImages[0] ?? fallbackImage;
+
     return {
         id: Number(item.id ?? index + 1),
         name: item.name ?? 'Producto sin nombre',
-        image: item.image ?? '/products/destacados/combo.jpg',
+        image: primaryImage,
+        images: normalizedImages.length > 0 ? normalizedImages : [primaryImage],
         price: item.price ?? null,
         category: item.category ?? 'Sin categoria',
         character: item.character ?? 'General',

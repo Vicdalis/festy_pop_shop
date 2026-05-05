@@ -3,7 +3,8 @@
 import { ChevronDown, ChevronUp, Menu, X } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
+import { CONTACT } from '@/config/site';
 
 const NAV_LINKS = [
     { to: '/', label: 'Inicio' },
@@ -28,7 +29,6 @@ export default function Header() {
     const [themesOpen, setThemesOpen] = useState(false);
     const [mobileThemesOpen, setMobileThemesOpen] = useState(false);
     const [compact, setCompact] = useState(false);
-    const dropdownRef = useRef<HTMLDivElement>(null);
 
     const handleScrollToCustom = (
         event: React.MouseEvent<HTMLAnchorElement | HTMLButtonElement>,
@@ -56,18 +56,10 @@ export default function Header() {
             setCompact(window.scrollY > 60);
         };
 
-        const handleClickOutside = (event: MouseEvent) => {
-            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-                setThemesOpen(false);
-            }
-        };
-
         window.addEventListener('scroll', handleScroll);
-        document.addEventListener('mousedown', handleClickOutside);
 
         return () => {
             window.removeEventListener('scroll', handleScroll);
-            document.removeEventListener('mousedown', handleClickOutside);
         };
     }, []);
 
@@ -87,10 +79,14 @@ export default function Header() {
                 <nav className="hidden items-center gap-6 md:flex">
                     {NAV_LINKS.map((link) =>
                         link.subItems ? (
-                            <div key={link.label} ref={dropdownRef} className="relative">
+                            <div
+                                key={link.label}
+                                className="relative -mb-3 pb-3"
+                                onMouseEnter={() => setThemesOpen(true)}
+                                onMouseLeave={() => setThemesOpen(false)}
+                            >
                                 <button
                                     type="button"
-                                    onClick={() => setThemesOpen((current) => !current)}
                                     className="inline-flex items-center gap-1 text-sm font-semibold text-[#f6edd8] transition-colors hover:text-[#eeca21]"
                                 >
                                     {link.label}
@@ -98,7 +94,7 @@ export default function Header() {
                                 </button>
 
                                 {themesOpen && (
-                                    <div className="absolute left-1/2 top-full z-[120] mt-3 w-52 -translate-x-1/2 rounded-2xl bg-[#5d1588] py-2 shadow-[0_18px_40px_rgba(35,9,53,0.35)] ring-1 ring-white/15">
+                                    <div className="absolute left-1/2 top-full z-[120] w-52 -translate-x-1/2 rounded-2xl bg-[#5d1588] py-2 shadow-[0_18px_40px_rgba(35,9,53,0.35)] ring-1 ring-white/15">
                                         {link.subItems.map((subItem) => (
                                             <Link
                                                 key={subItem.to}
@@ -142,14 +138,25 @@ export default function Header() {
                     </Link>
                 </nav>
 
-                <button
-                    type="button"
-                    onClick={() => setOpen((current) => !current)}
-                    className="inline-flex items-center justify-center p-2 text-white md:hidden"
-                    aria-label="Toggle menu"
-                >
-                    {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-                </button>
+                <div className="flex items-center gap-2 md:hidden">
+                    <Link
+                        href={CONTACT.PHONE_LINK}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex h-9 items-center rounded-full bg-light-pink px-3 text-[0.76rem] font-bold leading-none text-white transition duration-150 hover:scale-105 hover:brightness-110"
+                    >
+                        Contáctanos
+                    </Link>
+
+                    <button
+                        type="button"
+                        onClick={() => setOpen((current) => !current)}
+                        className="inline-flex h-10 w-10 items-center justify-center rounded-full text-white"
+                        aria-label="Toggle menu"
+                    >
+                        {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+                    </button>
+                </div>
             </div>
 
             {open && (
@@ -208,13 +215,6 @@ export default function Header() {
                             ),
                         )}
 
-                        <Link
-                            href="/contacto"
-                            onClick={() => setOpen(false)}
-                            className="mt-2 inline-flex w-fit items-center rounded-full bg-[var(--color-header-cta)] px-[18px] py-2 text-[0.85rem] font-bold text-white transition duration-150 hover:scale-105 hover:brightness-110"
-                        >
-                            Contáctanos
-                        </Link>
                     </div>
                 </nav>
             )}
