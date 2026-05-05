@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { ChevronDown, Palette, Search, Sparkles, Tag } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
@@ -57,6 +57,7 @@ function resolveOccasionKey(value: string) {
 export default function ProductsPage() {
     const searchParams = useSearchParams();
     const { products, isLoading, error, source } = useProducts();
+    const catalogSectionRef = useRef<HTMLElement | null>(null);
     const requestedTypeLabel = searchParams.get('tipo')?.replace(/\+/g, ' ').trim() ?? '';
     const requestedOccasionLabel = searchParams.get('ocasion')?.replace(/\+/g, ' ').trim() ?? '';
     const requestedType = normalizeFilterValue(searchParams.get('tipo'));
@@ -69,6 +70,7 @@ export default function ProductsPage() {
     );
     const hasTypeFilterFromUrl = requestedType.length > 0;
     const hasOccasionFilterFromUrl = requestedOccasion.length > 0;
+    const shouldAutoScrollToCatalog = hasTypeFilterFromUrl || hasOccasionFilterFromUrl;
     const hasValidTypeFilter = !hasTypeFilterFromUrl || Boolean(matchedCategory);
     const [selectedColor, setSelectedColor] = useState('Todos');
     const [selectedCharacter, setSelectedCharacter] = useState('Todos');
@@ -83,6 +85,19 @@ export default function ProductsPage() {
         setSelectedCategory(matchedCategory ?? 'Todos');
         setSelectedOccasion(requestedOccasion ? resolveOccasionKey(requestedOccasion) : '');
     }, [matchedCategory, requestedOccasion]);
+
+    useEffect(() => {
+        if (!shouldAutoScrollToCatalog || !catalogSectionRef.current) {
+            return;
+        }
+
+        window.requestAnimationFrame(() => {
+            catalogSectionRef.current?.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start',
+            });
+        });
+    }, [shouldAutoScrollToCatalog]);
 
     const filteredProducts = products.filter((product) => {
         const matchesRequestedType = hasValidTypeFilter
@@ -142,7 +157,7 @@ export default function ProductsPage() {
                             initial={{ opacity: 0, y: 24 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.5 }}
-                            className="relative"
+                            className="relative hidden lg:block"
                         >
                             <div className="absolute -left-4 top-8 h-24 w-24 rounded-2xl bg-[#ffcad8] rotate-12" />
                             <div className="absolute -right-3 bottom-8 h-28 w-28 rounded-full bg-[#ffd78d]" />
@@ -184,7 +199,7 @@ export default function ProductsPage() {
                 </div>
             </section>
 
-            <section className="container-custom mx-auto max-w-7xl px-5 py-12 md:py-16">
+            <section ref={catalogSectionRef} className="container-custom mx-auto max-w-7xl scroll-mt-24 px-5 py-12 md:py-16">
                 <Title
                     mainTitle="Catálogo"
                     subtitle="Explora nuestros productos disponibles y algunos encargos anteriores que podrían inspirarte"
