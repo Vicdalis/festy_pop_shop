@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, type TouchEvent } from 'react';
 import { createPortal } from 'react-dom';
 import { motion } from 'framer-motion';
 import { ChevronLeft, ChevronRight, Heart, Images, X } from 'lucide-react';
@@ -64,6 +64,8 @@ export default function ProductCard({
     const [isGalleryOpen, setIsGalleryOpen] = useState(false);
     const [activeImageIndex, setActiveImageIndex] = useState(0);
     const [isMounted, setIsMounted] = useState(false);
+    const [touchStartX, setTouchStartX] = useState<number | null>(null);
+    const [touchEndX, setTouchEndX] = useState<number | null>(null);
 
     const resolvedQuoteHref =
         quoteHref
@@ -144,6 +146,35 @@ export default function ProductCard({
 
     const showNextImage = () => {
         setActiveImageIndex((current) => (current + 1) % productImages.length);
+    };
+
+    const handleTouchStart = (event: TouchEvent<HTMLDivElement>) => {
+        setTouchStartX(event.touches[0]?.clientX ?? null);
+        setTouchEndX(null);
+    };
+
+    const handleTouchMove = (event: TouchEvent<HTMLDivElement>) => {
+        setTouchEndX(event.touches[0]?.clientX ?? null);
+    };
+
+    const handleTouchEnd = () => {
+        if (productImages.length < 2 || touchStartX === null || touchEndX === null) {
+            setTouchStartX(null);
+            setTouchEndX(null);
+            return;
+        }
+
+        const swipeDistance = touchStartX - touchEndX;
+        const minimumSwipeDistance = 50;
+
+        if (swipeDistance > minimumSwipeDistance) {
+            showNextImage();
+        } else if (swipeDistance < -minimumSwipeDistance) {
+            showPreviousImage();
+        }
+
+        setTouchStartX(null);
+        setTouchEndX(null);
     };
 
     const renderColorMeta = () => {
@@ -279,31 +310,39 @@ export default function ProductCard({
                     onClick={() => setIsGalleryOpen(false)}
                 >
                     <div
-                        className="flex h-full w-full items-center justify-center p-3 md:p-6"
+                        className="flex h-full w-full items-center justify-center p-0 md:p-6"
                     >
                         <div
-                            className="relative flex h-[92vh] w-[96vw] max-w-[1600px] flex-col overflow-hidden rounded-[32px] border border-white/10 bg-[#120916] shadow-[0_40px_120px_rgba(0,0,0,0.55)]"
+                            className="relative flex h-[100dvh] w-full flex-col overflow-hidden  shadow-[0_40px_120px_rgba(0,0,0,0.55)] md:h-[92vh] md:w-[96vw] md:max-w-[1600px] md:rounded-[32px] md:border md:border-white/10"
                             onClick={(event) => event.stopPropagation()}
                         >
-                            <button
-                                type="button"
-                                onClick={() => setIsGalleryOpen(false)}
-                                className="absolute right-4 top-4 z-20 flex h-11 w-11 items-center justify-center rounded-full bg-white/12 text-white transition hover:scale-105 hover:bg-white/18"
-                                aria-label={`Cerrar galería de ${product.name}`}
-                            >
-                                <X className="h-5 w-5" />
-                            </button>
+                            <div className="flex items-center justify-end px-4 pb-2 pt-[max(1rem,env(safe-area-inset-top))] md:px-5 md:pb-0 md:pt-4">
+                                
+                                <button
+                                    type="button"
+                                    onClick={() => setIsGalleryOpen(false)}
+                                    className="z-20 flex h-11 w-11 items-center justify-center rounded-full bg-white/12 text-white transition cursor-pointer hover:scale-105 hover:bg-white/18"
+                                    aria-label={`Cerrar galería de ${product.name}`}
+                                >
+                                    <X className="h-5 w-5" />
+                                </button>
+                                
+                            </div>
 
-                            <div className="grid h-full min-h-0 gap-4 p-3 md:grid-cols-[minmax(0,1fr)_148px] md:p-5">
-                                <div className="relative min-h-0 overflow-hidden rounded-[26px] bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.08),transparent_45%),linear-gradient(180deg,#1b0e23_0%,#0f0814_100%)]">
+                            <div className="grid h-full min-h-0 flex-1 gap-3 px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] md:grid-cols-[minmax(0,1fr)_148px] md:gap-4 md:p-5">
+                                <div
+                                    className="relative min-h-0 flex-1 overflow-hidden rounded-[26px] items-center h-120 md:h-auto"
+                                    onTouchStart={handleTouchStart}
+                                    onTouchMove={handleTouchMove}
+                                    onTouchEnd={handleTouchEnd}
+                                >
                                     <Image
                                         src={activeImage}
                                         alt={`${product.name} ${activeImageIndex + 1}`}
                                         fill
                                         className="object-contain"
-                                        sizes="95vw"
+                                        sizes="(max-width: 768px) 100vw, 95vw"
                                     />
-
                                     <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent px-6 py-5 text-white">
                                         <p className="font-display text-xl font-black md:text-2xl">{product.name}</p>
                                         <p className="mt-1 text-sm text-white/70">
@@ -316,7 +355,7 @@ export default function ProductCard({
                                             <button
                                                 type="button"
                                                 onClick={showPreviousImage}
-                                                className="absolute left-4 top-1/2 z-10 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white/14 text-white shadow-[0_12px_24px_rgba(0,0,0,0.2)] transition hover:scale-105 hover:bg-white/22"
+                                                className="absolute left-4 top-1/2 cursor-pointer z-10 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white/14 text-white shadow-[0_12px_24px_rgba(0,0,0,0.2)] transition hover:scale-105 hover:bg-white/22"
                                                 aria-label={`Ver imagen anterior de ${product.name}`}
                                             >
                                                 <ChevronLeft className="h-6 w-6" />
@@ -324,7 +363,7 @@ export default function ProductCard({
                                             <button
                                                 type="button"
                                                 onClick={showNextImage}
-                                                className="absolute right-4 top-1/2 z-10 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white/14 text-white shadow-[0_12px_24px_rgba(0,0,0,0.2)] transition hover:scale-105 hover:bg-white/22"
+                                                className="absolute right-4 top-1/2 cursor-pointer z-10 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white/14 text-white shadow-[0_12px_24px_rgba(0,0,0,0.2)] transition hover:scale-105 hover:bg-white/22"
                                                 aria-label={`Ver siguiente imagen de ${product.name}`}
                                             >
                                                 <ChevronRight className="h-6 w-6" />
@@ -334,7 +373,7 @@ export default function ProductCard({
                                 </div>
 
                                 {productImages.length > 1 && (
-                                    <div className="flex gap-3 overflow-x-auto md:flex-col md:overflow-y-auto">
+                                    <div className="flex gap-3 overflow-x-auto pb-1 md:flex-col md:overflow-y-auto md:pb-0">
                                         {productImages.map((image, imageIndex) => {
                                             const isActiveImage = imageIndex === activeImageIndex;
 
