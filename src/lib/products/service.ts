@@ -1,8 +1,8 @@
 import { fetchJson } from '@/lib/api/http';
 import { mockProducts } from '@/lib/products/mock-products';
-import type { Product, ProductApiItem } from '@/types/product';
+import type { Product, ProductApiItem, Pagination } from '@/types/product';
 
-type ProductsApiResponse = ProductApiItem[] | { data?: ProductApiItem[]; products?: ProductApiItem[] };
+type ProductsApiResponse = ProductApiItem[] | { products: ProductApiItem[], pagination: Pagination };
 type ProductsSource = 'api' | 'mock';
 
 export type ProductsResult = {
@@ -16,18 +16,20 @@ function normalizeProduct(item: ProductApiItem, index: number): Product {
     const normalizedImages = Array.isArray(item.images)
         ? item.images.filter((image): image is string => typeof image === 'string' && image.length > 0)
         : [];
-    const primaryImage = item.image ?? normalizedImages[0] ?? fallbackImage;
+    const primaryImage = item.main_image ?? normalizedImages[0] ?? fallbackImage;
 
     return {
         id: Number(item.id ?? index + 1),
         name: item.name ?? 'Producto sin nombre',
-        image: primaryImage,
+        main_image: primaryImage,
         images: normalizedImages.length > 0 ? normalizedImages : [primaryImage],
         price: item.price ?? null,
-        category: item.category ?? 'Sin categoria',
-        character: item.character ?? 'General',
+        category: item.category ?? null,
+        character: item.character ?? null,
         colors: Array.isArray(item.colors) ? item.colors : [],
         occasions: Array.isArray(item.occasions) ? item.occasions : [],
+        sku: item.sku ?? 'SKU no disponible',
+        is_personalized: item.is_personalized ?? false,
         description: item.description ?? 'Producto disponible para cotizacion personalizada.',
     };
 }
@@ -41,15 +43,24 @@ function extractProducts(response: ProductsApiResponse): ProductApiItem[] {
         return response.products;
     }
 
-    if (Array.isArray(response.data)) {
-        return response.data;
+    if (Array.isArray(response.pagination)) {
+        return response.pagination;
     }
 
     return [];
 }
 
 export async function getProducts(): Promise<ProductsResult> {
-    const endpoint = process.env.NEXT_PUBLIC_PRODUCTS_API_URL;
+
+    if (!process.env.NEXT_PUBLIC_DEV_API || !process.env.NEXT_PUBLIC_GET_PRODUCTS) {
+        return {
+            products: [],
+            source: 'api',
+            errorMessage: "Api route not available"
+        }
+    }
+    const endpoint = [process.env.NEXT_PUBLIC_DEV_API, process.env.NEXT_PUBLIC_GET_PRODUCTS].join('/');
+    console.log("🚀 ~ getProducts ~ endpoint:", endpoint)
 
     if (!endpoint) {
         return {
@@ -59,7 +70,13 @@ export async function getProducts(): Promise<ProductsResult> {
     }
 
     try {
-        const response = await fetchJson<ProductsApiResponse>(endpoint);
+        const response = await fetchJson<ProductsApiResponse>(endpoint, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ page: 1 }),
+        });
 
         const items = extractProducts(response);
 

@@ -66,7 +66,7 @@ export default function ProductsPage() {
     const characterOptions = ['Todos', ...Array.from(new Set(products.map((product) => product.character)))];
     const categoryOptions = ['Todos', ...Array.from(new Set(products.map((product) => product.category)))];
     const matchedCategory = categoryOptions.find(
-        (category) => normalizeText(category) === requestedType,
+        (category) => category === requestedType,
     );
     const hasTypeFilterFromUrl = requestedType.length > 0;
     const hasOccasionFilterFromUrl = requestedOccasion.length > 0;
@@ -82,7 +82,7 @@ export default function ProductsPage() {
     const [searchTerm, setSearchTerm] = useState('');
 
     useEffect(() => {
-        setSelectedCategory(matchedCategory ?? 'Todos');
+        setSelectedCategory(matchedCategory?.toString() ?? 'Todos');
         setSelectedOccasion(requestedOccasion ? resolveOccasionKey(requestedOccasion) : '');
     }, [matchedCategory, requestedOccasion]);
 
@@ -100,19 +100,20 @@ export default function ProductsPage() {
     }, [shouldAutoScrollToCatalog]);
 
     const filteredProducts = products.filter((product) => {
+
         const matchesRequestedType = hasValidTypeFilter
-            && (!hasTypeFilterFromUrl || normalizeText(product.category) === requestedType);
+            && (!hasTypeFilterFromUrl || product.category?.find((item) => normalizeText(item.name) === requestedType));
         const matchesColor = selectedColor === 'Todos' || product.colors.includes(selectedColor);
-        const matchesCharacter = selectedCharacter === 'Todos' || product.character === selectedCharacter;
-        const matchesCategory = selectedCategory === 'Todos' || product.category === selectedCategory;
+        const matchesCharacter = selectedCharacter === 'Todos' || product.character?.find((item) => item.name === selectedCharacter);
+        const matchesCategory = selectedCategory === 'Todos' || product.category?.find((item) => item.name === selectedCategory);
         const matchesOccasion =
             selectedOccasion.length === 0
-            || product.occasions.some((occasion) => resolveOccasionKey(occasion) === selectedOccasion);
+            || product.occasions?.some((occasion) => resolveOccasionKey(occasion.name) === selectedOccasion);
         const normalizedSearch = normalizeText(searchTerm.trim());
-        const searchableFields = [product.category, product.character, ...product.colors];
+        const searchableFields: any[] = [product.category, product.character, product.colors];
         const matchesSearch =
             normalizedSearch.length === 0
-            || searchableFields.some((field) => normalizeText(field).includes(normalizedSearch));
+            || searchableFields.some((field) => field?.find((item: any) => normalizeText(item.name).includes(normalizedSearch))); // ????? 
 
         return matchesRequestedType && matchesColor && matchesCharacter && matchesCategory && matchesOccasion && matchesSearch;
     });
@@ -229,12 +230,13 @@ export default function ProductsPage() {
                                         />
                                     </button>
                                     <div className="flex flex-col gap-2">
-                                        {visibleCategoryOptions.map((category) => {
+                                         {visibleCategoryOptions.map((category) => {
+                                            console.log("🚀 ~ ProductsPage ~ category:", category)
                                             const isActive = selectedCategory === category;
-
+                                            
                                             return (
                                                 <button
-                                                    key={category}
+                                                    key={category!.id}
                                                     type="button"
                                                     onClick={() => setSelectedCategory(category)}
                                                     className={`rounded-2xl border px-4 py-3 text-left text-sm font-semibold transition-all ${
@@ -246,7 +248,7 @@ export default function ProductsPage() {
                                                     {category}
                                                 </button>
                                             );
-                                        })}
+                                        })} 
                                     </div>
                                 </div>
 
@@ -304,7 +306,7 @@ export default function ProductsPage() {
                                         />
                                     </button>
                                     <div className="flex flex-col gap-2">
-                                        {visibleCharacterOptions.map((character) => {
+                                        {/* {visibleCharacterOptions.map((character) => {
                                             const isActive = selectedCharacter === character;
 
                                             return (
@@ -323,7 +325,7 @@ export default function ProductsPage() {
                                                     </span>
                                                 </button>
                                             );
-                                        })}
+                                        })} */}
                                     </div>
                                 </div>
 
@@ -383,7 +385,7 @@ export default function ProductsPage() {
                             </div>
                         ) : (
                             <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-                                {filteredProducts.map((product, index) => (
+                                {/* {filteredProducts.map((product, index) => (
                                     <ProductCard
                                         key={product.id}
                                         product={product}
@@ -396,7 +398,7 @@ export default function ProductsPage() {
                                         viewLabel="Filtrar"
                                         sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
                                     />
-                                ))}
+                                ))} */}
                             </div>
                         )}
 
