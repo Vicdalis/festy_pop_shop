@@ -5,6 +5,15 @@ import type { Product, ProductApiItem, Pagination } from '@/types/product';
 type ProductsApiResponse = ProductApiItem[] | { products: ProductApiItem[], pagination: Pagination };
 type ProductsSource = 'api' | 'mock';
 
+export type ProductFilters = {
+    page?: number;
+    category?: string | number;
+    color?: string;
+    character?: string;
+    theme?: string;
+    limit?: number;
+};
+
 export type ProductsResult = {
     products: Product[];
     source: ProductsSource;
@@ -50,18 +59,16 @@ function extractProducts(response: ProductsApiResponse): ProductApiItem[] {
     return [];
 }
 
-export async function getProducts(): Promise<ProductsResult> {
-
-    if (!process.env.NEXT_PUBLIC_DEV_API || !process.env.NEXT_PUBLIC_GET_PRODUCTS) {
+export async function getProducts(filters: ProductFilters = {}): Promise<ProductsResult> {
+    if (!process.env.NEXT_PUBLIC_MAIN_API || !process.env.NEXT_PUBLIC_GET_PRODUCTS) {
         return {
             products: [],
             source: 'api',
             errorMessage: "Api route not available"
         }
     }
-    const endpoint = [process.env.NEXT_PUBLIC_DEV_API, process.env.NEXT_PUBLIC_GET_PRODUCTS].join('/');
-    console.log("🚀 ~ getProducts ~ endpoint:", endpoint)
-
+    const endpoint = [process.env.NEXT_PUBLIC_MAIN_API, process.env.NEXT_PUBLIC_GET_PRODUCTS].join('/');
+    
     if (!endpoint) {
         return {
             products: mockProducts,
@@ -75,7 +82,7 @@ export async function getProducts(): Promise<ProductsResult> {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ page: 1 }),
+            body: JSON.stringify(filters),
         });
 
         const items = extractProducts(response);

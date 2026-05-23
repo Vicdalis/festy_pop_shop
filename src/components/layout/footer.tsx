@@ -10,13 +10,13 @@ import { mockOcassions } from "@/lib/ocassions/mock-ocassions";
 
 const NAV_LINKS = [
     { to: "/", label: "Inicio" },
-    { to: "/productos?ocasion=Globos", label: "Globos" },
+    { to: "/productos?ocassion=Globos", label: "Globos" },
     { to: "/productos", label: "Catálogo" },
     { to: "/contacto", label: "Contacto" },
 ];
 
 const TEAM_LINKS = mockOcassions.slice(0,4).map((ocassion) => {
-    return { to: "/" + ocassion.code, label: ocassion.label}
+    return { to: "/" + ocassion.id, label: ocassion.name }
 })
 
 export default function Footer() {

@@ -224,13 +224,15 @@ export default function ProductCard({
                     className="absolute inset-0 block cursor-zoom-in"
                     aria-label={`Ver imagen ampliada de ${product.name}`}
                 >
-                    <Image
-                        src={product.image}
-                        alt={product.name}
-                        fill
-                        className="object-cover transition-transform duration-500 group-hover:scale-105"
-                        sizes={sizes}
-                    />
+                    {product.image?.trim() !== '' && product.image?.length > 0 ? (
+                        <Image
+                            src={product.image}
+                            alt={product.name}
+                            fill
+                            className="object-cover transition-transform duration-500 group-hover:scale-105"
+                            sizes={sizes}
+                        />
+                    ) : null}
                 </button>
                 <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#261033]/55 via-[#261033]/15 to-transparent" />
                 <span
@@ -296,7 +298,7 @@ export default function ProductCard({
                             className={`flex w-full items-center justify-center rounded-full px-4 py-3 text-[0.82rem] font-black transition ${isQuoted
                                 ? 'bg-[#33c36b] text-white'
                                 : 'bg-main-purple text-white hover:bg-[var(--color-header-cta)]'
-                            }`}
+                                }`}
                         >
                             Cotizar
                         </span>
@@ -317,7 +319,7 @@ export default function ProductCard({
                             onClick={(event) => event.stopPropagation()}
                         >
                             <div className="flex items-center justify-end px-4 pb-2 pt-[max(1rem,env(safe-area-inset-top))] md:px-5 md:pb-0 md:pt-4">
-                                
+
                                 <button
                                     type="button"
                                     onClick={() => setIsGalleryOpen(false)}
@@ -326,7 +328,7 @@ export default function ProductCard({
                                 >
                                     <X className="h-5 w-5" />
                                 </button>
-                                
+
                             </div>
 
                             <div className="grid h-full min-h-0 flex-1 gap-3 px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] md:grid-cols-[minmax(0,1fr)_148px] md:gap-4 md:p-5">
@@ -336,13 +338,16 @@ export default function ProductCard({
                                     onTouchMove={handleTouchMove}
                                     onTouchEnd={handleTouchEnd}
                                 >
-                                    <Image
-                                        src={activeImage}
-                                        alt={`${product.name} ${activeImageIndex + 1}`}
-                                        fill
-                                        className="object-contain"
-                                        sizes="(max-width: 768px) 100vw, 95vw"
-                                    />
+                                    { activeImage?.trim() !== '' ? (
+
+                                        <Image
+                                            src={activeImage}
+                                            alt={`${product.name} ${activeImageIndex + 1}`}
+                                            fill
+                                            className="object-contain"
+                                            sizes="(max-width: 768px) 100vw, 95vw"
+                                        />
+                                    ) : ''}
                                     <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent px-6 py-5 text-white">
                                         <p className="font-display text-xl font-black md:text-2xl">{product.name}</p>
                                         <p className="mt-1 text-sm text-white/70">
@@ -388,13 +393,15 @@ export default function ProductCard({
                                                         }`}
                                                     aria-label={`Ver imagen ${imageIndex + 1} de ${product.name}`}
                                                 >
-                                                    <Image
-                                                        src={image}
-                                                        alt={`${product.name} miniatura ${imageIndex + 1}`}
-                                                        fill
-                                                        className="object-cover"
-                                                        sizes="112px"
-                                                    />
+                                                    {image?.trim() !== '' && image?.length > 0 ? (
+                                                        <Image
+                                                            src={image}
+                                                            alt={`${product.name} miniatura ${imageIndex + 1}`}
+                                                            fill
+                                                            className="object-cover"
+                                                            sizes="112px"
+                                                        />
+                                                    ) : null}
                                                 </button>
                                             );
                                         })}

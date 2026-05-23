@@ -1,10 +1,10 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { getProducts } from '@/lib/products/service';
+import { getProducts, ProductFilters } from '@/lib/products/service';
 import type { Product } from '@/types/product';
 
-export function useProducts() {
+export function useProducts(filters: ProductFilters = {}) {
     const [products, setProducts] = useState<Product[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -17,10 +17,9 @@ export function useProducts() {
             try {
                 setIsLoading(true);
                 setError(null);
-                const result = await getProducts();
+                const result = await getProducts(filters);
 
                 if (isMounted) {
-                    console.log(result.products)
                     setProducts(result.products);
                     setSource(result.source);
                     setError(result.errorMessage ?? null);
@@ -41,7 +40,7 @@ export function useProducts() {
         return () => {
             isMounted = false;
         };
-    }, []);
+    }, [filters.category, filters.character, filters.color, filters.limit, filters.page, filters.theme]);
 
     return {
         products,

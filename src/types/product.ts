@@ -3,15 +3,15 @@ export type Product = {
     name: string;
     price?: number | null;
     main_image: string;
-    images: string[];
+    images: string[] | null;
     category: {
         id: number;
         name: string;
-    }[] | null;
+    } | null;
     character: {
         id: number;
         name: string;
-    }[] | null;
+    } | null;
     colors: string[];
     occasions: {
         id: number;

@@ -1,7 +1,6 @@
 export type Ocassion = {
     id: number,
-    label: string,
-    code: string
+    name: string
 }
 
 export type OcassionApiItem = {

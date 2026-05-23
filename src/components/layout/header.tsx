@@ -5,29 +5,35 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { CONTACT } from '@/config/site';
+import { mockCategories } from '@/lib/products/mock-categories';
+import { mockOcassions } from '@/lib/ocassions/mock-ocassions';
 
 const NAV_LINKS = [
     { to: '/', label: 'Inicio' },
     { to: '/productos', label: 'Catálogo' },
     {
-        to: '/productos?ocasion=',
+        to: '/productos?tipo=',
+        label: 'Categorías',
+        subItems: mockCategories.map((category) => ({
+            to: `/productos?tipo=${category.id}`,
+            label: category.name,
+        })),
+    },
+    {
+        to: '/productos?ocassion=',
         label: 'Temáticas',
-        subItems: [
-            { to: '/productos?ocasion=Niños', label: 'Niños' },
-            { to: '/productos?ocasion=Adultos', label: 'Adultos' },
-            { to: '/productos?ocasion=Halloween', label: 'Halloween' },
-            { to: '/productos?ocasion=Navidad', label: 'Navidad' },
-            { to: '/productos?ocasion=Cumpleaños', label: 'Cumpleaños' },
-            { to: '/productos?ocasion=Baby+Shower', label: 'Baby Shower' },
-        ],
+        subItems: mockOcassions.map((ocassion) => ({
+            to: `/productos?ocassion=${encodeURIComponent(ocassion.name)}`,
+            label: ocassion.name,
+        })),
     },
     { to: '/#personalizados', label: 'Personalizar' },
 ];
 
 export default function Header() {
     const [open, setOpen] = useState(false);
-    const [themesOpen, setThemesOpen] = useState(false);
-    const [mobileThemesOpen, setMobileThemesOpen] = useState(false);
+    const [activeDesktopDropdown, setActiveDesktopDropdown] = useState<string | null>(null);
+    const [activeMobileDropdown, setActiveMobileDropdown] = useState<string | null>(null);
     const [compact, setCompact] = useState(false);
 
     const handleScrollToCustom = (
@@ -82,24 +88,24 @@ export default function Header() {
                             <div
                                 key={link.label}
                                 className="relative -mb-3 pb-3"
-                                onMouseEnter={() => setThemesOpen(true)}
-                                onMouseLeave={() => setThemesOpen(false)}
+                                onMouseEnter={() => setActiveDesktopDropdown(link.label)}
+                                onMouseLeave={() => setActiveDesktopDropdown(null)}
                             >
                                 <button
                                     type="button"
                                     className="inline-flex items-center gap-1 text-sm font-semibold text-[#f6edd8] transition-colors hover:text-[#eeca21]"
                                 >
                                     {link.label}
-                                    {themesOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                                    {activeDesktopDropdown === link.label ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                                 </button>
 
-                                {themesOpen && (
+                                {activeDesktopDropdown === link.label && (
                                     <div className="absolute left-1/2 top-full z-[120] w-52 -translate-x-1/2 rounded-2xl bg-[#5d1588] py-2 shadow-[0_18px_40px_rgba(35,9,53,0.35)] ring-1 ring-white/15">
                                         {link.subItems.map((subItem) => (
                                             <Link
                                                 key={subItem.to}
                                                 href={subItem.to}
-                                                onClick={() => setThemesOpen(false)}
+                                                onClick={() => setActiveDesktopDropdown(null)}
                                                 className="block px-4 py-2 text-sm font-medium text-[#f6edd8] transition-colors hover:text-[#eeca21]"
                                             >
                                                 {subItem.label}
@@ -167,14 +173,14 @@ export default function Header() {
                                 <div key={link.label}>
                                     <button
                                         type="button"
-                                        onClick={() => setMobileThemesOpen((current) => !current)}
+                                        onClick={() => setActiveMobileDropdown((current) => current === link.label ? null : link.label)}
                                         className="flex w-full items-center justify-between text-left text-sm font-semibold text-[#f6edd8]"
                                     >
                                         {link.label}
-                                        {mobileThemesOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                                        {activeMobileDropdown === link.label ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                                     </button>
 
-                                    {mobileThemesOpen && (
+                                    {activeMobileDropdown === link.label && (
                                         <div className="mt-2 flex flex-col gap-2 pl-4">
                                             {link.subItems.map((subItem) => (
                                                 <Link
@@ -182,7 +188,7 @@ export default function Header() {
                                                     href={subItem.to}
                                                     onClick={() => {
                                                         setOpen(false);
-                                                        setMobileThemesOpen(false);
+                                                        setActiveMobileDropdown(null);
                                                     }}
                                                     className="text-sm font-medium text-[#f6edd8]/90 transition-colors hover:text-[#eeca21]"
                                                 >

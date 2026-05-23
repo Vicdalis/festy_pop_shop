@@ -1,32 +1,3 @@
 import type { Ocassion } from '@/types/ocassion';
 
-export const mockOcassions: Ocassion[] = [
-    {
-        id: 1,
-        label: "Niños",
-        code: "ninos"
-    },{
-        id: 2,
-        label: "Adultos",
-        code: "adultos"
-    },{
-        id: 3,
-        label: "Halloween",
-        code: "halloween"
-    },
-    {
-        id: 4,
-        label: "Navidad",
-        code: "navidad"
-    },
-    {
-        id: 5,
-        label: "Cumpleaños",
-        code: "cumpleanos"
-    }
-    ,{
-        id: 6,
-        label: "Baby Shower",
-        code: "baby_shower"
-    }
-]
+export const mockOcassions: Ocassion[] = [{"id":2,"name":"Infantil"},{"id":3,"name":"Baby Shower"},{"id":4,"name":"Navidad"},{"id":5,"name":"Halloween"},{"id":6,"name":"Adultos"},{"id":1,"name":"Cumpleaños"}]

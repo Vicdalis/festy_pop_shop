@@ -7,6 +7,7 @@ import { ChevronDown, Palette, Search, Sparkles, Tag } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 import Title from '@/components/ui/title';
 import ProductCard from '@/components/products/product-card';
+import { mockCategories } from '@/lib/products/mock-categories';
 import { useProducts } from '@/store/hooks/use-products';
 
 const colorClasses: Record<string, string> = {
@@ -34,18 +35,11 @@ const occasionAliases: Record<string, string[]> = {
 };
 
 function normalizeText(value: string) {
+    if(!value) return '';
     return value
         .toLowerCase()
         .normalize('NFD')
         .replace(/[\u0300-\u036f]/g, '');
-}
-
-function normalizeFilterValue(value: string | null) {
-    if (!value) {
-        return '';
-    }
-
-    return normalizeText(value.replace(/\+/g, ' ').trim());
 }
 
 function resolveOccasionKey(value: string) {
@@ -54,37 +48,57 @@ function resolveOccasionKey(value: string) {
     return Object.entries(occasionAliases).find(([, aliases]) => aliases.includes(normalizedValue))?.[0] ?? normalizedValue;
 }
 
+function extractNames(items?: { name: string }[] | null) {
+    return items?.map((item) => item.name) ?? [];
+}
+
+function extractObjectNames(items?: { name: string } | null) {
+    return items ? [items.name] : [];
+}
+
 export default function ProductsPage() {
     const searchParams = useSearchParams();
-    const { products, isLoading, error, source } = useProducts();
     const catalogSectionRef = useRef<HTMLElement | null>(null);
-    const requestedTypeLabel = searchParams.get('tipo')?.replace(/\+/g, ' ').trim() ?? '';
+    const requestedTypeParam = searchParams.get('tipo')?.replace(/\+/g, ' ').trim() ?? '';
     const requestedOccasionLabel = searchParams.get('ocasion')?.replace(/\+/g, ' ').trim() ?? '';
-    const requestedType = normalizeFilterValue(searchParams.get('tipo'));
-    const requestedOccasion = normalizeFilterValue(searchParams.get('ocasion'));
-    const colorOptions = ['Todos', ...Array.from(new Set(products.flatMap((product) => product.colors)))];
-    const characterOptions = ['Todos', ...Array.from(new Set(products.map((product) => product.character)))];
-    const categoryOptions = ['Todos', ...Array.from(new Set(products.map((product) => product.category)))];
-    const matchedCategory = categoryOptions.find(
-        (category) => category === requestedType,
-    );
-    const hasTypeFilterFromUrl = requestedType.length > 0;
-    const hasOccasionFilterFromUrl = requestedOccasion.length > 0;
+    const requestedCategoryId = Number(requestedTypeParam);
+    const matchedCategoryFromId = Number.isNaN(requestedCategoryId)
+        ? null
+        : mockCategories.find((category) => category.id === requestedCategoryId) ?? null;
+    const requestedTypeLabel = matchedCategoryFromId?.name ?? requestedTypeParam;
+    const hasTypeFilterFromUrl = requestedTypeParam.length > 0;
+    const hasOccasionFilterFromUrl = requestedOccasionLabel.length > 0;
     const shouldAutoScrollToCatalog = hasTypeFilterFromUrl || hasOccasionFilterFromUrl;
-    const hasValidTypeFilter = !hasTypeFilterFromUrl || Boolean(matchedCategory);
     const [selectedColor, setSelectedColor] = useState('Todos');
     const [selectedCharacter, setSelectedCharacter] = useState('Todos');
-    const [selectedCategory, setSelectedCategory] = useState('Todos');
-    const [selectedOccasion, setSelectedOccasion] = useState('');
+    const [selectedCategory, setSelectedCategory] = useState(requestedTypeLabel || 'Todos');
+    const [selectedOccasion, setSelectedOccasion] = useState(requestedOccasionLabel);
     const [isColorOpen, setIsColorOpen] = useState(false);
     const [isCharacterOpen, setIsCharacterOpen] = useState(false);
     const [isCategoryOpen, setIsCategoryOpen] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
+    const selectedOccasionKey = selectedOccasion ? resolveOccasionKey(selectedOccasion) : '';
+    const selectedCategoryMatch = mockCategories.find((category) => category.name === selectedCategory) ?? null;
+    const productFilters = {
+        ...(selectedCategory !== 'Todos'
+            ? { category: selectedCategoryMatch?.id ?? selectedCategory }
+            : {}),
+        ...(selectedColor !== 'Todos' ? { color: selectedColor } : {}),
+        ...(selectedCharacter !== 'Todos' ? { character: selectedCharacter } : {}),
+        ...(selectedOccasion ? { theme: selectedOccasion } : {}),
+    };
+    const { products, isLoading, error, source } = useProducts(productFilters);
+    const colorOptions = ['Todos', ...Array.from(new Set(products.flatMap((product) => product.colors)))];
+    const characterOptions = ['Todos', ...Array.from(new Set(products.flatMap((product) => extractObjectNames(product.character))))];
+    const categoryOptions = ['Todos', ...Array.from(new Set(products.flatMap((product) => extractObjectNames(product.category))))];
 
     useEffect(() => {
-        setSelectedCategory(matchedCategory?.toString() ?? 'Todos');
-        setSelectedOccasion(requestedOccasion ? resolveOccasionKey(requestedOccasion) : '');
-    }, [matchedCategory, requestedOccasion]);
+        setSelectedCategory(requestedTypeLabel || 'Todos');
+        setSelectedOccasion(requestedOccasionLabel);
+        setSelectedColor('Todos');
+        setSelectedCharacter('Todos');
+        setSearchTerm('');
+    }, [requestedOccasionLabel, requestedTypeLabel]);
 
     useEffect(() => {
         if (!shouldAutoScrollToCatalog || !catalogSectionRef.current) {
@@ -100,42 +114,57 @@ export default function ProductsPage() {
     }, [shouldAutoScrollToCatalog]);
 
     const filteredProducts = products.filter((product) => {
+        const productCategoryNames = extractObjectNames(product.category);
+        const productCharacterNames = extractObjectNames(product.character);
+        const productOccasionNames = extractNames(product.occasions);
+        const searchableFields = [
+            product.name,
+            product.description,
+            ...productCategoryNames,
+            ...productCharacterNames,
+            ...product.colors,
+            ...productOccasionNames,
+        ];
 
-        const matchesRequestedType = hasValidTypeFilter
-            && (!hasTypeFilterFromUrl || product.category?.find((item) => normalizeText(item.name) === requestedType));
-        const matchesColor = selectedColor === 'Todos' || product.colors.includes(selectedColor);
-        const matchesCharacter = selectedCharacter === 'Todos' || product.character?.find((item) => item.name === selectedCharacter);
-        const matchesCategory = selectedCategory === 'Todos' || product.category?.find((item) => item.name === selectedCategory);
-        const matchesOccasion =
-            selectedOccasion.length === 0
-            || product.occasions?.some((occasion) => resolveOccasionKey(occasion.name) === selectedOccasion);
         const normalizedSearch = normalizeText(searchTerm.trim());
-        const searchableFields: any[] = [product.category, product.character, product.colors];
-        const matchesSearch =
-            normalizedSearch.length === 0
-            || searchableFields.some((field) => field?.find((item: any) => normalizeText(item.name).includes(normalizedSearch))); // ????? 
+        const matchesSearch = normalizedSearch.length === 0
+            || searchableFields.some((field) => normalizeText(field).includes(normalizedSearch));
 
-        return matchesRequestedType && matchesColor && matchesCharacter && matchesCategory && matchesOccasion && matchesSearch;
+        return matchesSearch;
     });
 
     const visibleColorOptions = isColorOpen
         ? colorOptions
-        : colorOptions.filter((color) => color === selectedColor);
+        : [selectedColor];
 
     const visibleCharacterOptions = isCharacterOpen
         ? characterOptions
-        : characterOptions.filter((character) => character === selectedCharacter);
+        : [selectedCharacter];
 
     const visibleCategoryOptions = isCategoryOpen
         ? categoryOptions
-        : categoryOptions.filter((category) => category === selectedCategory);
+        : [selectedCategory];
+
+    if (isLoading) {
+        return (
+            <main className="flex min-h-screen items-center justify-center bg-[linear-gradient(180deg,#fff7ed_0%,#fff2e2_100%)] px-6">
+                <div className="flex flex-col items-center text-center">
+                    <span className="h-14 w-14 animate-spin rounded-full border-4 border-[#ffd4e3] border-t-[#e7467d]" />
+                    <p className="mt-6 text-2xl font-bold text-[#4b2737]">Cargando productos...</p>
+                    <p className="mt-2 max-w-md text-[#6f5b65]">
+                        Estamos consultando el catálogo para mostrarte los productos disponibles.
+                    </p>
+                </div>
+            </main>
+        );
+    }
 
     return (
         <main className="bg-white text-[#3B2830]">
             <section className="relative overflow-hidden">
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(255,61,127,0.16),_transparent_36%),radial-gradient(circle_at_bottom_right,_rgba(254,154,78,0.22),_transparent_32%),linear-gradient(180deg,#fff7ed_0%,#fff2e2_100%)]" />
-                <div className="absolute left-[-4rem] top-12 h-36 w-36 rounded-full bg-[#ffbfd3]/60 blur-3xl" />
-                <div className="absolute right-0 top-32 h-40 w-40 rounded-full bg-[#ffd28f]/60 blur-3xl" />
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(255,61,127,0.16),_transparent_36%),radial-gradient(circle_at_bottom_right,_rgba(254,154,78,0.22),_transparent_32%),linear-gradient(180deg,#fff7ed_0%,#fff2e2_100%)]" ></div>
+                <div className="absolute left-[-4rem] top-12 h-36 w-36 rounded-full bg-[#ffbfd3]/60 blur-3xl" ></div>
+                <div className="absolute right-0 top-32 h-40 w-40 rounded-full bg-[#ffd28f]/60 blur-3xl" ></div>
 
                 <div className="container-custom relative z-10 mx-auto max-w-7xl px-5 py-14 md:py-20">
                     <div className="grid items-center gap-10 lg:grid-cols-[1.15fr_0.85fr]">
@@ -160,8 +189,8 @@ export default function ProductsPage() {
                             transition={{ duration: 0.5 }}
                             className="relative hidden lg:block"
                         >
-                            <div className="absolute -left-4 top-8 h-24 w-24 rounded-2xl bg-[#ffcad8] rotate-12" />
-                            <div className="absolute -right-3 bottom-8 h-28 w-28 rounded-full bg-[#ffd78d]" />
+                            <div className="absolute -left-4 top-8 h-24 w-24 rounded-2xl bg-[#ffcad8] rotate-12" ></div>
+                            <div className="absolute -right-3 bottom-8 h-28 w-28 rounded-full bg-[#ffd78d]" ></div>
                             <div className="relative overflow-hidden rounded-2xl border border-white/60 bg-white/70 p-3 shadow-[0_25px_80px_rgba(231,70,125,0.14)] backdrop-blur">
                                 <div className="grid gap-3 sm:grid-cols-2">
                                     <div className="relative min-h-[220px] overflow-hidden rounded-2xl">
@@ -230,13 +259,12 @@ export default function ProductsPage() {
                                         />
                                     </button>
                                     <div className="flex flex-col gap-2">
-                                         {visibleCategoryOptions.map((category) => {
-                                            console.log("🚀 ~ ProductsPage ~ category:", category)
+                                        {visibleCategoryOptions.map((category) => {
                                             const isActive = selectedCategory === category;
-                                            
+
                                             return (
                                                 <button
-                                                    key={category!.id}
+                                                    key={category}
                                                     type="button"
                                                     onClick={() => setSelectedCategory(category)}
                                                     className={`rounded-2xl border px-4 py-3 text-left text-sm font-semibold transition-all ${
@@ -248,7 +276,7 @@ export default function ProductsPage() {
                                                     {category}
                                                 </button>
                                             );
-                                        })} 
+                                        })}
                                     </div>
                                 </div>
 
@@ -306,7 +334,7 @@ export default function ProductsPage() {
                                         />
                                     </button>
                                     <div className="flex flex-col gap-2">
-                                        {/* {visibleCharacterOptions.map((character) => {
+                                         {visibleCharacterOptions.map((character) => {
                                             const isActive = selectedCharacter === character;
 
                                             return (
@@ -325,7 +353,7 @@ export default function ProductsPage() {
                                                     </span>
                                                 </button>
                                             );
-                                        })} */}
+                                        })} 
                                     </div>
                                 </div>
 
@@ -353,12 +381,12 @@ export default function ProductsPage() {
                                 <p className="mt-2 text-sm text-[#6f5b65]">
                                     Mostrando <span className="font-bold text-[#e7467d]">{filteredProducts.length}</span> productos
                                     {selectedCategory !== 'Todos' && ` de ${selectedCategory}`}
-                                    {selectedOccasion === 'cumpleanos' && ' para cumpleaños'}
-                                    {selectedOccasion === 'baby shower' && ' para baby shower'}
-                                    {selectedOccasion === 'navidad' && ' para Navidad'}
-                                    {selectedOccasion === 'halloween' && ' para Halloween'}
-                                    {selectedOccasion === 'ninos' && ' para niños'}
-                                    {selectedOccasion === 'adultos' && ' para adultos'}
+                                    {selectedOccasionKey === 'cumpleanos' && ' para cumpleaños'}
+                                    {selectedOccasionKey === 'baby shower' && ' para baby shower'}
+                                    {selectedOccasionKey === 'navidad' && ' para Navidad'}
+                                    {selectedOccasionKey === 'halloween' && ' para Halloween'}
+                                    {selectedOccasionKey === 'ninos' && ' para niños'}
+                                    {selectedOccasionKey === 'adultos' && ' para adultos'}
                                     {selectedColor !== 'Todos' && ` en ${selectedColor}`}
                                     {selectedCharacter !== 'Todos' && ` para ${selectedCharacter}`}
                                 </p>
@@ -376,31 +404,40 @@ export default function ProductsPage() {
                             </label>
                         </div>
 
-                        {isLoading ? (
-                            <div className="rounded-2xl border border-[#f3d7c6] bg-white/80 px-6 py-14 text-center shadow-sm">
-                                <p className="text-2xl font-bold text-[#4b2737]">Cargando productos...</p>
-                                <p className="mt-3 text-[#6f5b65]">
-                                    Estamos consultando el catálogo para mostrarte los productos disponibles.
-                                </p>
-                            </div>
-                        ) : (
-                            <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-                                {/* {filteredProducts.map((product, index) => (
+                        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+                            {filteredProducts.map((product, index) => {
+                                const categoryNames = extractObjectNames(product.category);
+                                const characterNames = extractObjectNames(product.character);
+                                const hasGeneralCharacter = characterNames.includes('General');
+                                const primaryCategory = categoryNames[0] ?? 'Sin categoria';
+                                const primaryCharacter = characterNames[0] ?? 'Destacado';
+
+                                return (
                                     <ProductCard
                                         key={product.id}
-                                        product={product}
+                                        product={{
+                                            id: product.id,
+                                            name: product.name,
+                                            description: product.description,
+                                            image: product.main_image,
+                                            images: product.images ?? [product.main_image],
+                                            category: primaryCategory,
+                                            colors: product.colors,
+                                            occasions: extractNames(product.occasions),
+                                            price: product.price,
+                                        }}
                                         index={index}
-                                        badge={product.character === 'General' ? product.category : product.character}
-                                        badgeColor={product.character === 'General' ? '#8a3dc1' : '#e7467d'}
-                                        metaChip={product.colors.length > 0 ? `${product.colors.length} colores` : 'Pedido especial'}
+                                        badge={hasGeneralCharacter ? primaryCategory : primaryCharacter}
+                                        badgeColor={hasGeneralCharacter ? '#8a3dc1' : '#e7467d'}
+                                        metaChip={product.colors.length > 0 ? `${product.colors.length} colores` : undefined}
                                         colorDisplay="swatches"
-                                        viewHref={`/productos?tipo=${encodeURIComponent(product.category)}`}
+                                        viewHref={`/productos?tipo=${encodeURIComponent(primaryCategory)}`}
                                         viewLabel="Filtrar"
                                         sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
                                     />
-                                ))} */}
-                            </div>
-                        )}
+                                );
+                            })}
+                        </div>
 
                         {!isLoading && filteredProducts.length === 0 && (
                             <div className="rounded-2xl border border-dashed border-[#efc9b8] bg-white/80 px-6 py-14 text-center">
