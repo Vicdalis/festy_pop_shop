@@ -145,20 +145,6 @@ export default function ProductsPage() {
         ? categoryOptions
         : [selectedCategory];
 
-    if (isLoading) {
-        return (
-            <main className="flex min-h-screen items-center justify-center bg-[linear-gradient(180deg,#fff7ed_0%,#fff2e2_100%)] px-6">
-                <div className="flex flex-col items-center text-center">
-                    <span className="h-14 w-14 animate-spin rounded-full border-4 border-[#ffd4e3] border-t-[#e7467d]" />
-                    <p className="mt-6 text-2xl font-bold text-[#4b2737]">Cargando productos...</p>
-                    <p className="mt-2 max-w-md text-[#6f5b65]">
-                        Estamos consultando el catálogo para mostrarte los productos disponibles.
-                    </p>
-                </div>
-            </main>
-        );
-    }
-
     return (
         <main className="bg-white text-[#3B2830]">
             <section className="relative overflow-hidden">
@@ -404,40 +390,50 @@ export default function ProductsPage() {
                             </label>
                         </div>
 
-                        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-                            {filteredProducts.map((product, index) => {
-                                const categoryNames = extractObjectNames(product.category);
-                                const characterNames = extractObjectNames(product.character);
-                                const hasGeneralCharacter = characterNames.includes('General');
-                                const primaryCategory = categoryNames[0] ?? 'Sin categoria';
-                                const primaryCharacter = characterNames[0] ?? 'Destacado';
+                        {isLoading ? (
+                            <div className="flex min-h-[360px] flex-col items-center justify-center rounded-2xl border border-[#f3d7c6] bg-white/80 px-6 text-center shadow-sm">
+                                <span className="h-14 w-14 animate-spin rounded-full border-4 border-[#ffd4e3] border-t-[#e7467d]" />
+                                <p className="mt-6 text-2xl font-bold text-[#4b2737]">Cargando productos...</p>
+                                <p className="mt-2 max-w-md text-[#6f5b65]">
+                                    Estamos consultando el catálogo para mostrarte los productos disponibles.
+                                </p>
+                            </div>
+                        ) : (
+                            <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+                                {filteredProducts.map((product, index) => {
+                                    const categoryNames = extractObjectNames(product.category);
+                                    const characterNames = extractObjectNames(product.character);
+                                    const hasGeneralCharacter = characterNames.includes('General');
+                                    const primaryCategory = categoryNames[0] ?? 'Sin categoria';
+                                    const primaryCharacter = characterNames[0] ?? 'Destacado';
 
-                                return (
-                                    <ProductCard
-                                        key={product.id}
-                                        product={{
-                                            id: product.id,
-                                            name: product.name,
-                                            description: product.description,
-                                            image: product.main_image,
-                                            images: product.images ?? [product.main_image],
-                                            category: primaryCategory,
-                                            colors: product.colors,
-                                            occasions: extractNames(product.occasions),
-                                            price: product.price,
-                                        }}
-                                        index={index}
-                                        badge={hasGeneralCharacter ? primaryCategory : primaryCharacter}
-                                        badgeColor={hasGeneralCharacter ? '#8a3dc1' : '#e7467d'}
-                                        metaChip={product.colors.length > 0 ? `${product.colors.length} colores` : undefined}
-                                        colorDisplay="swatches"
-                                        viewHref={`/productos?tipo=${encodeURIComponent(primaryCategory)}`}
-                                        viewLabel="Filtrar"
-                                        sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
-                                    />
-                                );
-                            })}
-                        </div>
+                                    return (
+                                        <ProductCard
+                                            key={product.id}
+                                            product={{
+                                                id: product.id,
+                                                name: product.name,
+                                                description: product.description,
+                                                image: product.main_image,
+                                                images: product.images ?? [product.main_image],
+                                                category: primaryCategory,
+                                                colors: product.colors,
+                                                occasions: extractNames(product.occasions),
+                                                price: product.price,
+                                            }}
+                                            index={index}
+                                            badge={hasGeneralCharacter ? primaryCategory : primaryCharacter}
+                                            badgeColor={hasGeneralCharacter ? '#8a3dc1' : '#e7467d'}
+                                            metaChip={product.colors.length > 0 ? `${product.colors.length} colores` : undefined}
+                                            colorDisplay="swatches"
+                                            viewHref={`/productos?tipo=${encodeURIComponent(primaryCategory)}`}
+                                            viewLabel="Filtrar"
+                                            sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
+                                        />
+                                    );
+                                })}
+                            </div>
+                        )}
 
                         {!isLoading && filteredProducts.length === 0 && (
                             <div className="rounded-2xl border border-dashed border-[#efc9b8] bg-white/80 px-6 py-14 text-center">
