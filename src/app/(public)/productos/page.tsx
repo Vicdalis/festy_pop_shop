@@ -406,7 +406,6 @@ export default function ProductsPage() {
                                     const hasGeneralCharacter = characterNames.includes('General');
                                     const primaryCategory = categoryNames[0] ?? 'Sin categoria';
                                     const primaryCharacter = characterNames[0] ?? 'Destacado';
-
                                     return (
                                         <ProductCard
                                             key={product.id}
@@ -415,7 +414,7 @@ export default function ProductsPage() {
                                                 name: product.name,
                                                 description: product.description,
                                                 image: product.main_image,
-                                                images: product.images ?? [product.main_image],
+                                                images: product.images ?? [],
                                                 category: primaryCategory,
                                                 colors: product.colors,
                                                 occasions: extractNames(product.occasions),

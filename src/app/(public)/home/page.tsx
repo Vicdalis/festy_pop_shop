@@ -16,6 +16,7 @@ import ProductSlider from "@/components/ui/slider";
 import { CONTACT } from "@/config/site";
 import Subtitle from "@/components/ui/subtitle";
 import ProductCard from "@/components/products/product-card";
+import { mockCategories } from "@/lib/products/mock-categories";
 import { useProducts } from "@/store/hooks/use-products";
 
 const FEATURED_CATEGORY_FILTERS = [
@@ -35,15 +36,25 @@ function normalizeText(value: string) {
     .replace(/[\u0300-\u036f]/g, "");
 }
 
+function extractNames(items?: { name: string }[] | null) {
+  return items?.map((item) => item.name) ?? [];
+}
+
+function extractObjectNames(items?: { name: string } | null) {
+  return items ? [items.name] : [];
+}
+
 function matchesFeaturedCategory(category: string, product: {
-  category: string;
-  character: string;
+  category: { name: string } | null;
+  character: { name: string } | null;
   name: string;
   description: string;
 }) {
+  const categoryNames = extractObjectNames(product.category);
+  const characterNames = extractObjectNames(product.character);
   const searchableText = [
-    product.category,
-    product.character,
+    ...categoryNames,
+    ...characterNames,
     product.name,
     product.description,
   ]
@@ -418,20 +429,39 @@ export default function HomePage() {
               </div>
             ) : visibleFeaturedProducts.length > 0 ? (
               <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-                {visibleFeaturedProducts.map((product, index) => (
-                  <ProductCard
-                    key={product.id}
-                    product={product}
-                    index={index}
-                    badge={product.character === 'General' ? product.category : product.character}
-                    badgeColor={product.character === 'General' ? '#8a3dc1' : '#e7467d'}
-                    metaChip={product.colors.length > 0 ? `${product.colors.length} colores` : 'Pedido especial'}
-                    colorDisplay="swatches"
-                    viewHref={`/productos?tipo=${encodeURIComponent(product.category)}`}
-                    viewLabel="Filtrar"
-                    sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
-                  />
-                ))}
+                {visibleFeaturedProducts.map((product, index) => {
+                  const categoryNames = extractObjectNames(product.category);
+                  const characterNames = extractObjectNames(product.character);
+                  const hasGeneralCharacter = characterNames.includes('General');
+                  const primaryCategory = categoryNames[0] ?? 'Sin categoria';
+                  const primaryCharacter = characterNames[0] ?? 'Destacado';
+                  const matchedCategory = mockCategories.find((category) => category.name === primaryCategory);
+
+                  return (
+                    <ProductCard
+                      key={product.id}
+                      product={{
+                        id: product.id,
+                        name: product.name,
+                        description: product.description,
+                        image: product.main_image,
+                        images: product.images ?? [product.main_image],
+                        category: primaryCategory,
+                        colors: product.colors,
+                        occasions: extractNames(product.occasions),
+                        price: product.price,
+                      }}
+                      index={index}
+                      badge={hasGeneralCharacter ? primaryCategory : primaryCharacter}
+                      badgeColor={hasGeneralCharacter ? '#8a3dc1' : '#e7467d'}
+                      metaChip={product.colors.length > 0 ? `${product.colors.length} colores` : 'Pedido especial'}
+                      colorDisplay="swatches"
+                      viewHref={`/productos?tipo=${encodeURIComponent(String(matchedCategory?.id ?? primaryCategory))}`}
+                      viewLabel="Filtrar"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
+                    />
+                  );
+                })}
               </div>
             ) : (
               <div className="rounded-3xl border border-dashed border-[#efc9b8] bg-white/80 px-6 py-12 text-center">
