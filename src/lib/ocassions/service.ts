@@ -14,8 +14,7 @@ export type ProductsResult = {
 function normalizeProduct(item: OcassionApiItem, index: number): Ocassion {
     return {
         id: Number(item.id ?? index + 1),
-        label: item.label ?? 'Tematica',
-        code: item.code ?? 'tema'
+        name: item.label ?? 'Tematica'
     };
 }
 

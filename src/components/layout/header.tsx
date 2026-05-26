@@ -137,7 +137,8 @@ export default function Header() {
                     )}
 
                     <Link
-                        href="/contacto"
+                        href={CONTACT.PHONE_LINK}
+                        target="_blank"
                         className="inline-flex items-center rounded-full bg-light-pink px-[18px] py-2 text-[0.85rem] font-bold text-white transition duration-150 hover:scale-105 hover:brightness-110"
                     >
                         Contáctanos
