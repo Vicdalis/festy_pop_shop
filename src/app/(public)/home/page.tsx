@@ -175,9 +175,9 @@ export default function HomePage() {
   }, []);
 
   const seasonProducts = [
-    { name: "Piñatas", price: "$299", tag: "POPULAR", tagColor: "#e7467d", image: "/products/pinatas/pinata1.jpg" },
-    { name: "Figuras de Anime", price: "$149", tag: "RÁPIDO", tagColor: "#7ed958", image: "/products/moana.jpeg" },
-    { name: "Chupeteras", price: "$199", tag: "ESPECIAL", tagColor: "#8a3dc1", image: "/products/chupetera.jpeg" },
+    { name: "Piñatas", price: "$15", tag: "POPULAR", tagColor: "#e7467d", image: "/products/pinatas/pinata1.jpg" },
+    { name: "Figuras de Anime", price: "$15", tag: "RÁPIDO", tagColor: "#7ed958", image: "/products/product-category/pinata_pony.jpg" },
+    { name: "Chupeteras", price: "$10", tag: "ESPECIAL", tagColor: "#8a3dc1", image: "/products/chupetera.jpeg" },
   ];
 
   const petImages = [
