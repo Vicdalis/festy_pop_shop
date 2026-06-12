@@ -454,7 +454,7 @@ export default function HomePage() {
                       index={index}
                       badge={hasGeneralCharacter ? primaryCategory : primaryCharacter}
                       badgeColor={hasGeneralCharacter ? '#8a3dc1' : '#e7467d'}
-                      metaChip={product.colors.length > 0 ? `${product.colors.length} colores` : 'Pedido especial'}
+                      metaChip={product.colors.length > 0 ? `${product.colors.length} colores` :  (product.is_personalized ? 'Pedido Personalizado' : '')}
                       colorDisplay="swatches"
                       viewHref={`/productos?tipo=${encodeURIComponent(String(matchedCategory?.id ?? primaryCategory))}`}
                       viewLabel="Filtrar"

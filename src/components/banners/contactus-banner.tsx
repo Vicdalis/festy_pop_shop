@@ -34,26 +34,32 @@ export default function ContactUsBanner() {
                 className="mt-8 max-w-[1200px] mx-auto px-4"
             >
                 <div className="grid grid-cols-1  md:grid-cols-2 gap-8 items-start text-black text-foreground ">
-                    {/* Left: Contact form */}
+                    {/* Left: FAQ section */}
                     <div className="bg-card/50 rounded-2xl p-6 bg-[#FFF6EE] h-full">
-                        <h3 className="text-xl font-semibold mb-4 text-light-pink">Escríbenos</h3>
-                        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-                            <label className="text-sm">Nombre</label>
-                            <input name="name" value={formState.name} onChange={handleChange} required className="px-3 py-2 rounded-lg border border-input bg-transparent" />
+                        <h3 className="text-xl font-semibold mb-4 text-light-pink">Preguntas frecuentes</h3>
+                        <div className="flex flex-col gap-3">
+                            <details className="bg-white/10 p-4 rounded-lg">
+                                <summary className="font-semibold cursor-pointer">1. ¿Puedo pedir un diseño personalizado?</summary>
+                                <p className="mt-2 text-sm">Sí, aceptamos diseños personalizados. Dependiendo de la complejidad puede haber cargos adicionales. Contáctanos, envíanos tu foto de referencia y confirmaremos los detalles contigo.</p>
+                            </details>
+                            <details className="bg-white/10 p-4 rounded-lg">
+                                <summary className="font-semibold cursor-pointer">2. ¿Con cuánto tiempo de anticipación debo hacer un pedido?</summary>
+                                <p className="mt-2 text-sm">Los pedidos deben realizar con al menos 5 días de anticipación para piñatas y 10 días de anticipación para chupeteras y figuras de anime.</p>
+                            </details>
 
-                            <label className="text-sm">Correo</label>
-                            <input type="email" name="email" value={formState.email} onChange={handleChange} required className="px-3 py-2 rounded-lg border border-input bg-transparent" />
-
-                            <label className="text-sm">Teléfono</label>
-                            <input name="phone" value={formState.phone} onChange={handleChange} className="px-3 py-2 rounded-lg border border-input bg-transparent" />
-
-                            <label className="text-sm">Consulta</label>
-                            <textarea name="message" value={formState.message} onChange={handleChange} rows={5} className="px-3 py-2 rounded-lg border border-input bg-transparent resize-none" />
-
-                            <div className="pt-2">
-                                <Button type="submit" className="rounded-full">Enviar</Button>
-                            </div>
-                        </form>
+                            <details className="bg-white/10 p-4 rounded-lg">
+                                <summary className="font-semibold cursor-pointer">3. ¿Tienen Delivery?</summary>
+                                <p className="mt-2 text-sm">Sí, ofrecemos delivery en zonas seleccionadas. Los costos y tiempos dependen de la ubicación.</p>
+                            </details>
+                            <details className="bg-white/10 p-4 rounded-lg">
+                                <summary className="font-semibold cursor-pointer">4. ¿Tienen precios por mayor?</summary>
+                                <p className="mt-2 text-sm">Sí, tenemos precios por mayor a partir de 5 unidades dependiendo del producto. (No válido para pedidos personalizados)</p>
+                            </details>
+                            <details className="bg-white/10 p-4 rounded-lg">
+                                <summary className="font-semibold cursor-pointer">5. ¿Hacen envíos nacionales?</summary>
+                                <p className="mt-2 text-sm">Sí hacemos envios nacionales a través de zoom con cargo a destino.</p>
+                            </details>
+                        </div>
                     </div>
 
                     {/* Right: Cards */}
@@ -79,9 +85,11 @@ export default function ContactUsBanner() {
                         </div>
 
                         <div className="bg-pink-500 text-white rounded-2xl p-6 flex flex-wrap md:flex-nowrap items-center gap-6 shadow-lg">
-                            <div className="p-4 rounded-lg bg-white/10">
-                                <MapPinned className="h-10 w-10 text-white" />
-                            </div>
+                            <a href={CONTACT.ADDRESS_LINK} target="_blank" aria-label="direccion_mapa" className="group ">
+                                <div className="p-4 rounded-lg bg-white/10  transition duration-300 group-hover:scale-110 group-hover:bg-white/20 group-hover:shadow-lg">
+                                    <MapPinned className="h-10 w-10 text-white" />
+                                </div>
+                            </a>
                             <div>
                                 <p className="text-sm font-semibold uppercase opacity-90">Dirección</p>
                                 <p className="text-xl font-extrabold mt-1">{CONTACT.SHORT_ADDRESS}</p>

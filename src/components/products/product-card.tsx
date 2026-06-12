@@ -67,13 +67,25 @@ export default function ProductCard({
     const [touchStartX, setTouchStartX] = useState<number | null>(null);
     const [touchEndX, setTouchEndX] = useState<number | null>(null);
 
+    const prepareWhatsAppText = (productName: string) => {
+        // 1. Normalizar acentos (á → a, é → e, etc.)
+        // 2. Reemplazar espacios por +
+        // 3. Eliminar caracteres especiales que puedan romper la URL
+        return `cotizar: ${productName}`
+            .normalize("NFD")              // Separa acentos de letras
+            .replace(/[\u0300-\u036f]/g, "") // Elimina los acentos
+            .replace(/[^\w\s]/g, "")       // Elimina puntuación (!,?,.,etc)
+            .trim()                        // Elimina espacios al inicio/final
+            .replace(/\s+/g, "+");         // Espacios se convierten en +
+    }
+
     const resolvedQuoteHref =
         quoteHref
-        ?? `${CONTACT.PHONE_LINK}?text=${encodeURIComponent(`Hola, quiero cotizar ${product.name}`)}`;
+        ?? `${CONTACT.PHONE_LINK}${prepareWhatsAppText(product.name)}`;
 
     const resolvedMetaChip =
         metaChip
-        ?? (product.colors.length > 0 ? `${product.colors.length} colores` : 'Edición temática');
+        ?? (product.colors.length > 0 ? `${product.colors.length} colores` : '');
 
     const hasPrice = typeof product.price === 'number';
     const productImages = useMemo(() => {
@@ -215,7 +227,7 @@ export default function ProductCard({
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.08 }}
             whileHover={{ y: -6 }}
-            className="group overflow-hidden rounded-[28px] border border-white/70 bg-white shadow-[0_18px_45px_rgba(38,16,51,0.10)] transition-all duration-300 hover:shadow-[0_24px_55px_rgba(38,16,51,0.16)]"
+            className="group flex flex-col h-full overflow-hidden rounded-[28px] border border-white/70 bg-white shadow-[0_18px_45px_rgba(38,16,51,0.10)] transition-all duration-300 hover:shadow-[0_24px_55px_rgba(38,16,51,0.16)]"
         >
             <div className="relative aspect-[0.95/1] overflow-hidden rounded-b-[24px] bg-[linear-gradient(180deg,#fff7ed_0%,#ffe7f0_100%)]">
                 <button
@@ -257,7 +269,7 @@ export default function ProductCard({
                 </button>
             </div>
 
-            <div className="space-y-4 p-5">
+            <div className="flex flex-col space-y-4 p-5 flex-1">
                 <div className="space-y-2">
                     <p className="text-[0.72rem] font-black uppercase tracking-[0.12em] text-[#8a3dc1]">
                         <a href={viewHref}>
@@ -267,9 +279,12 @@ export default function ProductCard({
                     <h3 className="min-h-[3.25rem] font-display text-[1rem] font-black leading-5 text-[#261033]">
                         {product.name}
                     </h3>
+                    <p className="mt-1 text-sm text-[#6b6b6b]">{product.description ? (product.description.length > 100 ? `${product.description.slice(0, 100).trim()}…` : product.description) : ''}</p>
                 </div>
+                
 
-                <div className="flex items-end justify-between gap-3">
+                <div className="mt-auto">
+                    <div className="flex items-end justify-between gap-3">
                     {hasPrice ? (
                         <div>
                             <p className="text-[0.72rem] font-bold uppercase tracking-[0.08em] text-[#9f8a95]">
@@ -284,9 +299,9 @@ export default function ProductCard({
                     <div className={`${hasPrice ? '' : 'ml-auto'}`}>
                         {renderColorMeta()}
                     </div>
-                </div>
+                    </div>
 
-                <div className="flex gap-2">
+                    <div className="flex gap-2 mt-3">
                     <a
                         href={resolvedQuoteHref}
                         target="_blank"
@@ -297,12 +312,14 @@ export default function ProductCard({
                         <span
                             className={`flex w-full items-center justify-center rounded-full px-4 py-3 text-[0.82rem] font-black transition ${isQuoted
                                 ? 'bg-[#33c36b] text-white'
-                                : 'bg-main-purple text-white hover:bg-[var(--color-header-cta)]'
+                                : 'bg-main-purple text-white hover:bg-light-pink'
                                 }`}
                         >
+                            <Image src="/whatsapp.png" alt="WhatsApp" width={18} height={18} className="inline-block mr-2" />
                             Cotizar
                         </span>
                     </a>
+                    </div>
                 </div>
             </div>
 
@@ -338,7 +355,7 @@ export default function ProductCard({
                                     onTouchMove={handleTouchMove}
                                     onTouchEnd={handleTouchEnd}
                                 >
-                                    { activeImage?.trim() !== '' ? (
+                                    {activeImage?.trim() !== '' ? (
 
                                         <Image
                                             src={activeImage}

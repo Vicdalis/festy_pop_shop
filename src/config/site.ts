@@ -2,7 +2,7 @@
 export const CONTACT = {
     PHONE: "+58 (424) 221-4781",
     PHONE_LINK_MAYOR: "https://wa.me/584242214781?text=Hola!+quiero+cotizar+un+pedido+al+mayor",
-    PHONE_LINK: "https://wa.me/message/CXAYPAB7TZM7G1?text=Hola!+FestyPop+vi+tu+website+y+quiero+",
+    PHONE_LINK: "https://wa.me/584242214781?text=Hola!+FestyPop+vi+tu+website+y+quiero+",
     SUPPORT_EMAIL: "INV.VVVS@GMAIL.COM",
     SUPPORT_EMAIL_LINK: `mailto:inv.vvvs@gmail.com`,
     INSTAGRAM_LINK: "https://www.instagram.com/festypop_ccs/",
@@ -11,6 +11,7 @@ export const CONTACT = {
     PINTEREST_LINK: "https://www.pinterest.com/festypop_ccs/",
     ADDRESS: "Edificio Peinero, Entre las esquinas Dr díaz y Peinero, PB Avenida Este 6, Caracas 1012, Distrito Capital",
     SHORT_ADDRESS: "Edificio Peinero, Avenida Este 6, Caracas - La Hoyada",
+    ADDRESS_LINK: "https://www.google.com/maps?ll=10.502418,-66.911179&z=17&t=m&hl=en&gl=US&mapclient=embed&cid=5586549736660399674",
     ATTENTION_HOUR: "Lunes a Viernes 9:00 AM a 6:00 PM",
     ATTENTION_WEEKENDS: "Sábados y Domingos 9:00 AM a 3:00 PM"
 }
