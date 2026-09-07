@@ -57,13 +57,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <>
-      <html lang="es">
-        <body>
-          {children}
-        </body>
-      </html>
-      <Analytics />
-    </>
+    <html lang="es">
+      <body>
+        {children}
+        <Analytics />
+      </body>
+    </html>
   );
 }
