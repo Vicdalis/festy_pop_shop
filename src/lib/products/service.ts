@@ -1,6 +1,6 @@
 import { fetchJson } from '@/lib/api/http';
 import { mockProducts } from '@/lib/products/mock-products';
-import type { Product, ProductApiItem, Pagination } from '@/types/product';
+import type { Product, ProductApiItem, ProductColor, Pagination } from '@/types/product';
 
 type ProductsApiResponse = ProductApiItem[] | { products: ProductApiItem[], pagination: Pagination };
 type ProductsSource = 'api' | 'mock';
@@ -8,7 +8,7 @@ type ProductsSource = 'api' | 'mock';
 export type ProductFilters = {
     page?: number;
     category?: string | number;
-    color?: string;
+    color?: string | number;
     character?: string;
     theme?: string;
     limit?: number;
@@ -16,9 +16,23 @@ export type ProductFilters = {
 
 export type ProductsResult = {
     products: Product[];
+    pagination?: Pagination;
     source: ProductsSource;
     errorMessage?: string;
 };
+
+function normalizeColors(colors: unknown): ProductColor[] {
+    if (!Array.isArray(colors)) return [];
+
+    return colors.flatMap((color): ProductColor[] => {
+        if (typeof color === 'string') return [{ name: color }];
+        if (color && typeof color === 'object' && typeof (color as ProductColor).name === 'string') {
+            const { id, name, hex } = color as ProductColor;
+            return [{ id, name, hex }];
+        }
+        return [];
+    });
+}
 
 function normalizeProduct(item: ProductApiItem, index: number): Product {
     const fallbackImage = '/products/destacados/combo.jpg';
@@ -35,12 +49,22 @@ function normalizeProduct(item: ProductApiItem, index: number): Product {
         price: item.price ?? null,
         category: item.category ?? null,
         character: item.character ?? null,
-        colors: Array.isArray(item.colors) ? item.colors : [],
+        colors: normalizeColors(item.colors),
         occasions: Array.isArray(item.occasions) ? item.occasions : [],
         sku: item.sku ?? 'SKU no disponible',
         is_personalized: item.is_personalized ?? false,
         description: item.description ?? 'Producto disponible para cotizacion personalizada.',
     };
+}
+
+function extractPagination(response: ProductsApiResponse): Pagination | undefined {
+    if (Array.isArray(response)) {
+        return undefined;
+    }
+
+    const { pagination } = response;
+
+    return pagination && typeof pagination.total === 'number' ? pagination : undefined;
 }
 
 function extractProducts(response: ProductsApiResponse): ProductApiItem[] {
@@ -89,6 +113,7 @@ export async function getProducts(filters: ProductFilters = {}): Promise<Product
 
         return {
             products: items.length > 0 ? items.map(normalizeProduct) : mockProducts,
+            pagination: items.length > 0 ? extractPagination(response) : undefined,
             source: items.length > 0 ? 'api' : 'mock',
             errorMessage: items.length > 0 ? undefined : 'La API no devolvio productos, se usaron datos de respaldo.',
         };

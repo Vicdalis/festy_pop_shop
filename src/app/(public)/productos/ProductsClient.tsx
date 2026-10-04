@@ -10,6 +10,12 @@ import ProductCard from '@/components/products/product-card';
 import { mockCategories } from '@/lib/products/mock-categories';
 import { useProducts } from '@/store/hooks/use-products';
 
+const PRODUCTS_PER_PAGE = 12;
+
+// Circulo multicolor para la opcion "Todos": representa mas de un color
+const ALL_COLORS_GRADIENT =
+    'conic-gradient(#ef4444, #f97316, #facc15, #22c55e, #06b6d4, #3b82f6, #a855f7, #ec4899, #ef4444)';
+
 const colorClasses: Record<string, string> = {
     Amarillo: 'bg-yellow-300',
     Azul: 'bg-blue-500',
@@ -77,20 +83,41 @@ export default function ProductsClient() {
     const [isCharacterOpen, setIsCharacterOpen] = useState(false);
     const [isCategoryOpen, setIsCategoryOpen] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
+    // El API filtra por id de color; se recuerda el id de cada nombre aunque luego la lista se reduzca
+    const colorIdByName = useRef(new Map<string, number>());
     const selectedOccasionKey = selectedOccasion ? resolveOccasionKey(selectedOccasion) : '';
     const selectedCategoryMatch = mockCategories.find((category) => category.name === selectedCategory) ?? null;
     const productFilters = {
         ...(selectedCategory !== 'Todos'
             ? { category: selectedCategoryMatch?.id ?? selectedCategory }
             : {}),
-        ...(selectedColor !== 'Todos' ? { color: selectedColor } : {}),
+        ...(colorIdByName.current.has(selectedColor) ? { color: colorIdByName.current.get(selectedColor) } : {}),
         ...(selectedCharacter !== 'Todos' ? { character: selectedCharacter } : {}),
         ...(selectedOccasion ? { theme: selectedOccasion } : {}),
+        limit: PRODUCTS_PER_PAGE,
     };
-    const { products, isLoading, error, source } = useProducts(productFilters);
-    const colorOptions = ['Todos', ...Array.from(new Set(products.flatMap((product) => product.colors)))];
+    const { products: loadedProducts, isLoading, isLoadingMore, hasMore, loadMore, error, source } = useProducts(productFilters);
+    // Con un filtro activo y un error del API, los datos de respaldo no corresponden al filtro:
+    // se muestra "sin productos" en lugar de la lista de respaldo.
+    const hasActiveApiFilter = Object.keys(productFilters).some((key) => key !== 'limit');
+    const products = hasActiveApiFilter && error ? [] : loadedProducts;
+    products.forEach((product) => product.colors.forEach((color) => {
+        if (color.id !== undefined) colorIdByName.current.set(color.name, color.id);
+    }));
+    const colorHexByName = new Map(
+        products.flatMap((product) => product.colors).map((color) => [color.name, color.hex] as const),
+    );
+    const colorOptions = ['Todos', ...Array.from(new Set(products.flatMap((product) => product.colors.map((color) => color.name))))];
     const characterOptions = ['Todos', ...Array.from(new Set(products.flatMap((product) => extractObjectNames(product.character))))];
-    const categoryOptions = ['Todos', ...Array.from(new Set(products.flatMap((product) => extractObjectNames(product.category))))];
+    // El API filtra por categoria, asi que los productos cargados solo traen la seleccionada;
+    // la lista de tipos sale del catalogo completo para que no desaparezcan los demas.
+    const categoryOptions = [
+        'Todos',
+        ...Array.from(new Set([
+            ...mockCategories.map((category) => category.name),
+            ...products.flatMap((product) => extractObjectNames(product.category)),
+        ])),
+    ];
 
     useEffect(() => {
         setSelectedCategory(requestedTypeLabel || 'Todos');
@@ -122,7 +149,7 @@ export default function ProductsClient() {
             product.description,
             ...productCategoryNames,
             ...productCharacterNames,
-            ...product.colors,
+            ...product.colors.map((color) => color.name),
             ...productOccasionNames,
         ];
 
@@ -297,7 +324,16 @@ export default function ProductsClient() {
                                                     }`}
                                                 >
                                                     <span className="inline-flex items-center gap-2">
-                                                        <span className={`h-3.5 w-3.5 rounded-full border border-black/10 ${colorClasses[color] ?? 'bg-neutral-200'}`} />
+                                                        <span
+                                                            className={`h-3.5 w-3.5 rounded-full border border-black/10 ${color === 'Todos' || colorHexByName.get(color) ? '' : (colorClasses[color] ?? 'bg-neutral-200')}`}
+                                                            style={
+                                                                color === 'Todos'
+                                                                    ? { backgroundImage: ALL_COLORS_GRADIENT }
+                                                                    : colorHexByName.get(color)
+                                                                        ? { backgroundColor: colorHexByName.get(color) as string }
+                                                                        : undefined
+                                                            }
+                                                        />
                                                         {color}
                                                     </span>
                                                 </button>
@@ -435,11 +471,26 @@ export default function ProductsClient() {
                             </div>
                         )}
 
+                        {!isLoading && hasMore && (
+                            <div className="flex justify-center">
+                                <button
+                                    type="button"
+                                    onClick={loadMore}
+                                    disabled={isLoadingMore}
+                                    className="rounded-full bg-main-purple px-8 py-3 text-sm font-black text-white transition hover:bg-light-pink disabled:cursor-not-allowed disabled:opacity-60"
+                                >
+                                    {isLoadingMore ? 'Cargando...' : 'Mostrar más productos'}
+                                </button>
+                            </div>
+                        )}
+
                         {!isLoading && filteredProducts.length === 0 && (
                             <div className="rounded-2xl border border-dashed border-[#efc9b8] bg-white/80 px-6 py-14 text-center">
                                 <p className="text-2xl font-bold text-[#4b2737]">No encontramos coincidencias</p>
                                 <p className="mt-3 text-[#6f5b65]">
-                                    {hasTypeFilterFromUrl && requestedTypeLabel
+                                    {selectedCategory !== 'Todos'
+                                        ? `No hay productos disponibles para el tipo "${selectedCategory}".`
+                                    : hasTypeFilterFromUrl && requestedTypeLabel
                                         ? `No hay productos disponibles para el filtro "${requestedTypeLabel}".`
                                         : hasOccasionFilterFromUrl && requestedOccasionLabel
                                             ? `No hay productos disponibles para la ocasión "${requestedOccasionLabel}".`
@@ -448,7 +499,7 @@ export default function ProductsClient() {
                             </div>
                         )}
 
-                        {!isLoading && source === 'mock' && error && (
+                        {process.env.NODE_ENV === 'development' && !isLoading && source === 'mock' && error && (
                             <div className="rounded-2xl border border-[#efc9b8] bg-[#fff8f4] px-6 py-5 text-sm text-[#7a5662]">
                                 {error}
                             </div>

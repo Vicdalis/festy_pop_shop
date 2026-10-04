@@ -206,7 +206,12 @@ export const mockProducts: Product[] = [
             "images": null,
             "sku": "DEC0001",
             "is_personalized": false,
-            "colors": [ "Azul Oscuro", "Blanco", "Rosado", "Vinotinto" ],
+            "colors": [
+                { "id": 1, "name": "Azul Oscuro", "hex": "#00008b" },
+                { "id": 2, "name": "Blanco", "hex": "#ffffff" },
+                { "id": 3, "name": "Rosado", "hex": "#ff7ab8" },
+                { "id": 4, "name": "Vinotinto", "hex": "#722f37" }
+            ],
             "occasions": []
         }
 ];

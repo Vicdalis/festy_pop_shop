@@ -15,7 +15,7 @@ type ProductCardItem = {
     image: string;
     images?: string[];
     category: string;
-    colors: string[];
+    colors: { id?: number; name: string; hex?: string | null }[];
     occasions?: string[];
     price?: number | null;
 };
@@ -88,6 +88,7 @@ export default function ProductCard({
         ?? (product.colors.length > 0 ? `${product.colors.length} colores` : '');
 
     const hasPrice = typeof product.price === 'number';
+    const hasColors = product.colors.length > 0;
     const productImages = useMemo(() => {
         if (Array.isArray(product.images) && product.images.length > 0) {
             return product.images;
@@ -203,11 +204,11 @@ export default function ProductCard({
                 <div className="flex items-center gap-1.5 rounded-full bg-[#f8eefc] px-3 py-2">
                     {product.colors.map((color) => (
                         <span
-                            key={`${product.id}-${color}`}
+                            key={`${product.id}-${color.id ?? color.name}`}
                             className="h-4 w-4 rounded-full border border-black/10 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.18)]"
-                            style={{ backgroundColor: colorSwatchMap[color] ?? '#d9c2f3' }}
-                            title={color}
-                            aria-label={color}
+                            style={{ backgroundColor: color.hex || colorSwatchMap[color.name] || '#d9c2f3' }}
+                            title={color.name}
+                            aria-label={color.name}
                         />
                     ))}
                 </div>
@@ -285,40 +286,42 @@ export default function ProductCard({
 
                 <div className="mt-auto">
                     <div className="flex items-end justify-between gap-3">
-                    {hasPrice ? (
-                        <div>
-                            <p className="text-[0.72rem] font-bold uppercase tracking-[0.08em] text-[#9f8a95]">
-                                Desde
-                            </p>
-                            <p className="font-display text-[1.45rem] font-black leading-none text-main-purple">
-                                ${product.price?.toFixed(2) ?? '0.00'}
-                            </p>
-                        </div>
-                    ) : null}
+                        {hasPrice ? (
+                            <div>
+                                <p className="text-[0.72rem] font-bold uppercase tracking-[0.08em] text-[#9f8a95]">
+                                    Desde
+                                </p>
+                                <p className="font-display text-[1.45rem] font-black leading-none text-main-purple">
+                                    ${product.price?.toFixed(2) ?? '0.00'}
+                                </p>
+                            </div>
+                        ) : null}
 
-                    <div className={`${hasPrice ? '' : 'ml-auto'}`}>
-                        {renderColorMeta()}
-                    </div>
+                        {hasColors && (
+                            <div className={`${hasPrice ? '' : 'ml-auto'}`}>
+                                {renderColorMeta()}
+                            </div>
+                        )}
                     </div>
 
                     <div className="flex gap-2 mt-3">
-                    <a
-                        href={resolvedQuoteHref}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="flex-1"
-                        onClick={handleQuoteClick}
-                    >
-                        <span
-                            className={`flex w-full items-center justify-center rounded-full px-4 py-3 text-[0.82rem] font-black transition ${isQuoted
-                                ? 'bg-[#33c36b] text-white'
-                                : 'bg-main-purple text-white hover:bg-light-pink'
-                                }`}
+                        <a
+                            href={resolvedQuoteHref}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="flex-1"
+                            onClick={handleQuoteClick}
                         >
-                            <Image src="/whatsapp.png" alt="WhatsApp" width={18} height={18} className="inline-block mr-2" />
-                            Cotizar
-                        </span>
-                    </a>
+                            <span
+                                className={`flex w-full items-center justify-center rounded-full px-4 py-3 text-[0.82rem] font-black transition ${isQuoted
+                                    ? 'bg-[#33c36b] text-white'
+                                    : 'bg-main-purple text-white hover:bg-light-pink'
+                                    }`}
+                            >
+                                <Image src="/whatsapp.png" alt="WhatsApp" width={18} height={18} className="inline-block mr-2" />
+                                Cotizar
+                            </span>
+                        </a>
                     </div>
                 </div>
             </div>
