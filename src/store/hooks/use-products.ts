@@ -16,7 +16,7 @@ export function useProducts(filters: ProductFilters = {}) {
     // Un cambio de filtros reinicia la lista desde la primera pagina
     useEffect(() => {
         setPage(1);
-    }, [filters.category, filters.character, filters.color, filters.limit, filters.theme]);
+    }, [filters.category, filters.character, filters.color, filters.limit, filters.personalized, filters.theme]);
 
     useEffect(() => {
         let isMounted = true;
@@ -63,7 +63,7 @@ export function useProducts(filters: ProductFilters = {}) {
         return () => {
             isMounted = false;
         };
-    }, [filters.category, filters.character, filters.color, filters.limit, filters.page, filters.theme, page]);
+    }, [filters.category, filters.character, filters.color, filters.limit, filters.page, filters.personalized, filters.theme, page]);
 
     const hasMore = source === 'api' && total !== null && products.length < total;
 

@@ -447,7 +447,9 @@ export default function HomePage() {
                         image: product.main_image,
                         images: product.images ?? [product.main_image],
                         category: primaryCategory,
+                        character: hasGeneralCharacter ? undefined : primaryCharacter,
                         colors: product.colors,
+                        isPersonalized: product.is_personalized,
                         occasions: extractNames(product.occasions),
                         price: product.price,
                       }}

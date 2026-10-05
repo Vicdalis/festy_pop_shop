@@ -11,6 +11,7 @@ export type ProductFilters = {
     color?: string | number;
     character?: string;
     theme?: string;
+    personalized?: boolean;
     limit?: number;
 };
 

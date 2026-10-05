@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
-import { ChevronDown, Palette, Search, Sparkles, Tag } from 'lucide-react';
+import { Brush, ChevronDown, Filter, Palette, Search, Sparkles, Star, Tag, X } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 import Title from '@/components/ui/title';
 import ProductCard from '@/components/products/product-card';
@@ -77,12 +77,14 @@ export default function ProductsClient() {
     const shouldAutoScrollToCatalog = hasTypeFilterFromUrl || hasOccasionFilterFromUrl;
     const [selectedColor, setSelectedColor] = useState('Todos');
     const [selectedCharacter, setSelectedCharacter] = useState('Todos');
+    const [onlyPersonalized, setOnlyPersonalized] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState(requestedTypeLabel || 'Todos');
     const [selectedOccasion, setSelectedOccasion] = useState(requestedOccasionLabel);
-    const [isColorOpen, setIsColorOpen] = useState(false);
-    const [isCharacterOpen, setIsCharacterOpen] = useState(false);
+    const [isColorOpen, setIsColorOpen] = useState(true);
+    const [isCharacterOpen, setIsCharacterOpen] = useState(true);
     const [isCategoryOpen, setIsCategoryOpen] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
+    const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
     // El API filtra por id de color; se recuerda el id de cada nombre aunque luego la lista se reduzca
     const colorIdByName = useRef(new Map<string, number>());
     const selectedOccasionKey = selectedOccasion ? resolveOccasionKey(selectedOccasion) : '';
@@ -94,6 +96,7 @@ export default function ProductsClient() {
         ...(colorIdByName.current.has(selectedColor) ? { color: colorIdByName.current.get(selectedColor) } : {}),
         ...(selectedCharacter !== 'Todos' ? { character: selectedCharacter } : {}),
         ...(selectedOccasion ? { theme: selectedOccasion } : {}),
+        ...(onlyPersonalized ? { personalized: true } : {}),
         limit: PRODUCTS_PER_PAGE,
     };
     const { products: loadedProducts, isLoading, isLoadingMore, hasMore, loadMore, error, source } = useProducts(productFilters);
@@ -124,6 +127,7 @@ export default function ProductsClient() {
         setSelectedOccasion(requestedOccasionLabel);
         setSelectedColor('Todos');
         setSelectedCharacter('Todos');
+        setOnlyPersonalized(false);
         setSearchTerm('');
     }, [requestedOccasionLabel, requestedTypeLabel]);
 
@@ -172,8 +176,174 @@ export default function ProductsClient() {
         ? categoryOptions
         : [selectedCategory];
 
+    const clearFilters = () => {
+        setSelectedCategory('Todos');
+        setSelectedColor('Todos');
+        setSelectedCharacter('Todos');
+        setOnlyPersonalized(false);
+        setSelectedOccasion('');
+        setSearchTerm('');
+    };
+
+    const activeFilterChips = [
+        onlyPersonalized && { key: 'personalized', label: 'Personalizados', onRemove: () => setOnlyPersonalized(false) },
+        selectedCategory !== 'Todos' && { key: 'category', label: selectedCategory, onRemove: () => setSelectedCategory('Todos') },
+        selectedColor !== 'Todos' && { key: 'color', label: selectedColor, onRemove: () => setSelectedColor('Todos') },
+        selectedCharacter !== 'Todos' && { key: 'character', label: selectedCharacter, onRemove: () => setSelectedCharacter('Todos') },
+        selectedOccasion && { key: 'occasion', label: selectedOccasion, onRemove: () => setSelectedOccasion('') },
+    ].filter((chip) => !!chip) as { key: string; label: string; onRemove: () => void }[];
+
+    const filterGroups = (
+        <div className="space-y-6">
+            <button
+                type="button"
+                role="switch"
+                aria-checked={onlyPersonalized}
+                onClick={() => setOnlyPersonalized((current) => !current)}
+                className={`flex w-full items-center justify-between gap-3 rounded-2xl border-2 px-4 py-3 text-left transition-all ${
+                    onlyPersonalized
+                        ? 'border-[#8a3dc1] bg-[#f6eefc]'
+                        : 'border-[#f1ddce] bg-white hover:border-[#8a3dc1]'
+                }`}
+            >
+                <span className="flex items-center gap-3">
+                    <Brush className="h-5 w-5 shrink-0 text-[#8a3dc1]" />
+                    <span className="whitespace-nowrap text-base font-semibold">Solo personalizados</span>
+                </span>
+                <span
+                    className={`relative h-6 w-11 shrink-0 rounded-full transition-colors ${onlyPersonalized ? 'bg-[#8a3dc1]' : 'bg-[#e5dce8]'}`}
+                >
+                    <span
+                        className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-all ${onlyPersonalized ? 'left-[22px]' : 'left-0.5'}`}
+                    />
+                </span>
+            </button>
+
+                                <div className="space-y-4">
+                                    <button
+                                        type="button"
+                                        onClick={() => setIsCategoryOpen((current) => !current)}
+                                        className="flex w-full items-center justify-between gap-3 text-left"
+                                    >
+                                        <span className="flex items-center gap-3">
+                                            <Tag className="h-5 w-5 text-[#b86c45]" />
+                                            <span className="text-base font-semibold">Tipo de producto</span>
+                                        </span>
+                                        <ChevronDown
+                                            className={`h-5 w-5 cursor-pointer text-[#a15b73] transition-transform ${isCategoryOpen ? 'rotate-180' : ''}`}
+                                        />
+                                    </button>
+                                    <div className="flex flex-wrap gap-2">
+                                        {visibleCategoryOptions.map((category) => {
+                                            const isActive = selectedCategory === category;
+
+                                            return (
+                                                <button
+                                                    key={category}
+                                                    type="button"
+                                                    onClick={() => setSelectedCategory(category)}
+                                                    className={`rounded-full border-2 px-4 py-2 text-left text-sm font-semibold transition-all ${
+                                                        isActive
+                                                            ? 'border-[#b86c45] bg-[#fff4ec] text-[#9a5428] shadow-sm'
+                                                            : 'border-[#f1ddce] bg-white text-[#6f5b65] hover:border-[#e7467d] hover:text-[#9f2051]'
+                                                    }`}
+                                                >
+                                                    {category}
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+
+                                <div className="space-y-4">
+                                    <button
+                                        type="button"
+                                        onClick={() => setIsColorOpen((current) => !current)}
+                                        className="flex w-full items-center justify-between gap-3 text-left"
+                                    >
+                                        <span className="flex items-center gap-3">
+                                            <Palette className="h-5 w-5 text-[#e7467d]" />
+                                            <span className="text-base font-semibold">Color</span>
+                                        </span>
+                                        <ChevronDown
+                                            className={`h-5 w-5 cursor-pointer text-[#a15b73] transition-transform ${isColorOpen ? 'rotate-180' : ''}`}
+                                        />
+                                    </button>
+                                    <div className="flex flex-wrap gap-2">
+                                        {visibleColorOptions.map((color) => {
+                                            const isActive = selectedColor === color;
+
+                                            return (
+                                                <button
+                                                    key={color}
+                                                    type="button"
+                                                    onClick={() => setSelectedColor(color)}
+                                                    className={`inline-flex items-center rounded-full border-2 px-4 py-2 text-left text-sm font-semibold transition-all ${
+                                                        isActive
+                                                            ? 'border-[#e7467d] bg-[#fff0f5] text-[#9f2051] shadow-sm'
+                                                            : 'border-[#f1ddce] bg-white text-[#6f5b65] hover:border-[#fe9a4e] hover:text-[#b45126]'
+                                                    }`}
+                                                >
+                                                    <span className="inline-flex items-center gap-2">
+                                                        <span
+                                                            className={`h-3.5 w-3.5 rounded-full border border-black/10 ${color === 'Todos' || colorHexByName.get(color) ? '' : (colorClasses[color] ?? 'bg-neutral-200')}`}
+                                                            style={
+                                                                color === 'Todos'
+                                                                    ? { backgroundImage: ALL_COLORS_GRADIENT }
+                                                                    : colorHexByName.get(color)
+                                                                        ? { backgroundColor: colorHexByName.get(color) as string }
+                                                                        : undefined
+                                                            }
+                                                        />
+                                                        {color}
+                                                    </span>
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+
+                                <div className="space-y-4">
+                                    <button
+                                        type="button"
+                                        onClick={() => setIsCharacterOpen((current) => !current)}
+                                        className="flex w-full items-center justify-between gap-3 text-left"
+                                    >
+                                        <span className="flex items-center gap-3">
+                                            <Star className="h-5 w-5 text-[#fe9a4e]" />
+                                            <span className="text-base font-semibold">Personaje</span>
+                                        </span>
+                                        <ChevronDown
+                                            className={`h-5 w-5 cursor-pointer text-[#a15b73] transition-transform ${isCharacterOpen ? 'rotate-180' : ''}`}
+                                        />
+                                    </button>
+                                    <div className="flex flex-wrap gap-2">
+                                         {visibleCharacterOptions.map((character) => {
+                                            const isActive = selectedCharacter === character;
+
+                                            return (
+                                                <button
+                                                    key={character}
+                                                    type="button"
+                                                    onClick={() => setSelectedCharacter(character)}
+                                                    className={`rounded-full border-2 px-4 py-2 text-left text-sm font-semibold transition-all ${
+                                                        isActive
+                                                            ? 'border-[#fe9a4e] bg-[#fff1e5] text-[#b85b1f] shadow-sm'
+                                                            : 'border-[#f1ddce] bg-white text-[#6f5b65] hover:border-[#e7467d] hover:text-[#9f2051]'
+                                                    }`}
+                                                >
+                                                    <span className="flex items-center justify-between gap-3">
+                                                        <span>{character}</span>
+                                                    </span>
+                                                </button>
+                                            );
+                                        })} 
+                                    </div>
+                                </div>
+        </div>
+    );
+
     return (
-        
         <main className="bg-white text-[#3B2830]">
             <section className="relative overflow-hidden">
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(255,61,127,0.16),_transparent_36%),radial-gradient(circle_at_bottom_right,_rgba(254,154,78,0.22),_transparent_32%),linear-gradient(180deg,#fff7ed_0%,#fff2e2_100%)]" ></div>
@@ -243,14 +413,14 @@ export default function ProductsClient() {
                 </div>
             </section>
 
-            <section ref={catalogSectionRef} className="container-custom mx-auto max-w-7xl scroll-mt-24 px-5 py-12 md:py-16">
+            <section ref={catalogSectionRef} className="container-custom mx-auto max-w-7xl scroll-mt-24 px-4 py-12 lg:px-3 md:py-16">
                 <Title
                     mainTitle="Catálogo"
                     subtitle="Explora nuestros productos disponibles y algunos encargos anteriores que podrían inspirarte"
                 />
 
-                <div className="grid gap-8 lg:grid-cols-[280px_minmax(0,1fr)] lg:items-start">
-                    <aside className="lg:sticky lg:top-24">
+                <div className="grid gap-8 lg:grid-cols-[320px_minmax(0,1fr)] lg:items-start">
+                    <aside className="hidden lg:sticky lg:top-24 lg:block">
                         <div className="max-h-[calc(100vh-7rem)] overflow-hidden rounded-2xl border border-[#f3d7c6] bg-white shadow-[0_18px_45px_rgba(161,96,70,0.08)]">
                             <div className="bg-[linear-gradient(135deg,#fff5ee_0%,#fff0f5_100%)] p-5">
                                 <p className="text-xs font-bold uppercase tracking-[0.22em] text-[#b86c45]">Filtros</p>
@@ -258,137 +428,11 @@ export default function ProductsClient() {
                             </div>
 
                             <div className="max-h-[calc(100vh-14rem)] space-y-6 overflow-y-auto p-5">
-                                <div className="space-y-4">
-                                    <button
-                                        type="button"
-                                        onClick={() => setIsCategoryOpen((current) => !current)}
-                                        className="flex w-full items-center justify-between gap-3 text-left"
-                                    >
-                                        <span className="flex items-center gap-3">
-                                            <Tag className="h-5 w-5 text-[#b86c45]" />
-                                            <span className="text-base font-semibold">Tipo de producto</span>
-                                        </span>
-                                        <ChevronDown
-                                            className={`h-5 w-5 cursor-pointer text-[#a15b73] transition-transform ${isCategoryOpen ? 'rotate-180' : ''}`}
-                                        />
-                                    </button>
-                                    <div className="flex flex-col gap-2">
-                                        {visibleCategoryOptions.map((category) => {
-                                            const isActive = selectedCategory === category;
-
-                                            return (
-                                                <button
-                                                    key={category}
-                                                    type="button"
-                                                    onClick={() => setSelectedCategory(category)}
-                                                    className={`rounded-2xl border px-4 py-3 text-left text-sm font-semibold transition-all ${
-                                                        isActive
-                                                            ? 'border-[#b86c45] bg-[#fff4ec] text-[#9a5428] shadow-sm'
-                                                            : 'border-[#f1ddce] bg-white text-[#6f5b65] hover:border-[#e7467d] hover:text-[#9f2051]'
-                                                    }`}
-                                                >
-                                                    {category}
-                                                </button>
-                                            );
-                                        })}
-                                    </div>
-                                </div>
-
-                                <div className="space-y-4">
-                                    <button
-                                        type="button"
-                                        onClick={() => setIsColorOpen((current) => !current)}
-                                        className="flex w-full items-center justify-between gap-3 text-left"
-                                    >
-                                        <span className="flex items-center gap-3">
-                                            <Palette className="h-5 w-5 text-[#e7467d]" />
-                                            <span className="text-base font-semibold">Color</span>
-                                        </span>
-                                        <ChevronDown
-                                            className={`h-5 w-5 cursor-pointer text-[#a15b73] transition-transform ${isColorOpen ? 'rotate-180' : ''}`}
-                                        />
-                                    </button>
-                                    <div className="flex flex-col gap-2">
-                                        {visibleColorOptions.map((color) => {
-                                            const isActive = selectedColor === color;
-
-                                            return (
-                                                <button
-                                                    key={color}
-                                                    type="button"
-                                                    onClick={() => setSelectedColor(color)}
-                                                    className={`inline-flex items-center justify-between rounded-2xl border px-4 py-3 text-left text-sm font-semibold transition-all ${
-                                                        isActive
-                                                            ? 'border-[#e7467d] bg-[#fff0f5] text-[#9f2051] shadow-sm'
-                                                            : 'border-[#f1ddce] bg-white text-[#6f5b65] hover:border-[#fe9a4e] hover:text-[#b45126]'
-                                                    }`}
-                                                >
-                                                    <span className="inline-flex items-center gap-2">
-                                                        <span
-                                                            className={`h-3.5 w-3.5 rounded-full border border-black/10 ${color === 'Todos' || colorHexByName.get(color) ? '' : (colorClasses[color] ?? 'bg-neutral-200')}`}
-                                                            style={
-                                                                color === 'Todos'
-                                                                    ? { backgroundImage: ALL_COLORS_GRADIENT }
-                                                                    : colorHexByName.get(color)
-                                                                        ? { backgroundColor: colorHexByName.get(color) as string }
-                                                                        : undefined
-                                                            }
-                                                        />
-                                                        {color}
-                                                    </span>
-                                                </button>
-                                            );
-                                        })}
-                                    </div>
-                                </div>
-
-                                <div className="space-y-4">
-                                    <button
-                                        type="button"
-                                        onClick={() => setIsCharacterOpen((current) => !current)}
-                                        className="flex w-full items-center justify-between gap-3 text-left"
-                                    >
-                                        <span className="flex items-center gap-3">
-                                            <Tag className="h-5 w-5 text-[#fe9a4e]" />
-                                            <span className="text-base font-semibold">Personaje</span>
-                                        </span>
-                                        <ChevronDown
-                                            className={`h-5 w-5 cursor-pointer text-[#a15b73] transition-transform ${isCharacterOpen ? 'rotate-180' : ''}`}
-                                        />
-                                    </button>
-                                    <div className="flex flex-col gap-2">
-                                         {visibleCharacterOptions.map((character) => {
-                                            const isActive = selectedCharacter === character;
-
-                                            return (
-                                                <button
-                                                    key={character}
-                                                    type="button"
-                                                    onClick={() => setSelectedCharacter(character)}
-                                                    className={`rounded-2xl border px-4 py-3 text-left text-sm font-semibold transition-all ${
-                                                        isActive
-                                                            ? 'border-[#fe9a4e] bg-[#fff1e5] text-[#b85b1f] shadow-sm'
-                                                            : 'border-[#f1ddce] bg-white text-[#6f5b65] hover:border-[#e7467d] hover:text-[#9f2051]'
-                                                    }`}
-                                                >
-                                                    <span className="flex items-center justify-between gap-3">
-                                                        <span>{character}</span>
-                                                    </span>
-                                                </button>
-                                            );
-                                        })} 
-                                    </div>
-                                </div>
+                                {filterGroups}
 
                                 <button
                                     type="button"
-                                    onClick={() => {
-                                        setSelectedCategory('Todos');
-                                        setSelectedColor('Todos');
-                                        setSelectedCharacter('Todos');
-                                        setSelectedOccasion('');
-                                        setSearchTerm('');
-                                    }}
+                                    onClick={clearFilters}
                                     className="w-full rounded-full border border-[#efc9b8] px-4 py-3 text-sm font-semibold text-[#7a5662] transition hover:border-[#e7467d] hover:text-[#9f2051]"
                                 >
                                     Limpiar filtros
@@ -427,6 +471,23 @@ export default function ProductsClient() {
                             </label>
                         </div>
 
+                        {activeFilterChips.length > 0 && (
+                            <div className="flex flex-wrap gap-2">
+                                {activeFilterChips.map((chip) => (
+                                    <button
+                                        key={chip.key}
+                                        type="button"
+                                        onClick={chip.onRemove}
+                                        aria-label={`Quitar filtro ${chip.label}`}
+                                        className="inline-flex items-center gap-2 rounded-full bg-[#2a1245] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#4a1a82]"
+                                    >
+                                        {chip.label}
+                                        <X className="h-4 w-4" />
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+
                         {isLoading ? (
                             <div className="flex min-h-[360px] flex-col items-center justify-center rounded-2xl border border-[#f3d7c6] bg-white/80 px-6 text-center shadow-sm">
                                 <span className="h-14 w-14 animate-spin rounded-full border-4 border-[#ffd4e3] border-t-[#e7467d]" />
@@ -436,7 +497,7 @@ export default function ProductsClient() {
                                 </p>
                             </div>
                         ) : (
-                            <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+                            <div className="grid grid-cols-2 gap-3 md:gap-6 xl:grid-cols-3">
                                 {filteredProducts.map((product, index) => {
                                     const categoryNames = extractObjectNames(product.category);
                                     const characterNames = extractObjectNames(product.character);
@@ -453,7 +514,9 @@ export default function ProductsClient() {
                                                 image: product.main_image,
                                                 images: product.images ?? [],
                                                 category: primaryCategory,
+                                                character: hasGeneralCharacter ? undefined : primaryCharacter,
                                                 colors: product.colors,
+                                                isPersonalized: product.is_personalized,
                                                 occasions: extractNames(product.occasions),
                                                 price: product.price,
                                             }}
@@ -507,6 +570,50 @@ export default function ProductsClient() {
                     </div>
                 </div>
             </section>
+            <button
+                type="button"
+                onClick={() => setIsFilterSheetOpen(true)}
+                className="fixed bottom-5 right-5 z-40 inline-flex items-center gap-3 rounded-full bg-gradient-to-r from-[#4a1a82] to-[#6a2cb0] px-6 py-4 text-base font-bold text-white shadow-[0_12px_30px_rgba(74,26,130,0.45)] transition active:scale-95 lg:hidden"
+            >
+                <Filter className="h-5 w-5" />
+                Filtrar
+            </button>
+
+            {isFilterSheetOpen && (
+                <div className="fixed inset-0 z-50 flex items-end lg:hidden" role="dialog" aria-modal="true" aria-label="Refina tu búsqueda">
+                    <div className="absolute inset-0 bg-black/45" onClick={() => setIsFilterSheetOpen(false)} />
+                    <div className="relative flex max-h-[85vh] w-full flex-col rounded-t-3xl bg-white shadow-2xl">
+                        <div className="flex items-center justify-between border-b border-[#eee] px-6 py-5">
+                            <h2 className="text-2xl font-bold text-[#2a1245]">Refina tu búsqueda</h2>
+                            <button
+                                type="button"
+                                onClick={() => setIsFilterSheetOpen(false)}
+                                aria-label="Cerrar filtros"
+                                className="flex h-10 w-10 items-center justify-center rounded-full bg-[#f1ecf8] text-[#2a1245]"
+                            >
+                                <X className="h-5 w-5" />
+                            </button>
+                        </div>
+                        <div className="overflow-y-auto px-6 py-5">{filterGroups}</div>
+                        <div className="flex gap-3 border-t border-[#eee] px-6 py-4">
+                            <button
+                                type="button"
+                                onClick={clearFilters}
+                                className="flex-1 rounded-full border-2 border-[#e5e0ee] px-4 py-3 text-base font-bold text-[#5b2a9a]"
+                            >
+                                Limpiar
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setIsFilterSheetOpen(false)}
+                                className="flex-[1.6] rounded-full bg-gradient-to-r from-[#4a1a82] to-[#6a2cb0] px-4 py-3 text-base font-bold text-white"
+                            >
+                                Ver productos
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </main>
     );
 }
