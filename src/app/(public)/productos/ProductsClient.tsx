@@ -3,11 +3,12 @@
 import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Brush, ChevronDown, Filter, Palette, Search, Sparkles, Star, Tag, X } from 'lucide-react';
+import { Brush, Cake, ChevronDown, Filter, Palette, Search, Sparkles, Star, Tag, X } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 import Title from '@/components/ui/title';
 import ProductCard from '@/components/products/product-card';
 import { mockCategories } from '@/lib/products/mock-categories';
+import { mockOcassions } from '@/lib/ocassions/mock-ocassions';
 import { useProducts } from '@/store/hooks/use-products';
 
 const PRODUCTS_PER_PAGE = 12;
@@ -66,20 +67,26 @@ export default function ProductsClient() {
     const searchParams = useSearchParams();
     const catalogSectionRef = useRef<HTMLElement | null>(null);
     const requestedTypeParam = searchParams.get('tipo')?.replace(/\+/g, ' ').trim() ?? '';
-    const requestedOccasionLabel = searchParams.get('ocasion')?.replace(/\+/g, ' ').trim() ?? '';
+    const requestedOccasionParam = searchParams.get('ocasion')?.trim() ?? '';
+    const parsedOccasionId = Number(requestedOccasionParam);
+    // El API filtra por id de ocasion: el parametro debe ser un entero positivo
+    const requestedOccasionId = requestedOccasionParam !== '' && Number.isInteger(parsedOccasionId) && parsedOccasionId > 0
+        ? parsedOccasionId
+        : null;
     const requestedCategoryId = Number(requestedTypeParam);
     const matchedCategoryFromId = Number.isNaN(requestedCategoryId)
         ? null
         : mockCategories.find((category) => category.id === requestedCategoryId) ?? null;
     const requestedTypeLabel = matchedCategoryFromId?.name ?? requestedTypeParam;
     const hasTypeFilterFromUrl = requestedTypeParam.length > 0;
-    const hasOccasionFilterFromUrl = requestedOccasionLabel.length > 0;
+    const hasOccasionFilterFromUrl = requestedOccasionId !== null;
     const shouldAutoScrollToCatalog = hasTypeFilterFromUrl || hasOccasionFilterFromUrl;
     const [selectedColor, setSelectedColor] = useState('Todos');
     const [selectedCharacter, setSelectedCharacter] = useState('Todos');
     const [onlyPersonalized, setOnlyPersonalized] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState(requestedTypeLabel || 'Todos');
-    const [selectedOccasion, setSelectedOccasion] = useState(requestedOccasionLabel);
+    const [selectedOccasion, setSelectedOccasion] = useState<number | null>(requestedOccasionId);
+    const [isOccasionOpen, setIsOccasionOpen] = useState(true);
     const [isColorOpen, setIsColorOpen] = useState(true);
     const [isCharacterOpen, setIsCharacterOpen] = useState(true);
     const [isCategoryOpen, setIsCategoryOpen] = useState(true);
@@ -87,7 +94,8 @@ export default function ProductsClient() {
     const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
     // El API filtra por id de color; se recuerda el id de cada nombre aunque luego la lista se reduzca
     const colorIdByName = useRef(new Map<string, number>());
-    const selectedOccasionKey = selectedOccasion ? resolveOccasionKey(selectedOccasion) : '';
+    // Las tematicas son las mismas del menu del header; los nombres de los productos cargados solo completan lo que falte
+    const occasionNameById = useRef(new Map<number, string>(mockOcassions.map((occasion) => [occasion.id, occasion.name])));
     const selectedCategoryMatch = mockCategories.find((category) => category.name === selectedCategory) ?? null;
     const productFilters = {
         ...(selectedCategory !== 'Todos'
@@ -95,7 +103,7 @@ export default function ProductsClient() {
             : {}),
         ...(colorIdByName.current.has(selectedColor) ? { color: colorIdByName.current.get(selectedColor) } : {}),
         ...(selectedCharacter !== 'Todos' ? { character: selectedCharacter } : {}),
-        ...(selectedOccasion ? { theme: selectedOccasion } : {}),
+        ...(selectedOccasion !== null ? { occasion: selectedOccasion } : {}),
         ...(onlyPersonalized ? { personalized: true } : {}),
         limit: PRODUCTS_PER_PAGE,
     };
@@ -107,6 +115,12 @@ export default function ProductsClient() {
     products.forEach((product) => product.colors.forEach((color) => {
         if (color.id !== undefined) colorIdByName.current.set(color.name, color.id);
     }));
+    // El nombre de la ocasion se toma de los productos cargados; mientras tanto se muestra un texto generico
+    const selectedOccasionLabel = selectedOccasion === null
+        ? ''
+        : occasionNameById.current.get(selectedOccasion) ?? `Ocasión ${selectedOccasion}`;
+    const occasionOptions = Array.from(occasionNameById.current, ([id, name]) => ({ id, name }));
+    const selectedOccasionKey = selectedOccasionLabel ? resolveOccasionKey(selectedOccasionLabel) : '';
     const colorHexByName = new Map(
         products.flatMap((product) => product.colors).map((color) => [color.name, color.hex] as const),
     );
@@ -124,12 +138,12 @@ export default function ProductsClient() {
 
     useEffect(() => {
         setSelectedCategory(requestedTypeLabel || 'Todos');
-        setSelectedOccasion(requestedOccasionLabel);
+        setSelectedOccasion(requestedOccasionId);
         setSelectedColor('Todos');
         setSelectedCharacter('Todos');
         setOnlyPersonalized(false);
         setSearchTerm('');
-    }, [requestedOccasionLabel, requestedTypeLabel]);
+    }, [requestedOccasionId, requestedTypeLabel]);
 
     useEffect(() => {
         if (!shouldAutoScrollToCatalog || !catalogSectionRef.current) {
@@ -164,6 +178,10 @@ export default function ProductsClient() {
         return matchesSearch;
     });
 
+    const visibleOccasionOptions = isOccasionOpen
+        ? occasionOptions
+        : occasionOptions.filter((occasion) => occasion.id === selectedOccasion);
+
     const visibleColorOptions = isColorOpen
         ? colorOptions
         : [selectedColor];
@@ -181,7 +199,7 @@ export default function ProductsClient() {
         setSelectedColor('Todos');
         setSelectedCharacter('Todos');
         setOnlyPersonalized(false);
-        setSelectedOccasion('');
+        setSelectedOccasion(null);
         setSearchTerm('');
     };
 
@@ -190,7 +208,7 @@ export default function ProductsClient() {
         selectedCategory !== 'Todos' && { key: 'category', label: selectedCategory, onRemove: () => setSelectedCategory('Todos') },
         selectedColor !== 'Todos' && { key: 'color', label: selectedColor, onRemove: () => setSelectedColor('Todos') },
         selectedCharacter !== 'Todos' && { key: 'character', label: selectedCharacter, onRemove: () => setSelectedCharacter('Todos') },
-        selectedOccasion && { key: 'occasion', label: selectedOccasion, onRemove: () => setSelectedOccasion('') },
+        selectedOccasion !== null && { key: 'occasion', label: selectedOccasionLabel, onRemove: () => setSelectedOccasion(null) },
     ].filter((chip) => !!chip) as { key: string; label: string; onRemove: () => void }[];
 
     const filterGroups = (
@@ -249,6 +267,55 @@ export default function ProductsClient() {
                                                     }`}
                                                 >
                                                     {category}
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+
+                                <div className="space-y-4">
+                                    <button
+                                        type="button"
+                                        onClick={() => setIsOccasionOpen((current) => !current)}
+                                        className="flex w-full items-center justify-between gap-3 text-left"
+                                    >
+                                        <span className="flex items-center gap-3">
+                                            <Cake className="h-5 w-5 text-[#8a3dc1]" />
+                                            <span className="text-base font-semibold">Temáticas</span>
+                                        </span>
+                                        <ChevronDown
+                                            className={`h-5 w-5 cursor-pointer text-[#a15b73] transition-transform ${isOccasionOpen ? 'rotate-180' : ''}`}
+                                        />
+                                    </button>
+                                    <div className="flex flex-wrap gap-2">
+                                        {(isOccasionOpen || selectedOccasion === null) && (
+                                            <button
+                                                type="button"
+                                                onClick={() => setSelectedOccasion(null)}
+                                                className={`rounded-full border-2 px-4 py-2 text-left text-sm font-semibold transition-all ${
+                                                    selectedOccasion === null
+                                                        ? 'border-[#8a3dc1] bg-[#f6eefc] text-[#5b2a9a] shadow-sm'
+                                                        : 'border-[#f1ddce] bg-white text-[#6f5b65] hover:border-[#e7467d] hover:text-[#9f2051]'
+                                                }`}
+                                            >
+                                                Todos
+                                            </button>
+                                        )}
+                                        {visibleOccasionOptions.map((occasion) => {
+                                            const isActive = selectedOccasion === occasion.id;
+
+                                            return (
+                                                <button
+                                                    key={occasion.id}
+                                                    type="button"
+                                                    onClick={() => setSelectedOccasion(occasion.id)}
+                                                    className={`rounded-full border-2 px-4 py-2 text-left text-sm font-semibold transition-all ${
+                                                        isActive
+                                                            ? 'border-[#8a3dc1] bg-[#f6eefc] text-[#5b2a9a] shadow-sm'
+                                                            : 'border-[#f1ddce] bg-white text-[#6f5b65] hover:border-[#e7467d] hover:text-[#9f2051]'
+                                                    }`}
+                                                >
+                                                    {occasion.name}
                                                 </button>
                                             );
                                         })}
@@ -555,8 +622,8 @@ export default function ProductsClient() {
                                         ? `No hay productos disponibles para el tipo "${selectedCategory}".`
                                     : hasTypeFilterFromUrl && requestedTypeLabel
                                         ? `No hay productos disponibles para el filtro "${requestedTypeLabel}".`
-                                        : hasOccasionFilterFromUrl && requestedOccasionLabel
-                                            ? `No hay productos disponibles para la ocasión "${requestedOccasionLabel}".`
+                                        : hasOccasionFilterFromUrl
+                                            ? `No hay productos disponibles para la ocasión "${selectedOccasionLabel}".`
                                             : 'Prueba otra combinacion de filtros o ajusta la busqueda para seguir explorando el catalogo.'}
                                 </p>
                             </div>

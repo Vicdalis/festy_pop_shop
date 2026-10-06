@@ -10,7 +10,7 @@ export type ProductFilters = {
     category?: string | number;
     color?: string | number;
     character?: string;
-    theme?: string;
+    occasion?: number;
     personalized?: boolean;
     limit?: number;
 };
@@ -85,6 +85,7 @@ function extractProducts(response: ProductsApiResponse): ProductApiItem[] {
 }
 
 export async function getProducts(filters: ProductFilters = {}): Promise<ProductsResult> {
+    console.log("🚀 ~ getProducts ~ filters:", filters)
     if (!process.env.NEXT_PUBLIC_MAIN_API || !process.env.NEXT_PUBLIC_GET_PRODUCTS) {
         return {
             products: [],

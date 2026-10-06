@@ -20,10 +20,10 @@ const NAV_LINKS = [
         })),
     },
     {
-        to: '/productos?ocassion=',
+        to: '/productos?ocasion=',
         label: 'Temáticas',
         subItems: mockOcassions.map((ocassion) => ({
-            to: `/productos?ocassion=${encodeURIComponent(ocassion.name)}`,
+            to: `/productos?ocasion=${ocassion.id}`,
             label: ocassion.name,
         })),
     },

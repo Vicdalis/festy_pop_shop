@@ -5,7 +5,10 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "dev:env": "dotenv -e .env.dev -- next dev",
+    "build:dev": "dotenv -e .env.dev -- next build",
+    "start:dev": "dotenv -e .env.dev -- next start"
   },
   "dependencies": {
     "@tailwindcss/postcss": "^4.1.18",
@@ -24,6 +27,7 @@
     "@types/react-dom": "^19",
     "autoprefixer": "^10.4.24",
     "babel-plugin-react-compiler": "1.0.0",
+    "dotenv-cli": "^11.0.0",
     "postcss": "^8.5.6",
     "tailwindcss": "^4.1.18",
     "typescript": "^5"
