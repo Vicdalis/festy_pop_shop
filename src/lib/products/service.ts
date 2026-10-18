@@ -6,6 +6,7 @@ type ProductsApiResponse = ProductApiItem[] | { products: ProductApiItem[], pagi
 type ProductsSource = 'api' | 'mock';
 
 export type ProductFilters = {
+    id?: number;
     page?: number;
     category?: string | number;
     color?: string | number;
@@ -126,5 +127,25 @@ export async function getProducts(filters: ProductFilters = {}): Promise<Product
             source: 'mock',
             errorMessage: 'La API no respondio correctamente, se usaron datos de respaldo.',
         };
+    }
+}
+
+// GET /product/:idProduct; acepta el producto directo o envuelto en { product }
+export async function getProductById(id: number): Promise<Product | null> {
+    if (!process.env.NEXT_PUBLIC_MAIN_API || !process.env.NEXT_PUBLIC_GET_PRODUCTS) {
+        return null;
+    }
+
+    const endpoint = [process.env.NEXT_PUBLIC_MAIN_API, process.env.NEXT_PUBLIC_GET_PRODUCTS, id].join('/');
+
+    try {
+        const response = await fetchJson<ProductApiItem | { product: ProductApiItem }>(endpoint);
+        console.log("🚀 ~ getProductById ~ response:", response)
+        const item = 'product' in response ? response.product : response;
+
+        return item ? normalizeProduct(item, id - 1) : null;
+    } catch (error) {
+        console.error(`Unable to fetch product ${id} from API.`, error);
+        return null;
     }
 }

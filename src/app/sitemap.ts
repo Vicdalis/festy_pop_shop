@@ -7,12 +7,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
         return [];
     }
 
-    const routes = ['', '/home', '/productos', '/contacto'];
+    const routes = ['', '/home', '/producto', '/contacto'];
 
     return routes.map((route) => ({
         url: `${siteUrl}${route}`,
         lastModified: new Date(),
-        changeFrequency: route === '/productos' ? 'weekly' : 'monthly',
+        changeFrequency: route === '/producto' ? 'weekly' : 'monthly',
         priority: route === '' || route === '/home' ? 1 : 0.8,
     }));
 }

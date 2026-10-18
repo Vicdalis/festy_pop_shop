@@ -245,7 +245,7 @@ export default function HomePage() {
                   Todo lo que necesitas para hacer de cada fiesta un momento mágico: globos, piñatas, decoraciones y más.
                 </p>
                 <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center lg:justify-start">
-                  <Link href="/productos">
+                  <Link href="/producto">
                     <Button className="rounded-full bg-hero-accent px-7 py-3 text-base font-extrabold text-[#261033] shadow-[0_8px_30px_rgba(238,202,33,0.35)] transition hover:-translate-y-0.5 hover:opacity-100">
                       Ver Catálogo
                     </Button>
@@ -383,7 +383,7 @@ export default function HomePage() {
 
           <div className="grid grid-cols-1 px-16 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {OCCASIONS.map((occasion) => (
-              <Link key={occasion} href={`/productos?ocasion=${encodeURIComponent(occasion)}`}>
+              <Link key={occasion} href={`/producto?ocasion=${encodeURIComponent(occasion)}`}>
                 <motion.div
                   whileHover={{ scale: 1.05, y: -4 }}
                   className={`flex flex-col items-center justify-start gap-6 p-6 rounded-2xl md:bg-size-[250px] ${OCCASION_COLORS[occasion as keyof typeof OCCASION_COLORS]} border border-transparent hover:border-primary/50 hover:shadow-lg transition-shadow cursor-pointer h-94`}
@@ -458,7 +458,7 @@ export default function HomePage() {
                       badgeColor={hasGeneralCharacter ? '#8a3dc1' : '#e7467d'}
                       metaChip={product.colors.length > 0 ? `${product.colors.length} colores` :  (product.is_personalized ? 'Pedido Personalizado' : '')}
                       colorDisplay="swatches"
-                      viewHref={`/productos?tipo=${encodeURIComponent(String(matchedCategory?.id ?? primaryCategory))}`}
+                      viewHref={`/producto?tipo=${encodeURIComponent(String(matchedCategory?.id ?? primaryCategory))}`}
                       viewLabel="Filtrar"
                       sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
                     />
@@ -471,7 +471,7 @@ export default function HomePage() {
               </div>
             )}
             <div className="mt-8 flex justify-center">
-              <Link href="/productos">
+              <Link href="/producto">
                 <Button variant="outlined" color="var(--color-main)" >
                   Ver todos los productos
                 </Button>

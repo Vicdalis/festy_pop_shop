@@ -10,20 +10,20 @@ import { mockOcassions } from '@/lib/ocassions/mock-ocassions';
 
 const NAV_LINKS = [
     { to: '/', label: 'Inicio' },
-    { to: '/productos', label: 'Catálogo' },
+    { to: '/producto', label: 'Catálogo' },
     {
-        to: '/productos?tipo=',
+        to: '/producto?tipo=',
         label: 'Categorías',
         subItems: mockCategories.map((category) => ({
-            to: `/productos?tipo=${category.id}`,
+            to: `/producto?tipo=${category.id}`,
             label: category.name,
         })),
     },
     {
-        to: '/productos?ocasion=',
+        to: '/producto?ocasion=',
         label: 'Temáticas',
         subItems: mockOcassions.map((ocassion) => ({
-            to: `/productos?ocasion=${ocassion.id}`,
+            to: `/producto?ocasion=${ocassion.id}`,
             label: ocassion.name,
         })),
     },

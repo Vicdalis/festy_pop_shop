@@ -592,7 +592,7 @@ export default function ProductsClient() {
                                             badgeColor={hasGeneralCharacter ? '#8a3dc1' : '#e7467d'}
                                             metaChip={product.colors.length > 0 ? `${product.colors.length} colores` : undefined}
                                             colorDisplay="swatches"
-                                            viewHref={`/productos?tipo=${encodeURIComponent(primaryCategory)}`}
+                                            viewHref={`/producto?tipo=${encodeURIComponent(primaryCategory)}`}
                                             viewLabel="Filtrar"
                                             sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
                                         />

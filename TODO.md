@@ -64,7 +64,7 @@ Hoy el corazón es un `useState` dentro de cada tarjeta (`product-card.tsx:64`):
 Hoy `handleShare` comparte `window.location.href` (`product-card.tsx:168`), es decir, la URL del catálogo con sus filtros, no la del producto.
 
 - [ ] **Compartir el enlace del producto:** usar la URL propia del producto en lugar de la página actual, con el nombre del producto como título del mensaje.
-- [ ] **Página de producto `/productos/[id]`:** renderizada en el servidor, con `generateMetadata` (título, descripción e imagen del producto) para que WhatsApp e Instagram muestren una vista previa al pegar el enlace. Requiere `GET /product/:id` en el backend.
+- [ ] **Página de producto `/producto/[id]`:** renderizada en el servidor, con `generateMetadata` (título, descripción e imagen del producto) para que WhatsApp e Instagram muestren una vista previa al pegar el enlace. Requiere `GET /product/:id` en el backend.
 - [ ] **Respaldo sin portapapeles:** si `navigator.clipboard` falla (por ejemplo sin HTTPS) mostrar el enlace para copiarlo a mano en lugar de no hacer nada, y poner el botón Compartir también en la tarjeta, no solo dentro del popup.
 
 ## Filtros (inicio y catálogo)
@@ -81,16 +81,16 @@ Hoy `handleShare` comparte `window.location.href` (`product-card.tsx:168`), es d
 
 ## SEO
 
-- [ ] **Metadata y canonical por página:** `layout.tsx` define `alternates.canonical: "/"` y todas las páginas lo heredan, así que `/productos` y `/contacto` declaran que su canonical es el inicio. Definir título, descripción y canonical en cada página; inicio y contacto son componentes de cliente (no pueden exportar `metadata`), hay que separarlos en una página de servidor que renderice el componente. Las URL con filtros deben apuntar su canonical a `/productos`. `productos/page.tsx` además tiene código muerto antes de los imports.
+- [ ] **Metadata y canonical por página:** `layout.tsx` define `alternates.canonical: "/"` y todas las páginas lo heredan, así que `/producto` y `/contacto` declaran que su canonical es el inicio. Definir título, descripción y canonical en cada página; inicio y contacto son componentes de cliente (no pueden exportar `metadata`), hay que separarlos en una página de servidor que renderice el componente. Las URL con filtros deben apuntar su canonical a `/producto`. `producto/page.tsx` además tiene código muerto antes de los imports.
 - [ ] **Una sola URL para el inicio:** `/` y `/home` muestran lo mismo y ambas están en el sitemap. `proxy.ts` tiene el redirect pero su `matcher` es `/about/:path*`, así que nunca se ejecuta. Elegir una URL, redirigir la otra (308) y dejar una sola en el sitemap.
 - [ ] **Definir `NEXT_PUBLIC_SITE_URL` en producción:** no está en el `.env` local (solo el placeholder `https://tu-dominio.com` en `.env.example`). Sin ella, `metadataBase` queda indefinido, `sitemap.xml` sale vacío y `robots.txt` no apunta al sitemap. Verificar en Vercel y abrir `/sitemap.xml` y `/robots.txt`.
 - [ ] **Imagen Open Graph:** no hay `openGraph.images` ni imagen en `public/`, y la tarjeta de Twitter es `summary_large_image` sin imagen. Agregar una imagen de 1200×630 con el logo.
 - [ ] **Íconos que no existen:** `layout.tsx` referencia `/favicon-16x16.png` y `/apple-touch-icon.png` y no están en `public/` (dan 404). Crearlos o quitarlos de la metadata.
 - [ ] **Datos estructurados del negocio:** JSON-LD `LocalBusiness` con dirección, teléfono, horarios y redes (ya están en `config/site.ts`).
-- [ ] **Datos estructurados de producto:** JSON-LD `Product` en la página `/productos/[id]` (nombre, imagen, descripción y precio cuando exista).
+- [ ] **Datos estructurados de producto:** JSON-LD `Product` en la página `/producto/[id]` (nombre, imagen, descripción y precio cuando exista).
 - [ ] **Contenido en el HTML inicial:** el inicio y el catálogo cargan los productos con `useEffect` en el navegador, así que los buscadores reciben "Cargando productos...". Traer la primera página en el servidor (con `revalidate`) y pasarla al componente de cliente.
 - [ ] **Estructura del `layout.tsx`:** `<Analytics />` y `<SpeedInsights />` están fuera de `<html>` (`layout.tsx:67`); moverlos dentro del `<body>`.
-- [ ] **Sitemap con productos:** agregar las páginas `/productos/[id]` al `sitemap.ts` (depende de la página de producto).
+- [ ] **Sitemap con productos:** agregar las páginas `/producto/[id]` al `sitemap.ts` (depende de la página de producto).
 - [ ] **Verificación:** enviar el sitemap a Google Search Console y medir con Lighthouse (SEO y Core Web Vitals) antes de cerrar la fase.
 
 ## Seguridad
