@@ -7,10 +7,12 @@ type ProductsSource = 'api' | 'mock';
 
 export type ProductFilters = {
     id?: number;
+    // Busqueda por nombre: usa POST /product/search, que solo acepta name, category, page y limit
+    name?: string;
     page?: number;
     category?: string | number;
     color?: string | number;
-    character?: string;
+    character?: number;
     occasion?: number;
     personalized?: boolean;
     limit?: number;
@@ -85,8 +87,21 @@ function extractProducts(response: ProductsApiResponse): ProductApiItem[] {
     return [];
 }
 
-export async function getProducts(filters: ProductFilters = {}): Promise<ProductsResult> {
-    console.log("🚀 ~ getProducts ~ filters:", filters)
+// Peticiones en curso por filtros: un montaje doble (React Strict Mode en desarrollo) o varios
+// componentes pidiendo lo mismo a la vez comparten una sola llamada al API.
+const pendingProducts = new Map<string, Promise<ProductsResult>>();
+
+export function getProducts(filters: ProductFilters = {}): Promise<ProductsResult> {
+    const key = JSON.stringify(filters);
+    const pending = pendingProducts.get(key);
+    if (pending) return pending;
+
+    const request = fetchProducts(filters).finally(() => pendingProducts.delete(key));
+    pendingProducts.set(key, request);
+    return request;
+}
+
+async function fetchProducts(filters: ProductFilters): Promise<ProductsResult> {
     if (!process.env.NEXT_PUBLIC_MAIN_API || !process.env.NEXT_PUBLIC_GET_PRODUCTS) {
         return {
             products: [],
@@ -94,7 +109,11 @@ export async function getProducts(filters: ProductFilters = {}): Promise<Product
             errorMessage: "Api route not available"
         }
     }
-    const endpoint = [process.env.NEXT_PUBLIC_MAIN_API, process.env.NEXT_PUBLIC_GET_PRODUCTS].join('/');
+    const isSearch = filters.name !== undefined;
+    const endpoint = [process.env.NEXT_PUBLIC_MAIN_API, process.env.NEXT_PUBLIC_GET_PRODUCTS, ...(isSearch ? ['search'] : [])].join('/');
+    const body = isSearch
+        ? { name: filters.name, category: filters.category, page: filters.page, limit: filters.limit }
+        : filters;
     
     if (!endpoint) {
         return {
@@ -109,10 +128,19 @@ export async function getProducts(filters: ProductFilters = {}): Promise<Product
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(filters),
+            body: JSON.stringify(body),
         });
 
         const items = extractProducts(response);
+
+        // Una busqueda sin resultados es una respuesta valida: no se reemplaza por datos de respaldo
+        if (isSearch) {
+            return {
+                products: items.map(normalizeProduct),
+                pagination: extractPagination(response),
+                source: 'api',
+            };
+        }
 
         return {
             products: items.length > 0 ? items.map(normalizeProduct) : mockProducts,

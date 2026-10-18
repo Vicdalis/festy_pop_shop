@@ -7,11 +7,14 @@ import { Brush, Cake, ChevronDown, Filter, Palette, Search, Sparkles, Star, Tag,
 import { useSearchParams } from 'next/navigation';
 import Title from '@/components/ui/title';
 import ProductCard from '@/components/products/product-card';
-import { mockCategories } from '@/lib/products/mock-categories';
-import { mockOcassions } from '@/lib/ocassions/mock-ocassions';
+import { getCategories, type CatalogCategory } from '@/lib/categories/service';
+import { getOccasions } from '@/lib/ocassions/service';
+import type { Ocassion } from '@/types/ocassion';
 import { useProducts } from '@/store/hooks/use-products';
+import { getColors, type CatalogColor } from '@/lib/colors/service';
 
 const PRODUCTS_PER_PAGE = 12;
+const SEARCH_DEBOUNCE_MS = 500;
 
 // Circulo multicolor para la opcion "Todos": representa mas de un color
 const ALL_COLORS_GRADIENT =
@@ -64,6 +67,9 @@ function extractObjectNames(items?: { name: string } | null) {
 }
 
 export default function ProductsClient() {
+    // Categorias y tematicas completas desde GET /category y GET /occasion
+    const [catalogCategories, setCatalogCategories] = useState<CatalogCategory[]>([]);
+    const [catalogOccasions, setCatalogOccasions] = useState<Ocassion[]>([]);
     const searchParams = useSearchParams();
     const catalogSectionRef = useRef<HTMLElement | null>(null);
     const requestedTypeParam = searchParams.get('tipo')?.replace(/\+/g, ' ').trim() ?? '';
@@ -76,7 +82,7 @@ export default function ProductsClient() {
     const requestedCategoryId = Number(requestedTypeParam);
     const matchedCategoryFromId = Number.isNaN(requestedCategoryId)
         ? null
-        : mockCategories.find((category) => category.id === requestedCategoryId) ?? null;
+        : catalogCategories.find((category) => category.id === requestedCategoryId) ?? null;
     const requestedTypeLabel = matchedCategoryFromId?.name ?? requestedTypeParam;
     const hasTypeFilterFromUrl = requestedTypeParam.length > 0;
     const hasOccasionFilterFromUrl = requestedOccasionId !== null;
@@ -91,20 +97,24 @@ export default function ProductsClient() {
     const [isCharacterOpen, setIsCharacterOpen] = useState(true);
     const [isCategoryOpen, setIsCategoryOpen] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
+    // El API se consulta con el texto ya estable, no con cada letra escrita
+    const [debouncedSearch, setDebouncedSearch] = useState('');
     const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
-    // El API filtra por id de color; se recuerda el id de cada nombre aunque luego la lista se reduzca
-    const colorIdByName = useRef(new Map<string, number>());
-    // Las tematicas son las mismas del menu del header; los nombres de los productos cargados solo completan lo que falte
-    const occasionNameById = useRef(new Map<number, string>(mockOcassions.map((occasion) => [occasion.id, occasion.name])));
-    const selectedCategoryMatch = mockCategories.find((category) => category.name === selectedCategory) ?? null;
+    // Lista completa de colores desde GET /colors; el API filtra por id de color
+    const [catalogColors, setCatalogColors] = useState<CatalogColor[]>([]);
+    // Igual con los personajes: el id sale de los productos cargados y la lista acumulada evita que las opciones desaparezcan al filtrar
+    const characterIdByName = useRef(new Map<string, number>());
+    const selectedCategoryMatch = catalogCategories.find((category) => category.name === selectedCategory) ?? null;
+    const selectedColorMatch = catalogColors.find((color) => color.name === selectedColor) ?? null;
     const productFilters = {
         ...(selectedCategory !== 'Todos'
-            ? { category: selectedCategoryMatch?.id ?? selectedCategory }
+            ? { category: selectedCategoryMatch?.id ?? (selectedCategory === requestedTypeParam && Number.isInteger(requestedCategoryId) ? requestedCategoryId : selectedCategory) }
             : {}),
-        ...(colorIdByName.current.has(selectedColor) ? { color: colorIdByName.current.get(selectedColor) } : {}),
-        ...(selectedCharacter !== 'Todos' ? { character: selectedCharacter } : {}),
+        ...(selectedColorMatch ? { color: selectedColorMatch.id } : {}),
+        ...(characterIdByName.current.has(selectedCharacter) ? { character: characterIdByName.current.get(selectedCharacter) } : {}),
         ...(selectedOccasion !== null ? { occasion: selectedOccasion } : {}),
         ...(onlyPersonalized ? { personalized: true } : {}),
+        ...(debouncedSearch !== '' ? { name: debouncedSearch } : {}),
         limit: PRODUCTS_PER_PAGE,
     };
     const { products: loadedProducts, isLoading, isLoadingMore, hasMore, loadMore, error, source } = useProducts(productFilters);
@@ -112,29 +122,30 @@ export default function ProductsClient() {
     // se muestra "sin productos" en lugar de la lista de respaldo.
     const hasActiveApiFilter = Object.keys(productFilters).some((key) => key !== 'limit');
     const products = hasActiveApiFilter && error ? [] : loadedProducts;
-    products.forEach((product) => product.colors.forEach((color) => {
-        if (color.id !== undefined) colorIdByName.current.set(color.name, color.id);
-    }));
-    // El nombre de la ocasion se toma de los productos cargados; mientras tanto se muestra un texto generico
+    products.forEach((product) => {
+        if (product.character) characterIdByName.current.set(product.character.name, product.character.id);
+    });
+    // Mientras carga GET /occasion se muestra un texto generico
     const selectedOccasionLabel = selectedOccasion === null
         ? ''
-        : occasionNameById.current.get(selectedOccasion) ?? `Ocasión ${selectedOccasion}`;
-    const occasionOptions = Array.from(occasionNameById.current, ([id, name]) => ({ id, name }));
+        : catalogOccasions.find((occasion) => occasion.id === selectedOccasion)?.name ?? `Ocasión ${selectedOccasion}`;
+    const occasionOptions = catalogOccasions;
     const selectedOccasionKey = selectedOccasionLabel ? resolveOccasionKey(selectedOccasionLabel) : '';
-    const colorHexByName = new Map(
-        products.flatMap((product) => product.colors).map((color) => [color.name, color.hex] as const),
-    );
-    const colorOptions = ['Todos', ...Array.from(new Set(products.flatMap((product) => product.colors.map((color) => color.name))))];
-    const characterOptions = ['Todos', ...Array.from(new Set(products.flatMap((product) => extractObjectNames(product.character))))];
-    // El API filtra por categoria, asi que los productos cargados solo traen la seleccionada;
-    // la lista de tipos sale del catalogo completo para que no desaparezcan los demas.
-    const categoryOptions = [
-        'Todos',
-        ...Array.from(new Set([
-            ...mockCategories.map((category) => category.name),
-            ...products.flatMap((product) => extractObjectNames(product.category)),
-        ])),
-    ];
+    const colorHexByName = new Map(catalogColors.map((color) => [color.name, color.hex] as const));
+    const colorOptions = ['Todos', ...catalogColors.map((color) => color.name)];
+    const characterOptions = ['Todos', ...Array.from(characterIdByName.current.keys())];
+    const categoryOptions = ['Todos', ...catalogCategories.map((category) => category.name)];
+
+    useEffect(() => {
+        const timeout = setTimeout(() => setDebouncedSearch(searchTerm.trim()), SEARCH_DEBOUNCE_MS);
+        return () => clearTimeout(timeout);
+    }, [searchTerm]);
+
+    useEffect(() => {
+        getColors().then(setCatalogColors);
+        getCategories().then(setCatalogCategories);
+        getOccasions().then(setCatalogOccasions);
+    }, []);
 
     useEffect(() => {
         setSelectedCategory(requestedTypeLabel || 'Todos');
@@ -158,25 +169,8 @@ export default function ProductsClient() {
         });
     }, [shouldAutoScrollToCatalog]);
 
-    const filteredProducts = products.filter((product) => {
-        const productCategoryNames = extractObjectNames(product.category);
-        const productCharacterNames = extractObjectNames(product.character);
-        const productOccasionNames = extractNames(product.occasions);
-        const searchableFields = [
-            product.name,
-            product.description,
-            ...productCategoryNames,
-            ...productCharacterNames,
-            ...product.colors.map((color) => color.name),
-            ...productOccasionNames,
-        ];
-
-        const normalizedSearch = normalizeText(searchTerm.trim());
-        const matchesSearch = normalizedSearch.length === 0
-            || searchableFields.some((field) => normalizeText(field).includes(normalizedSearch));
-
-        return matchesSearch;
-    });
+    // La busqueda por nombre la resuelve el API (POST /product/search)
+    const filteredProducts = products;
 
     const visibleOccasionOptions = isOccasionOpen
         ? occasionOptions

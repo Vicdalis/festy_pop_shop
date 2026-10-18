@@ -28,7 +28,7 @@ JSON con solo los filtros activos (omitir las claves sin filtro; nunca enviar "T
 | `category` | number (id de categoría) | `?tipo=` o selección en la UI |
 | `occasion` | number (id de ocasión) | `?ocasion=` o selección en la UI |
 | `color` | number (id de color) | selección de color (id tomado de `product.colors[].id`) |
-| `character` | string | selección de personaje |
+| `character` | number (id de personaje) | selección de personaje (id tomado de `product.character.id`) |
 | `personalized` | boolean (`true` solo si está activo) | toggle de personalizados |
 | `page` | number | paginación |
 | `limit` | number | `PRODUCTS_PER_PAGE` |
