@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next"; 
+import BusinessJsonLd from "@/components/seo/business-json-ld";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
 
@@ -47,8 +48,6 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: '/favicon.ico',
-    shortcut: '/favicon-16x16.png',
-    apple: '/apple-touch-icon.png'
   }
 };
 
@@ -58,14 +57,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <>
-      <html lang="es">
-        <body>
-          {children}
-        </body>
-      </html>
-      <Analytics />
-      <SpeedInsights />
-    </>
+    <html lang="es">
+      <body>
+        {children}
+        <BusinessJsonLd />
+        <Analytics />
+        <SpeedInsights />
+      </body>
+    </html>
   );
 }

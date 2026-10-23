@@ -15,4 +15,27 @@ export const CONTACT = {
     ATTENTION_HOUR: "Lunes a Viernes 9:00 AM a 6:00 PM",
     ATTENTION_WEEKENDS: "Sábados y Domingos 9:00 AM a 3:00 PM"
 }
+
+// Datos estructurados del negocio (JSON-LD LocalBusiness); formato que exige schema.org
+export const BUSINESS = {
+    NAME: "FestyPOP",
+    PHONE_E164: "+584242214781",
+    STREET_ADDRESS: "Edificio Peinero, Avenida Este 6, La Hoyada",
+    LOCALITY: "Caracas",
+    REGION: "Distrito Capital",
+    POSTAL_CODE: "1012",
+    COUNTRY: "VE",
+    LATITUDE: 10.502418,
+    LONGITUDE: -66.911179,
+    OPENING_HOURS: [
+        { days: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"], opens: "09:00", closes: "18:00" },
+        { days: ["Saturday", "Sunday"], opens: "09:00", closes: "15:00" },
+    ],
+    SAME_AS: [
+        CONTACT.INSTAGRAM_LINK,
+        CONTACT.FACEBOOK_LINK,
+        CONTACT.TIKTOK_LINK,
+        CONTACT.PINTEREST_LINK,
+    ],
+}
 // Add other global settings here as needed

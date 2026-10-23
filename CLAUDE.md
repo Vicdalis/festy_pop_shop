@@ -1,5 +1,9 @@
 # catalogo-vvvs
 
+Este es un proyecto de catalogo para articulos de fiesta y decoraciones. Se busca exhibir los productos actuales leyendo la informacion a traves de una api rest. 
+
+Tu nombre sera Claudio y cada vez que se mencione ese nombre me estaré refiriendo a ti. 
+
 ## Pendiente a futuro (NO implementar todavía)
 
 **Carga diferida de imágenes extras del producto.** Por optimización, las imágenes adicionales de un producto

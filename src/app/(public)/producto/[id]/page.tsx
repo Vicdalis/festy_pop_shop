@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ChevronLeft } from 'lucide-react';
 import ProductDetail from '@/components/products/product-detail';
+import ProductJsonLd from '@/components/seo/product-json-ld';
 import { getProductById } from '@/lib/products/service';
 
 type PageProps = {
@@ -30,6 +31,7 @@ export default async function ProductPage({ params }: PageProps) {
 
     return (
         <section className="container-custom mx-auto max-w-7xl px-4 py-8 md:px-5 md:py-12">
+            <ProductJsonLd product={product} />
             <Link
                 href="/producto"
                 className="mb-4 inline-flex items-center gap-1 text-sm font-bold text-[#8a3dc1] transition-colors hover:text-[#e7467d]"
