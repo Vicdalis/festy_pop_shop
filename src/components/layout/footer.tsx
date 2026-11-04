@@ -122,7 +122,7 @@ export default function Footer() {
                 <div className="border-t border-white/10">
                     <div className="container-custom py-4 flex flex-col md:flex-row items-center justify-between text-xs text-white/60 gap-2">
                         <span>© 2026 Inversiones VVVS. Todos los derechos reservados.</span>
-                        <span>Realizado por <a href="https://www.linkedin.com/in/vicdalis-anazco/" target="_blank" className="hover:text-blue/80 transition-colors">Vicdalis Añazco</a></span>
+                        {/* <span>Realizado por <a href="https://www.linkedin.com/in/vicdalis-anazco/" target="_blank" className="hover:text-blue/80 transition-colors">Vicdalis Añazco</a></span> */}
                     </div>
                 </div>
             </footer>

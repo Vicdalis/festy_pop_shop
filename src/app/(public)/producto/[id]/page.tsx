@@ -1,3 +1,5 @@
+import { cache } from 'react';
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ChevronLeft } from 'lucide-react';
@@ -9,6 +11,46 @@ type PageProps = {
     params: Promise<{ id: string }>;
 };
 
+// generateMetadata y la pagina piden el mismo producto: cache evita repetir GET /product/:id en un mismo render
+const getProduct = cache(getProductById);
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+    const { id } = await params;
+    const productId = Number(id);
+
+    if (!Number.isInteger(productId) || productId <= 0) {
+        return {};
+    }
+
+    const product = await getProduct(productId);
+
+    if (!product) {
+        return {};
+    }
+
+    const description = product.description.length > 160
+        ? `${product.description.slice(0, 157).trim()}…`
+        : product.description;
+
+    return {
+        title: product.name,
+        description,
+        alternates: { canonical: `/producto/${product.id}` },
+        openGraph: {
+            title: product.name,
+            description,
+            url: `/producto/${product.id}`,
+            images: product.main_image ? [{ url: product.main_image, alt: product.name }] : undefined,
+        },
+        twitter: {
+            card: 'summary_large_image',
+            title: product.name,
+            description,
+            images: product.main_image ? [product.main_image] : undefined,
+        },
+    };
+}
+
 export default async function ProductPage({ params }: PageProps) {
     const { id } = await params;
     const productId = Number(id);
@@ -17,8 +59,7 @@ export default async function ProductPage({ params }: PageProps) {
         notFound();
     }
 
-    const product = await getProductById(productId);
-    console.log("🚀 ~ ProductPage ~ product:", product)
+    const product = await getProduct(productId);
 
     if (!product) {
         notFound();

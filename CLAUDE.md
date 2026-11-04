@@ -39,6 +39,9 @@ JSON con solo los filtros activos (omitir las claves sin filtro; nunca enviar "T
 
 Ejemplo: `{ "category": 5, "occasion": 2, "personalized": true, "limit": 12 }`
 
+### Temáticas (ocasiones) estáticas en el mock
+Las temáticas son en su gran mayoría estáticas, así que **se mantienen en `src/lib/ocassions/mock-ocassions.ts` y se actualizan manualmente** cuando haga falta (no hay que reemplazarlas por `GET /occasion` en los enlaces). Los ids del mock deben coincidir con los de la base de datos. Quien necesite un enlace a una temática (header, footer, home, banners) debe buscar su id en el mock, p. ej. `mockOcassions.find((o) => o.name === nombre)?.id`, y construir `/producto?ocasion=<id>`. Las tarjetas de «Temáticas Populares» del inicio (`OCCASIONS` en `components/lib/data.tsx`) resuelven así su id. Si se agrega o renombra una temática, actualizar el mock y, si aplica, `OCCASIONS`/`OCCASION_COLORS`.
+
 Cualquier enlace o filtro nuevo debe seguir estas reglas; si no hay un id disponible para un valor, notificarlo en lugar de enviar el nombre.
 
 ## Entorno de desarrollo y rutas

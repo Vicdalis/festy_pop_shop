@@ -32,13 +32,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         return [];
     }
 
-    const routes = ['', '/home', '/producto', '/contacto'];
+    const routes = ['', '/producto', '/contacto'];
 
     const staticEntries: MetadataRoute.Sitemap = routes.map((route) => ({
         url: `${siteUrl}${route}`,
         lastModified: new Date(),
         changeFrequency: route === '/producto' ? 'weekly' : 'monthly',
-        priority: route === '' || route === '/home' ? 1 : 0.8,
+        priority: route === '' ? 1 : 0.8,
     }));
 
     const productEntries: MetadataRoute.Sitemap = (await getAllProductIds()).map((id) => ({

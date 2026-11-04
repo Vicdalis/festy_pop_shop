@@ -2,8 +2,12 @@
 
 import Image from 'next/image';
 import { useEffect, useMemo, useState, type TouchEvent } from 'react';
-import { ChevronLeft, ChevronRight, Heart, Image as ImageIcon, MessageCircle, Share2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Image as ImageIcon, MessageCircle } from 'lucide-react';
 import { CONTACT } from '@/config/site';
+import ProductShareButton from './product-share-button';
+import { useSiteOrigin } from './use-site-origin';
+
+export { useSiteOrigin };
 
 export type ProductCardItem = {
     id: number;
@@ -18,16 +22,6 @@ export type ProductCardItem = {
     occasions?: string[];
     price?: number | null;
 };
-
-export function useSiteOrigin() {
-    const [origin, setOrigin] = useState(process.env.NEXT_PUBLIC_SITE_URL ?? '');
-
-    useEffect(() => {
-        setOrigin(window.location.origin);
-    }, []);
-
-    return origin;
-}
 
 export function buildQuoteHref(product: { id: number; name: string }, origin: string) {
     const text = `${CONTACT.PHONE_LINK}${prepareWhatsAppText(product.name)}`;
@@ -61,10 +55,8 @@ export default function ProductDetail({
     quoteHref,
 }: ProductDetailProps) {
     const siteOrigin = useSiteOrigin();
-    const [isWished, setIsWished] = useState(false);
     const [isQuoted, setIsQuoted] = useState(false);
     const [activeImageIndex, setActiveImageIndex] = useState(0);
-    const [isLinkCopied, setIsLinkCopied] = useState(false);
     const [touchStartX, setTouchStartX] = useState<number | null>(null);
     const [touchEndX, setTouchEndX] = useState<number | null>(null);
 
@@ -117,27 +109,6 @@ export default function ProductDetail({
 
     const showNextImage = () => {
         setActiveImageIndex((current) => (current + 1) % productImages.length);
-    };
-
-    const handleShare = async () => {
-        const shareData = { title: product.name, text: product.name, url: window.location.href };
-
-        if (navigator.share) {
-            try {
-                await navigator.share(shareData);
-            } catch {
-                // El usuario cancelo el dialogo de compartir
-            }
-            return;
-        }
-
-        try {
-            await navigator.clipboard.writeText(shareData.url);
-            setIsLinkCopied(true);
-            window.setTimeout(() => setIsLinkCopied(false), 1600);
-        } catch {
-            // Sin acceso al portapapeles: no se muestra confirmacion
-        }
     };
 
     const dragOffset = touchStartX !== null && touchEndX !== null ? touchEndX - touchStartX : 0;
@@ -298,26 +269,26 @@ export default function ProductDetail({
                 )}
 
                 {(product.category || hasColors || typeof product.isPersonalized === 'boolean') && (
-                <dl className="grid grid-cols-[auto_1fr] gap-x-8 gap-y-1.5 rounded-2xl bg-[#faf6f1] px-6 py-4 text-sm md:text-base">
-                    {product.category && (
-                        <>
-                            <dt className="text-[#9f8a95]">Tipo de producto</dt>
-                            <dd className="font-semibold text-[#261033]">{product.category}</dd>
-                        </>
-                    )}
-                    {hasColors && (
-                        <>
-                            <dt className="text-[#9f8a95]">Color</dt>
-                            <dd className="font-semibold text-[#261033]">{product.colors.map((color) => color.name).join(', ')}</dd>
-                        </>
-                    )}
-                    {typeof product.isPersonalized === 'boolean' && (
-                        <>
-                            <dt className="text-[#9f8a95]">Personalizado</dt>
-                            <dd className="font-semibold text-[#261033]">{product.isPersonalized ? 'Sí' : 'No'}</dd>
-                        </>
-                    )}
-                </dl>
+                    <dl className="grid grid-cols-[auto_1fr] gap-x-8 gap-y-1.5 rounded-2xl bg-[#faf6f1] px-6 py-4 text-sm md:text-base">
+                        {product.category && (
+                            <>
+                                <dt className="text-[#9f8a95]">Tipo de producto</dt>
+                                <dd className="font-semibold text-[#261033]">{product.category}</dd>
+                            </>
+                        )}
+                        {hasColors && (
+                            <>
+                                <dt className="text-[#9f8a95]">Color</dt>
+                                <dd className="font-semibold text-[#261033]">{product.colors.map((color) => color.name).join(', ')}</dd>
+                            </>
+                        )}
+                        {typeof product.isPersonalized === 'boolean' && (
+                            <>
+                                <dt className="text-[#9f8a95]">Personalizado</dt>
+                                <dd className="font-semibold text-[#261033]">{product.isPersonalized ? 'Sí' : 'No'}</dd>
+                            </>
+                        )}
+                    </dl>
                 )}
 
                 <div className="mt-auto space-y-3 pt-2">
@@ -331,23 +302,9 @@ export default function ProductDetail({
                         <MessageCircle className="h-5 w-5" />
                         Cotizar por WhatsApp
                     </a>
-                    <div className="grid grid-cols-2 gap-3">
-                        <button
-                            type="button"
-                            onClick={() => setIsWished((current) => !current)}
-                            className="flex cursor-pointer items-center justify-center gap-2 rounded-full border-2 border-[#ebe4f0] px-4 py-3 text-sm font-bold text-[#261033] transition hover:border-[#e7467d] md:text-base"
-                        >
-                            <Heart className={`h-5 w-5 text-[#e7467d] ${isWished ? 'fill-[#e7467d]' : ''}`} />
-                            Favorito
-                        </button>
-                        <button
-                            type="button"
-                            onClick={handleShare}
-                            className="flex cursor-pointer items-center justify-center gap-2 rounded-full border-2 border-[#ebe4f0] px-4 py-3 text-sm font-bold text-[#261033] transition hover:border-[#8a3dc1] md:text-base"
-                        >
-                            <Share2 className="h-5 w-5 text-[#8a3dc1]" />
-                            {isLinkCopied ? 'Enlace copiado' : 'Compartir'}
-                        </button>
+                    {/* Botón "Favorito" oculto temporalmente (ver TODO.md, sección Favoritos). */}
+                    <div className="grid grid-cols-1 gap-3">
+                        <ProductShareButton product={product} variant="detail" />
                     </div>
                 </div>
             </div>

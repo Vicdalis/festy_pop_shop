@@ -1,9 +1,14 @@
-'use client';
-
+import type { Metadata } from "next";
 import ContactUsBanner from "@/components/banners/contactus-banner";
 import { Sparkles } from "lucide-react";
-import { motion } from "framer-motion";
+import * as motion from "framer-motion/client";
 import Image from "next/image";
+
+export const metadata: Metadata = {
+    title: "Contacto",
+    description: "Escríbenos por WhatsApp o visítanos en La Hoyada, Caracas, para pedidos personalizados, cotizaciones y consultas sobre piñatas, globos y artículos para fiestas.",
+    alternates: { canonical: "/contacto" },
+};
 
 export default function ContactPage(){
     return(

@@ -5,8 +5,10 @@ import Image from 'next/image';
 import { useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { motion } from 'framer-motion';
-import { Heart, Images, X } from 'lucide-react';
-import ProductDetail, { buildQuoteHref, useSiteOrigin, type ProductCardItem } from './product-detail';
+import { Images, X } from 'lucide-react';
+import ProductShareButton from './product-share-button';
+import ProductDetail, { buildQuoteHref, type ProductCardItem } from './product-detail';
+import { useSiteOrigin } from './use-site-origin';
 
 type ProductCardProps = {
     product: ProductCardItem;
@@ -48,7 +50,6 @@ export default function ProductCard({
     quoteHref,
 }: ProductCardProps) {
     const siteOrigin = useSiteOrigin();
-    const [isWished, setIsWished] = useState(false);
     const [isQuoted, setIsQuoted] = useState(false);
     const [isGalleryOpen, setIsGalleryOpen] = useState(false);
     const [isMounted, setIsMounted] = useState(false);
@@ -177,16 +178,7 @@ export default function ProductCard({
                     <Images className="h-3.5 w-3.5" />
                     {productImages.length > 1 ? `${productImages.length} fotos` : 'Ampliar'}
                 </span>
-                <button
-                    type="button"
-                    className="absolute right-2 top-2 md:right-4 md:top-4 flex h-8 w-8 md:h-10 md:w-10 items-center justify-center rounded-full bg-white/95 text-main-purple shadow-[0_8px_18px_rgba(38,16,51,0.12)] transition hover:scale-110"
-                    aria-label={`Guardar ${product.name}`}
-                    onClick={() => setIsWished((current) => !current)}
-                >
-                    <Heart
-                        className={`h-4 w-4 transition-colors ${isWished ? 'fill-[#e7467d] text-[#e7467d]' : ''}`}
-                    />
-                </button>
+                {/* Botón de favoritos oculto temporalmente (ver TODO.md, sección Favoritos). */}
             </div>
 
             <div className="flex flex-col space-y-3 md:space-y-4 p-3 md:p-5 flex-1">
@@ -223,7 +215,7 @@ export default function ProductCard({
                         )}
                     </div>
 
-                    <div className="flex gap-2 mt-3">
+                    <div className="mt-3 flex flex-col-reverse gap-2 sm:flex-row">
                         <a
                             href={resolvedQuoteHref}
                             target="_blank"
@@ -241,6 +233,7 @@ export default function ProductCard({
                                 Cotizar
                             </span>
                         </a>
+                        <ProductShareButton product={product} />
                     </div>
                 </div>
             </div>

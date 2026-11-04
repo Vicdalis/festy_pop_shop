@@ -1,27 +1,26 @@
 # Tareas pendientes — Catálogo VVVS (catalogo-vvvs)
 
-Actualizado: 2026-10-18 — según las tareas que marcaste como hechas y las que dejaste pendientes. Dependencias del backend contrastadas con [expressjs/TODO.md](../expressjs/TODO.md). `npm audit --omit=dev` (revisión del 2026-10-05): 5 vulnerabilidades (1 crítica, 3 altas, 1 moderada). No hay tests ni script de lint.
+Actualizado: 2026-11-04 — según las tareas que marcaste como hechas y las que dejaste pendientes. Dependencias del backend contrastadas con [expressjs/TODO.md](../expressjs/TODO.md). `npm audit --omit=dev` (revisión del 2026-10-28): 0 vulnerabilidades. No hay tests ni script de lint.
 
 ## Estado general
 
 | Fase | Estado | Hechas | Total | Avance |
 | --- | --- | --- | --- | --- |
-| Fase 1 — Favoritos, compartir, filtros, SEO y seguridad | En curso | 14 | 35 | **40 %** |
+| Fase 1 — Favoritos, compartir, filtros, SEO y seguridad | En curso | 26 | 34 | **76 %** |
 | Fase 2 — Todo lo demás | No iniciada | 0 | 11 | **0 %** |
 
 La fase 1 incluye lo que pediste (favoritos locales sin login, botón compartir, filtros en inicio y catálogo, SEO) más los problemas de seguridad. Cada tarea pesa lo mismo, así que el porcentaje es aproximado.
 
 | Sección de la fase 1 | Hechas | Total | Avance |
 | --- | --- | --- | --- |
-| Hecho | 14 | 14 | 100 % |
+| Hecho | 15 | 15 | 100 % |
 | Favoritos (sesión local) | 0 | 3 | 0 % |
-| Compartir | 0 | 3 | 0 % |
-| Filtros (inicio y catálogo) | 0 | 1 | 0 % |
-| SEO | 0 | 11 | 0 % |
-| Seguridad | 0 | 3 | 0 % |
-| **Fase 1** | **14** | **35** | **40 %** |
+| Compartir | 2 | 2 | 100 % |
+| SEO | 7 | 12 | 58 % |
+| Seguridad | 2 | 2 | 100 % |
+| **Fase 1** | **26** | **34** | **76 %** |
 
-Al marcar una tarea, actualizar las dos tablas (hechas ÷ 35 en la fase 1, hechas ÷ 11 en la fase 2).
+Al marcar una tarea, actualizar las dos tablas (hechas ÷ 34 en la fase 1, hechas ÷ 11 en la fase 2).
 
 ## Dependencias del backend (expressjs)
 
@@ -31,15 +30,14 @@ Qué tareas pendientes de este proyecto esperan cambios en la API (estado según
 | --- | --- | --- |
 | Filtros `color`, `occasion` y `personalized` en `POST /product` | Corregidos, pendientes de commit | Nada (ya no bloquea) |
 | `POST /product/search` (falta importar `geByNameSchema` en `routers/product.js`; la API no arranca con los cambios actuales) | Pendiente de commit | Probar la búsqueda por texto ya hecha |
-| `GET /product/:id` (hoy un stub que devuelve `[]`) | **Pendiente** | Página `/producto/[id]`, compartir el enlace del producto, JSON-LD de producto, sitemap con productos, carga diferida de imágenes (fase 2) |
-| Visible/oculto (`is_active`) | **Pendiente** | Que favoritos, sitemap y página de producto excluyan productos ocultos |
+| `GET /product/:id` | Disponible (commiteado) | Ya no bloquea. Solo queda la carga diferida de imágenes (fase 2) |
 | `GET /character` | Disponible | Cargar el filtro de personajes desde la API (pendiente en este proyecto) |
-| Dominio de este sitio en `ACCEPTED_ORIGINS` (CORS) | Por confirmar | Todo en producción (ver Seguridad) |
 
-Orden sugerido: 1) `GET /product/:id` en el backend → 2) página de producto → 3) compartir, JSON-LD y sitemap de productos. Favoritos, filtros en la URL, SEO de metadata y seguridad no dependen del backend y se pueden hacer en paralelo.
+`GET /product/:id`, la página de producto, compartir, JSON-LD y sitemap de productos ya están hechos. Favoritos, SEO de metadata y seguridad no dependen del backend.
 
 ## Hecho
 
+- [x] **Botones de favoritos ocultos (2026-11-04):** se quitó el corazón de la tarjeta (`product-card.tsx`) y el botón «Favorito» del popup/detalle (`product-detail.tsx`, que ahora deja solo Compartir) junto con su `useState` local. Quedó un comentario en cada sitio. Las tareas de la sección Favoritos siguen pendientes; al retomarlas, volver a mostrar los botones.
 - [x] Catálogo conectado a la API de productos (`POST /product`) con paginación y botón "Mostrar más productos"
 - [x] Popup del producto con galería (miniaturas y deslizar en móvil), cierre con Escape y botón "Cotizar por WhatsApp"
 - [x] Cabecera responsive con menús de categorías y temáticas
@@ -57,7 +55,7 @@ Orden sugerido: 1) `GET /product/:id` en el backend → 2) página de producto �
 
 ## Favoritos (sesión local, sin inicio de sesión)
 
-Hoy el corazón es un `useState` dentro de cada tarjeta (`product-card.tsx:64`): no se guarda, se pierde al recargar y no hay lista de favoritos.
+**Los botones de favoritos están ocultos** en la tarjeta y en el detalle (2026-11-04); no hay estado de favoritos en el código. Las tareas siguientes quedan en pausa hasta que se pida retomarlas.
 
 - [ ] **Persistir favoritos en el navegador:** hook `useFavorites` con `localStorage` (clave versionada), estado compartido entre todas las tarjetas (Context o `useSyncExternalStore`) y sincronizado entre pestañas con el evento `storage`. Envolver lecturas y escrituras en `try/catch` (modo privado) y validar la forma de lo guardado antes de usarlo.
 - [ ] **Vista de favoritos:** página `/favoritos` (o filtro "Mis favoritos" en el catálogo) y contador en la cabecera. Decidir qué se guarda: un resumen del producto (id, nombre, imagen, categoría, precio) evita depender del backend; guardar solo el id exigiría un filtro por ids en la API. **Depende de:** el hook `useFavorites`; si se guarda solo el id, de un filtro por ids en la API.
@@ -67,18 +65,13 @@ Hoy el corazón es un `useState` dentro de cada tarjeta (`product-card.tsx:64`):
 
 Hoy `handleShare` comparte `window.location.href` (`product-card.tsx:168`), es decir, la URL del catálogo con sus filtros, no la del producto.
 
-- [ ] **Compartir el enlace del producto:** usar la URL propia del producto en lugar de la página actual, con el nombre del producto como título del mensaje. **Depende de:** la página `/producto/[id]`.
-- [ ] **Página de producto `/producto/[id]`:** renderizada en el servidor, con `generateMetadata` (título, descripción e imagen del producto) para que WhatsApp e Instagram muestren una vista previa al pegar el enlace. Requiere `GET /product/:id` en el backend. **Depende de:** `GET /product/:id` en el backend (stub hoy) y, si debe ocultar productos, `is_active`.
-- [ ] **Respaldo sin portapapeles:** si `navigator.clipboard` falla (por ejemplo sin HTTPS) mostrar el enlace para copiarlo a mano en lugar de no hacer nada, y poner el botón Compartir también en la tarjeta, no solo dentro del popup. **Depende de:** nada.
-
-## Filtros (inicio y catálogo)
-
-- [ ] **Filtros en la URL:** reflejar tipo, color, personaje, ocasión y personalizados en la query para poder compartir una búsqueda y que el botón Atrás funcione. Hoy un `useEffect` (`ProductsClient.tsx:125`) reinicia todos los filtros cuando cambia la URL.
+- [x] **Compartir el enlace del producto:** `product-share-button.tsx` comparte `${origen}/producto/<id>` (copiar, WhatsApp, Messenger, Facebook y X) con el nombre del producto en el mensaje. Se usa en la tarjeta y en el detalle.
+- [x] **Página de producto `/producto/[id]`:** `producto/[id]/page.tsx` se renderiza en el servidor con `GET /product/:id` (`getProductById`), `generateMetadata` (título, descripción recortada a 160, Open Graph y Twitter con la imagen principal), JSON-LD y `notFound()` si el id es inválido o no existe. Los productos ocultos (`is_active`) los resuelve el backend devolviendo 404, sin cambios en el front. Pendiente: tras desplegar, pegar un enlace de producto en el depurador de Facebook/WhatsApp para confirmar la vista previa (necesita `NEXT_PUBLIC_SITE_URL` por `metadataBase`).
 
 ## SEO
 
-- [ ] **Metadata y canonical por página:** `layout.tsx` define `alternates.canonical: "/"` y todas las páginas lo heredan, así que `/producto` y `/contacto` declaran que su canonical es el inicio. Definir título, descripción y canonical en cada página; inicio y contacto son componentes de cliente (no pueden exportar `metadata`), hay que separarlos en una página de servidor que renderice el componente. Las URL con filtros deben apuntar su canonical a `/producto`. `producto/page.tsx` además tiene código muerto antes de los imports.
-- [ ] **Una sola URL para el inicio:** `/` y `/home` muestran lo mismo y ambas están en el sitemap. `proxy.ts` tiene el redirect pero su `matcher` es `/about/:path*`, así que nunca se ejecuta. Elegir una URL, redirigir la otra (308) y dejar una sola en el sitemap.
+- [x] **Metadata y canonical por página:** `/producto` (canonical `/producto`, también para las URL con filtros), `/contacto` (pasó a página de servidor con `framer-motion/client`; el banner compartido lleva `'use client'`) y `/producto/[id]` (canonical propio) definen su título, descripción y canonical. El inicio usa los de `layout.tsx` (canonical `/`).
+- [x] **Una sola URL para el inicio:** el inicio vive solo en `/` (`(public)/page.tsx`); `/home` redirige con 308 desde `next.config.ts` y el sitemap solo lista `/`. Se eliminó `proxy.ts` (su redirect nunca se ejecutaba).
 - [x] **Definir `NEXT_PUBLIC_SITE_URL` en producción:** variable creada en Vercel (hoy con la URL de `vercel.app`). Al tener el dominio, actualizarla y volver a desplegar. Pendiente: abrir `/sitemap.xml` y `/robots.txt` en producción para confirmar.
 - [x] **Imagen Open Graph:** `src/app/opengraph-image.tsx` y `twitter-image.tsx` generan una imagen de 1200×630 (logo `logo_fiesta3.png` sobre degradado morado-rosado) que Next agrega solo como `og:image` y `twitter:image`; las páginas sin imagen propia la heredan como respaldo. Pendiente: verificarla con el depurador de compartir de Facebook/WhatsApp tras desplegar.
 - [x] **Íconos que no existen:** se quitaron `/favicon-16x16.png` y `/apple-touch-icon.png` de la metadata de `layout.tsx` (daban 404); queda solo `/favicon.ico` (`src/app/favicon.ico`). Opcional a futuro: crear un `apple-touch-icon.png` de 180×180 con el logo.
@@ -86,15 +79,14 @@ Hoy `handleShare` comparte `window.location.href` (`product-card.tsx:168`), es d
 - [x] **Datos estructurados de producto:** JSON-LD `Product` en `components/seo/product-json-ld.tsx`, renderizado en `/producto/[id]` (nombre, descripción, imágenes con URL absoluta, sku, categoría y oferta en USD solo cuando hay precio). Sin `availability` porque el catálogo no maneja stock. Pendiente: validarlo en la "Prueba de resultados enriquecidos" de Google una vez desplegado.
 - [ ] **Contenido en el HTML inicial:** el inicio y el catálogo cargan los productos con `useEffect` en el navegador, así que los buscadores reciben "Cargando productos...". Traer la primera página en el servidor (con `revalidate`) y pasarla al componente de cliente. **Depende de:** separar las páginas de servidor y cliente (tarea de metadata y canonical).
 - [x] **Estructura del `layout.tsx`:** `<Analytics />` y `<SpeedInsights />` ahora están dentro del `<body>` y `<html>` es la raíz del layout.
-- [x] **Sitemap con productos:** `sitemap.ts` (async) recorre `POST /product` paginado (50 por página) y agrega `/producto/[id]`; si la API falla (datos mock) omite los productos. Pendiente: excluir productos ocultos cuando exista `is_active` y usar una fecha real en `lastModified` si el API la expone.
+- [x] **Sitemap con productos:** `sitemap.ts` (async) recorre `POST /product` paginado (50 por página) y agrega `/producto/[id]`; si la API falla (datos mock) omite los productos. Los productos ocultos los excluye el backend. Pendiente: usar una fecha real en `lastModified` si la API la expone.
 - [ ] **Revisar `/sitemap.xml` y `/robots.txt` en producción:** abrirlos tras desplegar y comprobar que el sitemap lista las páginas estáticas y los `/producto/[id]`, y que `robots.txt` apunta al sitemap con la URL correcta. Repetir al cambiar `NEXT_PUBLIC_SITE_URL` por el dominio. **Depende de:** `NEXT_PUBLIC_SITE_URL` desplegada.
 - [ ] **Verificación:** enviar el sitemap a Google Search Console y medir con Lighthouse (SEO y Core Web Vitals) antes de cerrar la fase. **Depende de:** todas las demás tareas de SEO y `NEXT_PUBLIC_SITE_URL` definida en producción.
 
 ## Seguridad
 
-- [ ] **Actualizar `next` y dependencias:** `npm audit --omit=dev` marca `next` (crítica, versiones hasta 16.3.2; la instalada es 16.1.6), `nanoid`, `postcss` y `sharp` (altas) y `baseline-browser-mapping` (moderada). `npm install next@16.3.8` corrige las de `next`, `postcss` y `sharp` sin salto de versión mayor; luego `npm audit fix`.
-- [ ] **Cabeceras de seguridad HTTP:** `next.config.ts` no define `headers()`. Agregar `X-Content-Type-Options`, `X-Frame-Options` (o `frame-ancestors`), `Referrer-Policy`, `Permissions-Policy` y una `Content-Security-Policy` que permita Vercel Analytics, las imágenes de Supabase y los enlaces a WhatsApp.
-- [ ] **CORS del backend para este sitio:** la API solo acepta orígenes de su lista (`ACCEPTED_ORIGINS`; por defecto `localhost:3000` y `festy-pop-shop.vercel.app`). Confirmar que el dominio de producción de este catálogo está en la lista, y que `NEXT_PUBLIC_MAIN_API` apunta a la API de producción en Vercel. **Depende de:** confirmar `ACCEPTED_ORIGINS` en el backend.
+- [x] **Actualizar `next` y dependencias:** `next` pasó de 16.1.6 a 16.4.3 (fijada sin `^`, como antes) y se corrió `npm audit fix`; `npm audit --omit=dev` queda en 0 vulnerabilidades (antes 6: 1 crítica, 4 altas, 1 moderada). `tsc --noEmit` y `next build` pasan. Pendiente: recorrer el sitio en local (`npm start`) y revisar que todo siga igual.
+- [x] **Cabeceras de seguridad HTTP:** `next.config.ts` define `headers()` para todas las rutas: CSP (Vercel Analytics, imágenes de Supabase, origen de la API tomado de `NEXT_PUBLIC_MAIN_API`, Google Fonts, mapa embebido de Google, `frame-ancestors 'none'`), `X-Content-Type-Options`, `X-Frame-Options: DENY`, `Referrer-Policy`, `Permissions-Policy` y HSTS. Pendiente: abrir el sitio desplegado y confirmar que la consola no muestra errores de CSP.
 
 ## Mejoras (fase 2)
 

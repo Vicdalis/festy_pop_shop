@@ -168,7 +168,6 @@ export async function getProductById(id: number): Promise<Product | null> {
 
     try {
         const response = await fetchJson<ProductApiItem | { product: ProductApiItem }>(endpoint);
-        console.log("🚀 ~ getProductById ~ response:", response)
         const item = 'product' in response ? response.product : response;
 
         return item ? normalizeProduct(item, id - 1) : null;

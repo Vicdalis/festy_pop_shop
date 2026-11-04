@@ -1,24 +1,12 @@
+'use client';
 import { motion } from "framer-motion";
-import Button from "@/components/ui/button";
 import Title from "../ui/title";
-import { useState } from "react";
-import { Phone, Mail, MapPinned } from "lucide-react";
+import { MapPinned } from "lucide-react";
 import { CONTACT } from '@/config/site';
 import Image from 'next/image';
 import Subtitle from "../ui/subtitle";
 
 export default function ContactUsBanner() {
-    const [formState, setFormState] = useState({ name: "", email: "", phone: "", message: "" });
-
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        const { name, value } = e.target;
-        setFormState((s) => ({ ...s, [name]: value }));
-    };
-
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        console.log("Contact form submitted:", formState);
-    };
 
     return (
         <section className="py-15 container-custom">
