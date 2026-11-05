@@ -330,7 +330,7 @@ export default function HomePage() {
                       <div className="min-w-0">
                         <span className="font-display text-base font-bold text-white">Elige tu producto</span>
                         <p className="mt-1 break-words text-sm leading-6 text-white/70">
-                          Contáctanos con 15 días de anticipación para asegurar tu pedido y brindarte opciones sobre tu idea
+                          Contáctanos con 15 días de anticipación para asegurar tu pedido y brindarte opciones sobre tu idea. Envíanos una imagen de referencia.
                         </p>
                       </div>
                     </div>
