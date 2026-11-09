@@ -1,3 +1,9 @@
+export type ProductColor = {
+    id?: number;
+    name: string;
+    hex?: string | null;
+};
+
 export type Product = {
     id: number;
     name: string;
@@ -12,7 +18,7 @@ export type Product = {
         id: number;
         name: string;
     } | null;
-    colors: string[];
+    colors: ProductColor[];
     occasions: {
         id: number;
         name: string;

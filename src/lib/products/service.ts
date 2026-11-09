@@ -1,24 +1,42 @@
 import { fetchJson } from '@/lib/api/http';
 import { mockProducts } from '@/lib/products/mock-products';
-import type { Product, ProductApiItem, Pagination } from '@/types/product';
+import type { Product, ProductApiItem, ProductColor, Pagination } from '@/types/product';
 
 type ProductsApiResponse = ProductApiItem[] | { products: ProductApiItem[], pagination: Pagination };
 type ProductsSource = 'api' | 'mock';
 
 export type ProductFilters = {
+    id?: number;
+    // Busqueda por nombre: usa POST /product/search, que solo acepta name, category, page y limit
+    name?: string;
     page?: number;
     category?: string | number;
-    color?: string;
-    character?: string;
-    theme?: string;
+    color?: string | number;
+    character?: number;
+    occasion?: number;
+    personalized?: boolean;
     limit?: number;
 };
 
 export type ProductsResult = {
     products: Product[];
+    pagination?: Pagination;
     source: ProductsSource;
     errorMessage?: string;
 };
+
+function normalizeColors(colors: unknown): ProductColor[] {
+    if (!Array.isArray(colors)) return [];
+
+    return colors.flatMap((color): ProductColor[] => {
+        if (typeof color === 'string') return [{ name: color }];
+        if (color && typeof color === 'object' && typeof (color as ProductColor).name === 'string') {
+            const { id, name, hex } = color as ProductColor;
+            return [{ id, name, hex }];
+        }
+        return [];
+    });
+}
 
 function normalizeProduct(item: ProductApiItem, index: number): Product {
     const fallbackImage = '/products/destacados/combo.jpg';
@@ -35,12 +53,22 @@ function normalizeProduct(item: ProductApiItem, index: number): Product {
         price: item.price ?? null,
         category: item.category ?? null,
         character: item.character ?? null,
-        colors: Array.isArray(item.colors) ? item.colors : [],
+        colors: normalizeColors(item.colors),
         occasions: Array.isArray(item.occasions) ? item.occasions : [],
         sku: item.sku ?? 'SKU no disponible',
         is_personalized: item.is_personalized ?? false,
         description: item.description ?? 'Producto disponible para cotizacion personalizada.',
     };
+}
+
+function extractPagination(response: ProductsApiResponse): Pagination | undefined {
+    if (Array.isArray(response)) {
+        return undefined;
+    }
+
+    const { pagination } = response;
+
+    return pagination && typeof pagination.total === 'number' ? pagination : undefined;
 }
 
 function extractProducts(response: ProductsApiResponse): ProductApiItem[] {
@@ -59,7 +87,21 @@ function extractProducts(response: ProductsApiResponse): ProductApiItem[] {
     return [];
 }
 
-export async function getProducts(filters: ProductFilters = {}): Promise<ProductsResult> {
+// Peticiones en curso por filtros: un montaje doble (React Strict Mode en desarrollo) o varios
+// componentes pidiendo lo mismo a la vez comparten una sola llamada al API.
+const pendingProducts = new Map<string, Promise<ProductsResult>>();
+
+export function getProducts(filters: ProductFilters = {}): Promise<ProductsResult> {
+    const key = JSON.stringify(filters);
+    const pending = pendingProducts.get(key);
+    if (pending) return pending;
+
+    const request = fetchProducts(filters).finally(() => pendingProducts.delete(key));
+    pendingProducts.set(key, request);
+    return request;
+}
+
+async function fetchProducts(filters: ProductFilters): Promise<ProductsResult> {
     if (!process.env.NEXT_PUBLIC_MAIN_API || !process.env.NEXT_PUBLIC_GET_PRODUCTS) {
         return {
             products: [],
@@ -67,7 +109,11 @@ export async function getProducts(filters: ProductFilters = {}): Promise<Product
             errorMessage: "Api route not available"
         }
     }
-    const endpoint = [process.env.NEXT_PUBLIC_MAIN_API, process.env.NEXT_PUBLIC_GET_PRODUCTS].join('/');
+    const isSearch = filters.name !== undefined;
+    const endpoint = [process.env.NEXT_PUBLIC_MAIN_API, process.env.NEXT_PUBLIC_GET_PRODUCTS, ...(isSearch ? ['search'] : [])].join('/');
+    const body = isSearch
+        ? { name: filters.name, category: filters.category, page: filters.page, limit: filters.limit }
+        : filters;
     
     if (!endpoint) {
         return {
@@ -82,13 +128,23 @@ export async function getProducts(filters: ProductFilters = {}): Promise<Product
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(filters),
+            body: JSON.stringify(body),
         });
 
         const items = extractProducts(response);
 
+        // Una busqueda sin resultados es una respuesta valida: no se reemplaza por datos de respaldo
+        if (isSearch) {
+            return {
+                products: items.map(normalizeProduct),
+                pagination: extractPagination(response),
+                source: 'api',
+            };
+        }
+
         return {
             products: items.length > 0 ? items.map(normalizeProduct) : mockProducts,
+            pagination: items.length > 0 ? extractPagination(response) : undefined,
             source: items.length > 0 ? 'api' : 'mock',
             errorMessage: items.length > 0 ? undefined : 'La API no devolvio productos, se usaron datos de respaldo.',
         };
@@ -99,5 +155,24 @@ export async function getProducts(filters: ProductFilters = {}): Promise<Product
             source: 'mock',
             errorMessage: 'La API no respondio correctamente, se usaron datos de respaldo.',
         };
+    }
+}
+
+// GET /product/:idProduct; acepta el producto directo o envuelto en { product }
+export async function getProductById(id: number): Promise<Product | null> {
+    if (!process.env.NEXT_PUBLIC_MAIN_API || !process.env.NEXT_PUBLIC_GET_PRODUCTS) {
+        return null;
+    }
+
+    const endpoint = [process.env.NEXT_PUBLIC_MAIN_API, process.env.NEXT_PUBLIC_GET_PRODUCTS, id].join('/');
+
+    try {
+        const response = await fetchJson<ProductApiItem | { product: ProductApiItem }>(endpoint);
+        const item = 'product' in response ? response.product : response;
+
+        return item ? normalizeProduct(item, id - 1) : null;
+    } catch (error) {
+        console.error(`Unable to fetch product ${id} from API.`, error);
+        return null;
     }
 }

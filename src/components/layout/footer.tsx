@@ -7,23 +7,26 @@ import Image from 'next/image';
 import PaintDropSeparator from "../ui/separators.tsx/paint-drop-separator";
 import { CONTACT } from '@/config/site';
 import { mockOcassions } from "@/lib/ocassions/mock-ocassions";
+import { mockCategories } from "@/lib/products/mock-categories";
+
+const GLOBOS_CATEGORY_ID = mockCategories.find((category) => category.name === "Globos")?.id;
 
 const NAV_LINKS = [
     { to: "/", label: "Inicio" },
-    { to: "/productos?ocassion=Globos", label: "Globos" },
-    { to: "/productos", label: "Catálogo" },
+    { to: `/producto?tipo=${GLOBOS_CATEGORY_ID}`, label: "Globos" },
+    { to: "/producto", label: "Catálogo" },
     { to: "/contacto", label: "Contacto" },
 ];
 
 const TEAM_LINKS = mockOcassions.slice(0,4).map((ocassion) => {
-    return { to: "/" + ocassion.id, label: ocassion.name }
+    return { to: `/producto?ocasion=${ocassion.id}`, label: ocassion.name }
 })
 
 export default function Footer() {
     return (
         <section>
             <PaintDropSeparator color="#5d1588" />
-            <footer className="bg-[#5d1588] text-primary-foreground">
+            <footer className="bg-[#5d1588] text-white">
                 <div className="container-custom py-12">
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
                         {/* Brand */}
@@ -37,7 +40,7 @@ export default function Footer() {
                                     className="object-contain"
                                 />
                             </Link>
-                            <p className="text-primary-foreground/80 text-sm w-full text-center max-w-full md:max-w-xs md:text-left">
+                            <p className="text-white/80 text-sm w-full text-center max-w-full md:max-w-xs md:text-left">
                                Dónde empieza la alegría
                             </p>
                             <div className="flex gap-3 mt-2 justify-center md:justify-start">
@@ -70,7 +73,7 @@ export default function Footer() {
                             <ul className="flex flex-col gap-2">
                                 {TEAM_LINKS.map((link) => (
                                     <li key={link.to}>
-                                        <Link href={link.to} className="text-light-pink-foreground/80 hover:text-hover transition-colors text-sm font-medium">
+                                        <Link href={link.to} className="text-white/80 hover:text-hover transition-colors text-sm font-medium">
                                             {link.label}
                                         </Link>
                                     </li>
@@ -84,7 +87,7 @@ export default function Footer() {
                             <ul className="flex flex-col gap-2">
                                 {NAV_LINKS.map((link) => (
                                     <li key={link.to}>
-                                        <Link href={link.to} className="text-light-pink-foreground/80 hover:text-hover transition-colors text-sm font-medium">
+                                        <Link href={link.to} className="text-white/80 hover:text-hover transition-colors text-sm font-medium">
                                             {link.label}
                                         </Link>
                                     </li>
@@ -97,7 +100,7 @@ export default function Footer() {
                         {/* Contact Info */}
                         <div>
                             <h3 className="font-display text-lg font-bold mb-4">Contáctanos</h3>
-                            <ul className="flex flex-col gap-3 text-sm text-light-pink-foreground/80">
+                            <ul className="flex flex-col gap-3 text-sm text-white/80">
                                 <li className="flex items-center gap-2">
                                     <Phone className="h-4 w-4 text-tertiary" />
                                     <a href={CONTACT.PHONE_LINK} className="hover:underline">{CONTACT.PHONE}</a>
@@ -116,10 +119,10 @@ export default function Footer() {
                 </div>
 
                 {/* Bottom bar */}
-                <div className="border-t border-main-foreground/10">
-                    <div className="container-custom py-4 flex flex-col md:flex-row items-center justify-between text-xs text-light-pink-foreground/60 gap-2">
+                <div className="border-t border-white/10">
+                    <div className="container-custom py-4 flex flex-col md:flex-row items-center justify-between text-xs text-white/60 gap-2">
                         <span>© 2026 Inversiones VVVS. Todos los derechos reservados.</span>
-                        <span>Realizado por <a href="https://www.linkedin.com/in/vicdalis-anazco/" target="_blank" className="hover:text-blue/80 transition-colors">Vicdalis Añazco</a></span>
+                        {/* <span>Realizado por <a href="https://www.linkedin.com/in/vicdalis-anazco/" target="_blank" className="hover:text-blue/80 transition-colors">Vicdalis Añazco</a></span> */}
                     </div>
                 </div>
             </footer>

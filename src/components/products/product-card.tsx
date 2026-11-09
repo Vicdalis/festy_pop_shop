@@ -2,23 +2,13 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { useEffect, useMemo, useState, type TouchEvent } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { motion } from 'framer-motion';
-import { ChevronLeft, ChevronRight, Heart, Images, X } from 'lucide-react';
-import { CONTACT } from '@/config/site';
-
-type ProductCardItem = {
-    id: number;
-    name: string;
-    description: string;
-    image: string;
-    images?: string[];
-    category: string;
-    colors: string[];
-    occasions?: string[];
-    price?: number | null;
-};
+import { Images, X } from 'lucide-react';
+import ProductShareButton from './product-share-button';
+import ProductDetail, { buildQuoteHref, type ProductCardItem } from './product-detail';
+import { useSiteOrigin } from './use-site-origin';
 
 type ProductCardProps = {
     product: ProductCardItem;
@@ -59,23 +49,21 @@ export default function ProductCard({
     viewLabel = 'Ver',
     quoteHref,
 }: ProductCardProps) {
-    const [isWished, setIsWished] = useState(false);
+    const siteOrigin = useSiteOrigin();
     const [isQuoted, setIsQuoted] = useState(false);
     const [isGalleryOpen, setIsGalleryOpen] = useState(false);
-    const [activeImageIndex, setActiveImageIndex] = useState(0);
     const [isMounted, setIsMounted] = useState(false);
-    const [touchStartX, setTouchStartX] = useState<number | null>(null);
-    const [touchEndX, setTouchEndX] = useState<number | null>(null);
 
     const resolvedQuoteHref =
         quoteHref
-        ?? `${CONTACT.PHONE_LINK}?text=${encodeURIComponent(`Hola, quiero cotizar ${product.name}`)}`;
+        ?? buildQuoteHref(product, siteOrigin);
 
     const resolvedMetaChip =
         metaChip
-        ?? (product.colors.length > 0 ? `${product.colors.length} colores` : 'Edición temática');
+        ?? (product.colors.length > 0 ? `${product.colors.length} colores` : '');
 
     const hasPrice = typeof product.price === 'number';
+    const hasColors = product.colors.length > 0;
     const productImages = useMemo(() => {
         if (Array.isArray(product.images) && product.images.length > 0) {
             return product.images;
@@ -83,7 +71,6 @@ export default function ProductCard({
 
         return [product.image];
     }, [product.image, product.images]);
-    const activeImage = productImages[activeImageIndex] ?? product.image;
 
     const handleQuoteClick = () => {
         setIsQuoted(true);
@@ -109,18 +96,6 @@ export default function ProductCard({
             if (event.key === 'Escape') {
                 setIsGalleryOpen(false);
             }
-
-            if (productImages.length < 2) {
-                return;
-            }
-
-            if (event.key === 'ArrowRight') {
-                setActiveImageIndex((current) => (current + 1) % productImages.length);
-            }
-
-            if (event.key === 'ArrowLeft') {
-                setActiveImageIndex((current) => (current - 1 + productImages.length) % productImages.length);
-            }
         };
 
         window.addEventListener('keydown', handleKeyDown);
@@ -129,52 +104,10 @@ export default function ProductCard({
             document.body.style.overflow = previousOverflow;
             window.removeEventListener('keydown', handleKeyDown);
         };
-    }, [isGalleryOpen, productImages.length]);
-
-    useEffect(() => {
-        setActiveImageIndex(0);
-    }, [product.id]);
+    }, [isGalleryOpen]);
 
     const openGallery = () => {
-        setActiveImageIndex(0);
         setIsGalleryOpen(true);
-    };
-
-    const showPreviousImage = () => {
-        setActiveImageIndex((current) => (current - 1 + productImages.length) % productImages.length);
-    };
-
-    const showNextImage = () => {
-        setActiveImageIndex((current) => (current + 1) % productImages.length);
-    };
-
-    const handleTouchStart = (event: TouchEvent<HTMLDivElement>) => {
-        setTouchStartX(event.touches[0]?.clientX ?? null);
-        setTouchEndX(null);
-    };
-
-    const handleTouchMove = (event: TouchEvent<HTMLDivElement>) => {
-        setTouchEndX(event.touches[0]?.clientX ?? null);
-    };
-
-    const handleTouchEnd = () => {
-        if (productImages.length < 2 || touchStartX === null || touchEndX === null) {
-            setTouchStartX(null);
-            setTouchEndX(null);
-            return;
-        }
-
-        const swipeDistance = touchStartX - touchEndX;
-        const minimumSwipeDistance = 50;
-
-        if (swipeDistance > minimumSwipeDistance) {
-            showNextImage();
-        } else if (swipeDistance < -minimumSwipeDistance) {
-            showPreviousImage();
-        }
-
-        setTouchStartX(null);
-        setTouchEndX(null);
     };
 
     const renderColorMeta = () => {
@@ -188,14 +121,14 @@ export default function ProductCard({
             }
 
             return (
-                <div className="flex items-center gap-1.5 rounded-full bg-[#f8eefc] px-3 py-2">
+                <div className="flex flex-wrap items-center gap-1 md:gap-1.5 rounded-full bg-[#f8eefc] px-2 md:px-3 py-1.5 md:py-2">
                     {product.colors.map((color) => (
                         <span
-                            key={`${product.id}-${color}`}
-                            className="h-4 w-4 rounded-full border border-black/10 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.18)]"
-                            style={{ backgroundColor: colorSwatchMap[color] ?? '#d9c2f3' }}
-                            title={color}
-                            aria-label={color}
+                            key={`${product.id}-${color.id ?? color.name}`}
+                            className="h-3.5 w-3.5 md:h-4 md:w-4 rounded-full border border-black/10 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.18)]"
+                            style={{ backgroundColor: color.hex || colorSwatchMap[color.name] || '#d9c2f3' }}
+                            title={color.name}
+                            aria-label={color.name}
                         />
                     ))}
                 </div>
@@ -215,7 +148,7 @@ export default function ProductCard({
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.08 }}
             whileHover={{ y: -6 }}
-            className="group overflow-hidden rounded-[28px] border border-white/70 bg-white shadow-[0_18px_45px_rgba(38,16,51,0.10)] transition-all duration-300 hover:shadow-[0_24px_55px_rgba(38,16,51,0.16)]"
+            className="group flex flex-col h-full overflow-hidden rounded-2xl md:rounded-[28px] border border-white/70 bg-white shadow-[0_18px_45px_rgba(38,16,51,0.10)] transition-all duration-300 hover:shadow-[0_24px_55px_rgba(38,16,51,0.16)]"
         >
             <div className="relative aspect-[0.95/1] overflow-hidden rounded-b-[24px] bg-[linear-gradient(180deg,#fff7ed_0%,#ffe7f0_100%)]">
                 <button
@@ -234,181 +167,104 @@ export default function ProductCard({
                         />
                     ) : null}
                 </button>
-                <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#261033]/55 via-[#261033]/15 to-transparent" />
+                <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#261033]/55 via-[#261033]/15 to-transparent" />
                 <span
-                    className="absolute left-4 top-4 rounded-full px-3 py-1 text-[0.68rem] font-black uppercase tracking-[0.05em] text-white shadow-[0_8px_18px_rgba(38,16,51,0.18)]"
+                    className="absolute left-2 top-2 md:left-4 md:top-4 rounded-full px-2 md:px-3 py-0.5 md:py-1 text-[0.58rem] md:text-[0.68rem] font-black uppercase tracking-[0.05em] text-white shadow-[0_8px_18px_rgba(38,16,51,0.18)]"
                     style={{ backgroundColor: badgeColor }}
                 >
                     {badge}
                 </span>
-                <span className="absolute bottom-4 left-4 inline-flex items-center gap-1.5 rounded-full bg-white/90 px-3 py-1 text-[0.68rem] font-black uppercase tracking-[0.05em] text-[#5d1588] shadow-[0_8px_18px_rgba(38,16,51,0.14)]">
+                <span className="absolute bottom-2 left-2 md:bottom-4 md:left-4 inline-flex items-center gap-1 md:gap-1.5 rounded-full bg-white/90 px-2 md:px-3 py-0.5 md:py-1 text-[0.58rem] md:text-[0.68rem] font-black uppercase tracking-[0.05em] text-[#5d1588] shadow-[0_8px_18px_rgba(38,16,51,0.14)]">
                     <Images className="h-3.5 w-3.5" />
                     {productImages.length > 1 ? `${productImages.length} fotos` : 'Ampliar'}
                 </span>
-                <button
-                    type="button"
-                    className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-white/95 text-main-purple shadow-[0_8px_18px_rgba(38,16,51,0.12)] transition hover:scale-110"
-                    aria-label={`Guardar ${product.name}`}
-                    onClick={() => setIsWished((current) => !current)}
-                >
-                    <Heart
-                        className={`h-4 w-4 transition-colors ${isWished ? 'fill-[#e7467d] text-[#e7467d]' : ''}`}
-                    />
-                </button>
+                {/* Botón de favoritos oculto temporalmente (ver TODO.md, sección Favoritos). */}
             </div>
 
-            <div className="space-y-4 p-5">
+            <div className="flex flex-col space-y-3 md:space-y-4 p-3 md:p-5 flex-1">
                 <div className="space-y-2">
                     <p className="text-[0.72rem] font-black uppercase tracking-[0.12em] text-[#8a3dc1]">
                         <a href={viewHref}>
                             {product.category}
                         </a>
                     </p>
-                    <h3 className="min-h-[3.25rem] font-display text-[1rem] font-black leading-5 text-[#261033]">
+                    <h3 className="min-h-[2.5rem] md:min-h-[3.25rem] font-display text-[0.85rem] md:text-[1rem] font-black leading-5 text-[#261033]">
                         {product.name}
                     </h3>
+                    <p className="mt-1 hidden text-sm text-[#6b6b6b] md:block">{product.description ? (product.description.length > 100 ? `${product.description.slice(0, 100).trim()}…` : product.description) : ''}</p>
                 </div>
+                
 
-                <div className="flex items-end justify-between gap-3">
-                    {hasPrice ? (
-                        <div>
-                            <p className="text-[0.72rem] font-bold uppercase tracking-[0.08em] text-[#9f8a95]">
-                                Desde
-                            </p>
-                            <p className="font-display text-[1.45rem] font-black leading-none text-main-purple">
-                                ${product.price?.toFixed(2) ?? '0.00'}
-                            </p>
-                        </div>
-                    ) : null}
+                <div className="mt-auto">
+                    <div className="flex flex-wrap items-end justify-between gap-2 md:gap-3">
+                        {hasPrice ? (
+                            <div>
+                                <p className="text-[0.72rem] font-bold uppercase tracking-[0.08em] text-[#9f8a95]">
+                                    Desde
+                                </p>
+                                <p className="font-display text-[1.15rem] md:text-[1.45rem] font-black leading-none text-main-purple">
+                                    ${product.price?.toFixed(2) ?? '0.00'}
+                                </p>
+                            </div>
+                        ) : null}
 
-                    <div className={`${hasPrice ? '' : 'ml-auto'}`}>
-                        {renderColorMeta()}
+                        {hasColors && (
+                            <div className={`${hasPrice ? '' : 'ml-auto'}`}>
+                                {renderColorMeta()}
+                            </div>
+                        )}
                     </div>
-                </div>
 
-                <div className="flex gap-2">
-                    <a
-                        href={resolvedQuoteHref}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="flex-1"
-                        onClick={handleQuoteClick}
-                    >
-                        <span
-                            className={`flex w-full items-center justify-center rounded-full px-4 py-3 text-[0.82rem] font-black transition ${isQuoted
-                                ? 'bg-[#33c36b] text-white'
-                                : 'bg-main-purple text-white hover:bg-[var(--color-header-cta)]'
-                                }`}
+                    <div className="mt-3 flex flex-col-reverse gap-2 sm:flex-row">
+                        <a
+                            href={resolvedQuoteHref}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="flex-1"
+                            onClick={handleQuoteClick}
                         >
-                            Cotizar
-                        </span>
-                    </a>
+                            <span
+                                className={`flex w-full items-center justify-center rounded-full px-3 md:px-4 py-2.5 md:py-3 text-[0.75rem] md:text-[0.82rem] font-black transition ${isQuoted
+                                    ? 'bg-[#33c36b] text-white'
+                                    : 'bg-main-purple text-white hover:bg-light-pink'
+                                    }`}
+                            >
+                                <Image src="/whatsapp.png" alt="WhatsApp" width={18} height={18} className="inline-block mr-1.5 md:mr-2" />
+                                Cotizar
+                            </span>
+                        </a>
+                        <ProductShareButton product={product} />
+                    </div>
                 </div>
             </div>
 
             {isMounted && isGalleryOpen && createPortal(
                 <div
-                    className="fixed inset-0 z-[300] bg-black/88 backdrop-blur-md"
+                    className="fixed inset-0 z-[300] flex items-center justify-center bg-[#1a0b2e]/70 p-3 backdrop-blur-sm md:p-6"
                     onClick={() => setIsGalleryOpen(false)}
                 >
                     <div
-                        className="flex h-full w-full items-center justify-center p-0 md:p-6"
+                        role="dialog"
+                        aria-modal="true"
+                        aria-label={product.name}
+                        className="relative flex max-h-[92dvh] w-full max-w-md flex-col overflow-hidden rounded-[28px] bg-white shadow-[0_40px_120px_rgba(0,0,0,0.45)] md:h-[88vh] md:max-h-[860px] md:max-w-6xl"
+                        onClick={(event) => event.stopPropagation()}
                     >
-                        <div
-                            className="relative flex h-[100dvh] w-full flex-col overflow-hidden  shadow-[0_40px_120px_rgba(0,0,0,0.55)] md:h-[92vh] md:w-[96vw] md:max-w-[1600px] md:rounded-[32px] md:border md:border-white/10"
-                            onClick={(event) => event.stopPropagation()}
+                        <button
+                            type="button"
+                            onClick={() => setIsGalleryOpen(false)}
+                            className="absolute right-3 top-3 z-30 flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-white text-[#261033] shadow-[0_8px_24px_rgba(38,16,51,0.18)] transition hover:scale-105 md:right-5 md:top-5 md:h-12 md:w-12"
+                            aria-label={`Cerrar detalle de ${product.name}`}
                         >
-                            <div className="flex items-center justify-end px-4 pb-2 pt-[max(1rem,env(safe-area-inset-top))] md:px-5 md:pb-0 md:pt-4">
+                            <X className="h-5 w-5" />
+                        </button>
 
-                                <button
-                                    type="button"
-                                    onClick={() => setIsGalleryOpen(false)}
-                                    className="z-20 flex h-11 w-11 items-center justify-center rounded-full bg-white/12 text-white transition cursor-pointer hover:scale-105 hover:bg-white/18"
-                                    aria-label={`Cerrar galería de ${product.name}`}
-                                >
-                                    <X className="h-5 w-5" />
-                                </button>
-
-                            </div>
-
-                            <div className="grid h-full min-h-0 flex-1 gap-3 px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] md:grid-cols-[minmax(0,1fr)_148px] md:gap-4 md:p-5">
-                                <div
-                                    className="relative min-h-0 flex-1 overflow-hidden rounded-[26px] items-center h-120 md:h-auto"
-                                    onTouchStart={handleTouchStart}
-                                    onTouchMove={handleTouchMove}
-                                    onTouchEnd={handleTouchEnd}
-                                >
-                                    { activeImage?.trim() !== '' ? (
-
-                                        <Image
-                                            src={activeImage}
-                                            alt={`${product.name} ${activeImageIndex + 1}`}
-                                            fill
-                                            className="object-contain"
-                                            sizes="(max-width: 768px) 100vw, 95vw"
-                                        />
-                                    ) : ''}
-                                    <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent px-6 py-5 text-white">
-                                        <p className="font-display text-xl font-black md:text-2xl">{product.name}</p>
-                                        <p className="mt-1 text-sm text-white/70">
-                                            Imagen {activeImageIndex + 1} de {productImages.length}
-                                        </p>
-                                    </div>
-
-                                    {productImages.length > 1 && (
-                                        <>
-                                            <button
-                                                type="button"
-                                                onClick={showPreviousImage}
-                                                className="absolute left-4 top-1/2 cursor-pointer z-10 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white/14 text-white shadow-[0_12px_24px_rgba(0,0,0,0.2)] transition hover:scale-105 hover:bg-white/22"
-                                                aria-label={`Ver imagen anterior de ${product.name}`}
-                                            >
-                                                <ChevronLeft className="h-6 w-6" />
-                                            </button>
-                                            <button
-                                                type="button"
-                                                onClick={showNextImage}
-                                                className="absolute right-4 top-1/2 cursor-pointer z-10 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white/14 text-white shadow-[0_12px_24px_rgba(0,0,0,0.2)] transition hover:scale-105 hover:bg-white/22"
-                                                aria-label={`Ver siguiente imagen de ${product.name}`}
-                                            >
-                                                <ChevronRight className="h-6 w-6" />
-                                            </button>
-                                        </>
-                                    )}
-                                </div>
-
-                                {productImages.length > 1 && (
-                                    <div className="flex gap-3 overflow-x-auto pb-1 md:flex-col md:overflow-y-auto md:pb-0">
-                                        {productImages.map((image, imageIndex) => {
-                                            const isActiveImage = imageIndex === activeImageIndex;
-
-                                            return (
-                                                <button
-                                                    key={`${product.id}-${imageIndex}-${image}`}
-                                                    type="button"
-                                                    onClick={() => setActiveImageIndex(imageIndex)}
-                                                    className={`relative h-24 min-h-24 min-w-24 overflow-hidden rounded-2xl border-2 transition md:h-28 md:min-w-0 ${isActiveImage
-                                                        ? 'border-[#e7467d] shadow-[0_12px_24px_rgba(231,70,125,0.25)]'
-                                                        : 'border-white/10 hover:border-white/30'
-                                                        }`}
-                                                    aria-label={`Ver imagen ${imageIndex + 1} de ${product.name}`}
-                                                >
-                                                    {image?.trim() !== '' && image?.length > 0 ? (
-                                                        <Image
-                                                            src={image}
-                                                            alt={`${product.name} miniatura ${imageIndex + 1}`}
-                                                            fill
-                                                            className="object-cover"
-                                                            sizes="112px"
-                                                        />
-                                                    ) : null}
-                                                </button>
-                                            );
-                                        })}
-                                    </div>
-                                )}
-                            </div>
-                        </div>
+                        <ProductDetail
+                            product={product}
+                            badge={badge}
+                            badgeColor={badgeColor}
+                            quoteHref={resolvedQuoteHref}
+                        />
                     </div>
                 </div>,
                 document.body,
