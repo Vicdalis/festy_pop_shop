@@ -233,17 +233,17 @@ export default function HomePage() {
               >
                 <span className="mb-5 inline-flex items-center gap-2 rounded-full bg-hero-accent px-4 py-1.5 text-xs font-extrabold uppercase tracking-[0.05em] text-[#261033]">
                   <Sparkles className="h-4 w-4" />
-                  Celebraciones Únicas
+                  Celebraciones inolvidables con un ¡Pop!
                 </span>
                 <h1 className="font-display text-5xl font-black leading-[0.95] text-white md:text-7xl">
-                  Celebraciones
+                  Piñatería y
                   <br />
-                  <span className="text-hero-accent">Inolvidables</span>
+                  <span className="text-hero-accent">artículos</span>
                   <br />
-                  con un <span className="text-[#ffb8d4]">¡Pop!</span>
+                  para <span className="text-[#ffb8d4]">fiestas</span>
                 </h1>
                 <p className="mx-auto mt-5 max-w-xl text-lg leading-7 text-white/85 lg:mx-0">
-                  Todo lo que necesitas para hacer de cada fiesta un momento mágico: globos, piñatas, decoraciones y más.
+                  Todo lo que necesitas para hacer de cada fiesta un momento mágico: globos, piñatas, decoraciones personalizadas y más, en el centro de Caracas.
                 </p>
                 <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center lg:justify-start">
                   <Link href="/producto">
@@ -280,7 +280,7 @@ export default function HomePage() {
                 <div className="relative h-[320px] w-[380px] overflow-hidden rounded-[24px] border-[3px] border-white/15 bg-[#8a3dc1]/50 shadow-[0_20px_60px_rgba(34,8,56,0.45)]">
                   <Image
                     src="/shop/Tienda.jpg"
-                    alt="Tienda de fiestas Inversiones VVVS"
+                    alt="Piñatería FestyPOP en La Hoyada, Caracas"
                     fill
                     className="object-cover opacity-90"
                     sizes="380px"
@@ -297,7 +297,7 @@ export default function HomePage() {
           <div className="text-center">
             <Subtitle title="Explora" color="main-purple" />
           </div>
-          <Title mainTitle="Nuestras Categorías" subtitle="Encuentra todo lo que necesitas para cada celebración" />
+          <Title as="h2" mainTitle="Nuestras Categorías" subtitle="Piñatas, globos, velas, afiches y artículos para fiestas en un solo lugar" />
           <ProductBannerComponent />
         </section>
         <div className="bg-light-cream">
@@ -311,13 +311,11 @@ export default function HomePage() {
             <div className="relative z-10 mx-auto grid max-w-7xl items-center gap-10 lg:gap-12 lg:grid-cols-[1fr_1.2fr]">
               <div className="min-w-0 text-center lg:text-left">
                 <Subtitle title="Especiales" />
-                <h2 className="mt-4 break-words font-display text-3xl font-black leading-tight text-white sm:text-4xl md:text-6xl">
-                  Productos
-                  <br />
-                  Personalizados
+                <h2 className="mt-4 break-words font-display text-3xl font-black leading-tight text-white sm:text-4xl md:text-5xl">
+                  Productos Personalizados
                 </h2>
                 <p className="mx-auto mt-4 max-w-xl text-sm leading-6 text-white/75 sm:text-base sm:leading-7 md:text-lg lg:mx-0">
-                  Realizamos pedidos a tu gusto por encargo.
+                  Hacemos piñatas y decoraciones a tu gusto, por encargo.
                 </p>
 
                 <div className="mt-8">
@@ -380,7 +378,7 @@ export default function HomePage() {
           <div className="text-center">
             <Subtitle title="Ocasiones " color="main-purple" />
           </div>
-          <Title mainTitle="Temáticas Populares" subtitle="Encuentra todo lo que necesitas para cada celebración" />
+          <Title as="h2" mainTitle="Temáticas Populares" subtitle="Encuentra todo lo que necesitas para cada celebración" />
 
           <div className="grid grid-cols-1 px-16 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {OCCASIONS.map((occasion) => (
@@ -402,7 +400,7 @@ export default function HomePage() {
           <div className="text-center">
             <Subtitle title="Destacados" color="main-purple" />
           </div>
-          <Title mainTitle="Productos destacados " subtitle="Combos imperdibles" />
+          <Title as="h2" mainTitle="Productos destacados " />
           <div className="container-custom mx-auto max-w-7xl px-5 md:px-8 xl:px-14">
             <div className="mb-8 flex flex-wrap justify-center gap-3">
               {FEATURED_CATEGORY_FILTERS.map((category) => {
@@ -483,7 +481,7 @@ export default function HomePage() {
         </section>
 
         {/* CTA */}
-        <ContactUsBanner />
+        <ContactUsBanner headingAs="h2" />
       </div>
     </div>
   )

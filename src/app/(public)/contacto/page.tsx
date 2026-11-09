@@ -23,11 +23,12 @@ export default function ContactPage(){
                             transition={{ duration: 0.5 }}
                         >
                             <h1 className="max-w-3xl text-4xl font-bold leading-tight text-[#4b2737] md:text-6xl">
-                                Hablemos de tu
+                                Visita nuestra piñatería en el
                                 {' '}
-                                <span className="text-[#e7467d]">proxima fiesta</span>
+                                <span className="text-[#e7467d]">centro de Caracas</span>
                             </h1>
                             <p className="mt-5 max-w-2xl text-base leading-7 text-[#6b4b56] md:text-lg">
+                                Somos un comercial de piñatas y artículos para fiestas en La Hoyada.
                                 Escríbenos para cotizaciones, pedidos personalizados o dudas sobre disponibilidad.
                                 Te acompañamos para que cada detalle quede a la medida de tu celebración.
                             </p>
@@ -56,7 +57,7 @@ export default function ContactPage(){
                     </div>
                 </div>
             </section>
-            <ContactUsBanner />
+            <ContactUsBanner headingAs="h2" />
         </main>
     )
 }

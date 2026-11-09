@@ -19,6 +19,7 @@ export const CONTACT = {
 // Datos estructurados del negocio (JSON-LD LocalBusiness); formato que exige schema.org
 export const BUSINESS = {
     NAME: "FestyPOP",
+    DESCRIPTION: "Piñatería en La Hoyada, en el centro de Caracas. Piñatas personalizadas, globos, afiches y artículos para fiestas.",
     PHONE_E164: "+584242214781",
     STREET_ADDRESS: "Edificio Peinero, Avenida Este 6, La Hoyada",
     LOCALITY: "Caracas",

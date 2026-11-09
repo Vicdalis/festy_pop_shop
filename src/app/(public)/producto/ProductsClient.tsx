@@ -45,7 +45,7 @@ const occasionAliases: Record<string, string[]> = {
 };
 
 function normalizeText(value: string) {
-    if(!value) return '';
+    if (!value) return '';
     return value
         .toLowerCase()
         .normalize('NFD')
@@ -212,195 +212,191 @@ export default function ProductsClient() {
                 role="switch"
                 aria-checked={onlyPersonalized}
                 onClick={() => setOnlyPersonalized((current) => !current)}
-                className={`flex w-full items-center justify-between gap-3 rounded-2xl border-2 px-4 py-3 text-left transition-all ${
-                    onlyPersonalized
-                        ? 'border-[#8a3dc1] bg-[#f6eefc]'
-                        : 'border-[#f1ddce] bg-white hover:border-[#8a3dc1]'
-                }`}
+                className={`flex w-full items-center justify-between gap-3 rounded-2xl border-2 px-4 py-3 text-left transition-all ${onlyPersonalized
+                    ? 'border-[#8a3dc1] bg-[#f6eefc]'
+                    : 'border-[#f1ddce] bg-white hover:border-[#8a3dc1]'
+                    }`}
             >
                 <span className="flex items-center gap-3">
-                    <Brush className="h-5 w-5 shrink-0 text-[#8a3dc1]" />
                     <span className="whitespace-nowrap text-base font-semibold">Solo personalizados</span>
                 </span>
                 <span
-                    className={`relative h-6 w-11 shrink-0 rounded-full transition-colors ${onlyPersonalized ? 'bg-[#8a3dc1]' : 'bg-[#e5dce8]'}`}
+                    className={`relative h-6 w-10 shrink-0 rounded-full transition-colors ${onlyPersonalized ? 'bg-[#8a3dc1]' : 'bg-[#e5dce8]'}`}
                 >
                     <span
                         className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-all ${onlyPersonalized ? 'left-[22px]' : 'left-0.5'}`}
                     />
                 </span>
             </button>
+            {/* ---- TIPO DE PRODUCTO ----  */}
+            <div className="space-y-4">
+                <button
+                    type="button"
+                    onClick={() => setIsCategoryOpen((current) => !current)}
+                    className="flex w-full items-center justify-between gap-3 text-left"
+                >
+                    <span className="flex items-center gap-3">
+                        <Tag className="h-5 w-5 text-[#b86c45]" />
+                        <span className="text-base font-semibold">Tipo de producto</span>
+                    </span>
+                    <ChevronDown
+                        className={`h-5 w-5 cursor-pointer text-[#a15b73] transition-transform ${isCategoryOpen ? 'rotate-180' : ''}`}
+                    />
+                </button>
+                <div className="flex flex-wrap gap-2">
+                    {visibleCategoryOptions.map((category) => {
+                        const isActive = selectedCategory === category;
 
-                                <div className="space-y-4">
-                                    <button
-                                        type="button"
-                                        onClick={() => setIsCategoryOpen((current) => !current)}
-                                        className="flex w-full items-center justify-between gap-3 text-left"
-                                    >
-                                        <span className="flex items-center gap-3">
-                                            <Tag className="h-5 w-5 text-[#b86c45]" />
-                                            <span className="text-base font-semibold">Tipo de producto</span>
-                                        </span>
-                                        <ChevronDown
-                                            className={`h-5 w-5 cursor-pointer text-[#a15b73] transition-transform ${isCategoryOpen ? 'rotate-180' : ''}`}
-                                        />
-                                    </button>
-                                    <div className="flex flex-wrap gap-2">
-                                        {visibleCategoryOptions.map((category) => {
-                                            const isActive = selectedCategory === category;
+                        return (
+                            <button
+                                key={category}
+                                type="button"
+                                onClick={() => setSelectedCategory(category)}
+                                className={`rounded-full border-2 px-4 py-2 text-left text-sm font-semibold transition-all ${isActive
+                                    ? 'border-[#b86c45] bg-[#fff4ec] text-[#9a5428] shadow-sm'
+                                    : 'border-[#f1ddce] bg-white text-[#6f5b65] hover:border-[#e7467d] hover:text-[#9f2051]'
+                                    }`}
+                            >
+                                {category}
+                            </button>
+                        );
+                    })}
+                </div>
+            </div>
 
-                                            return (
-                                                <button
-                                                    key={category}
-                                                    type="button"
-                                                    onClick={() => setSelectedCategory(category)}
-                                                    className={`rounded-full border-2 px-4 py-2 text-left text-sm font-semibold transition-all ${
-                                                        isActive
-                                                            ? 'border-[#b86c45] bg-[#fff4ec] text-[#9a5428] shadow-sm'
-                                                            : 'border-[#f1ddce] bg-white text-[#6f5b65] hover:border-[#e7467d] hover:text-[#9f2051]'
-                                                    }`}
-                                                >
-                                                    {category}
-                                                </button>
-                                            );
-                                        })}
-                                    </div>
-                                </div>
+            {/* ---- TEMÁTICAS ----  */}
+            <div className="space-y-4">
+                <button
+                    type="button"
+                    onClick={() => setIsOccasionOpen((current) => !current)}
+                    className="flex w-full items-center justify-between gap-3 text-left"
+                >
+                    <span className="flex items-center gap-3">
+                        <Cake className="h-5 w-5 text-[#8a3dc1]" />
+                        <span className="text-base font-semibold">Temáticas</span>
+                    </span>
+                    <ChevronDown
+                        className={`h-5 w-5 cursor-pointer text-[#a15b73] transition-transform ${isOccasionOpen ? 'rotate-180' : ''}`}
+                    />
+                </button>
+                <div className="flex flex-wrap gap-2">
+                    {(isOccasionOpen || selectedOccasion === null) && (
+                        <button
+                            type="button"
+                            onClick={() => setSelectedOccasion(null)}
+                            className={`rounded-full border-2 px-4 py-2 text-left text-sm font-semibold transition-all ${selectedOccasion === null
+                                ? 'border-[#8a3dc1] bg-[#f6eefc] text-[#5b2a9a] shadow-sm'
+                                : 'border-[#f1ddce] bg-white text-[#6f5b65] hover:border-[#e7467d] hover:text-[#9f2051]'
+                                }`}
+                        >
+                            Todos
+                        </button>
+                    )}
+                    {visibleOccasionOptions.map((occasion) => {
+                        const isActive = selectedOccasion === occasion.id;
 
-                                <div className="space-y-4">
-                                    <button
-                                        type="button"
-                                        onClick={() => setIsOccasionOpen((current) => !current)}
-                                        className="flex w-full items-center justify-between gap-3 text-left"
-                                    >
-                                        <span className="flex items-center gap-3">
-                                            <Cake className="h-5 w-5 text-[#8a3dc1]" />
-                                            <span className="text-base font-semibold">Temáticas</span>
-                                        </span>
-                                        <ChevronDown
-                                            className={`h-5 w-5 cursor-pointer text-[#a15b73] transition-transform ${isOccasionOpen ? 'rotate-180' : ''}`}
-                                        />
-                                    </button>
-                                    <div className="flex flex-wrap gap-2">
-                                        {(isOccasionOpen || selectedOccasion === null) && (
-                                            <button
-                                                type="button"
-                                                onClick={() => setSelectedOccasion(null)}
-                                                className={`rounded-full border-2 px-4 py-2 text-left text-sm font-semibold transition-all ${
-                                                    selectedOccasion === null
-                                                        ? 'border-[#8a3dc1] bg-[#f6eefc] text-[#5b2a9a] shadow-sm'
-                                                        : 'border-[#f1ddce] bg-white text-[#6f5b65] hover:border-[#e7467d] hover:text-[#9f2051]'
-                                                }`}
-                                            >
-                                                Todos
-                                            </button>
-                                        )}
-                                        {visibleOccasionOptions.map((occasion) => {
-                                            const isActive = selectedOccasion === occasion.id;
+                        return (
+                            <button
+                                key={occasion.id}
+                                type="button"
+                                onClick={() => setSelectedOccasion(occasion.id)}
+                                className={`rounded-full border-2 px-4 py-2 text-left text-sm font-semibold transition-all ${isActive
+                                    ? 'border-[#8a3dc1] bg-[#f6eefc] text-[#5b2a9a] shadow-sm'
+                                    : 'border-[#f1ddce] bg-white text-[#6f5b65] hover:border-[#e7467d] hover:text-[#9f2051]'
+                                    }`}
+                            >
+                                {occasion.name}
+                            </button>
+                        );
+                    })}
+                </div>
+            </div>
 
-                                            return (
-                                                <button
-                                                    key={occasion.id}
-                                                    type="button"
-                                                    onClick={() => setSelectedOccasion(occasion.id)}
-                                                    className={`rounded-full border-2 px-4 py-2 text-left text-sm font-semibold transition-all ${
-                                                        isActive
-                                                            ? 'border-[#8a3dc1] bg-[#f6eefc] text-[#5b2a9a] shadow-sm'
-                                                            : 'border-[#f1ddce] bg-white text-[#6f5b65] hover:border-[#e7467d] hover:text-[#9f2051]'
-                                                    }`}
-                                                >
-                                                    {occasion.name}
-                                                </button>
-                                            );
-                                        })}
-                                    </div>
-                                </div>
+            {/* ---- PERSONAJES ----  */}
+            <div className="space-y-4">
+                <button
+                    type="button"
+                    onClick={() => setIsCharacterOpen((current) => !current)}
+                    className="flex w-full items-center justify-between gap-3 text-left"
+                >
+                    <span className="flex items-center gap-3">
+                        <Star className="h-5 w-5 text-[#fe9a4e]" />
+                        <span className="text-base font-semibold">Personaje</span>
+                    </span>
+                    <ChevronDown
+                        className={`h-5 w-5 cursor-pointer text-[#a15b73] transition-transform ${isCharacterOpen ? 'rotate-180' : ''}`}
+                    />
+                </button>
+                <div className="flex flex-wrap gap-2">
+                    {visibleCharacterOptions.map((character) => {
+                        const isActive = selectedCharacter === character;
 
-                                <div className="space-y-4">
-                                    <button
-                                        type="button"
-                                        onClick={() => setIsColorOpen((current) => !current)}
-                                        className="flex w-full items-center justify-between gap-3 text-left"
-                                    >
-                                        <span className="flex items-center gap-3">
-                                            <Palette className="h-5 w-5 text-[#e7467d]" />
-                                            <span className="text-base font-semibold">Color</span>
-                                        </span>
-                                        <ChevronDown
-                                            className={`h-5 w-5 cursor-pointer text-[#a15b73] transition-transform ${isColorOpen ? 'rotate-180' : ''}`}
-                                        />
-                                    </button>
-                                    <div className="flex flex-wrap gap-2">
-                                        {visibleColorOptions.map((color) => {
-                                            const isActive = selectedColor === color;
+                        return (
+                            <button
+                                key={character}
+                                type="button"
+                                onClick={() => setSelectedCharacter(character)}
+                                className={`rounded-full border-2 px-4 py-2 text-left text-sm font-semibold transition-all ${isActive
+                                    ? 'border-[#fe9a4e] bg-[#fff1e5] text-[#b85b1f] shadow-sm'
+                                    : 'border-[#f1ddce] bg-white text-[#6f5b65] hover:border-[#e7467d] hover:text-[#9f2051]'
+                                    }`}
+                            >
+                                <span className="flex items-center justify-between gap-3">
+                                    <span>{character}</span>
+                                </span>
+                            </button>
+                        );
+                    })}
+                </div>
+            </div>
 
-                                            return (
-                                                <button
-                                                    key={color}
-                                                    type="button"
-                                                    onClick={() => setSelectedColor(color)}
-                                                    className={`inline-flex items-center rounded-full border-2 px-4 py-2 text-left text-sm font-semibold transition-all ${
-                                                        isActive
-                                                            ? 'border-[#e7467d] bg-[#fff0f5] text-[#9f2051] shadow-sm'
-                                                            : 'border-[#f1ddce] bg-white text-[#6f5b65] hover:border-[#fe9a4e] hover:text-[#b45126]'
-                                                    }`}
-                                                >
-                                                    <span className="inline-flex items-center gap-2">
-                                                        <span
-                                                            className={`h-3.5 w-3.5 rounded-full border border-black/10 ${color === 'Todos' || colorHexByName.get(color) ? '' : (colorClasses[color] ?? 'bg-neutral-200')}`}
-                                                            style={
-                                                                color === 'Todos'
-                                                                    ? { backgroundImage: ALL_COLORS_GRADIENT }
-                                                                    : colorHexByName.get(color)
-                                                                        ? { backgroundColor: colorHexByName.get(color) as string }
-                                                                        : undefined
-                                                            }
-                                                        />
-                                                        {color}
-                                                    </span>
-                                                </button>
-                                            );
-                                        })}
-                                    </div>
-                                </div>
+            {/* ---- COLOR ----  */}
+            <div className="space-y-4">
+                <button
+                    type="button"
+                    onClick={() => setIsColorOpen((current) => !current)}
+                    className="flex w-full items-center justify-between gap-3 text-left"
+                >
+                    <span className="flex items-center gap-3">
+                        <Palette className="h-5 w-5 text-[#e7467d]" />
+                        <span className="text-base font-semibold">Color</span>
+                    </span>
+                    <ChevronDown
+                        className={`h-5 w-5 cursor-pointer text-[#a15b73] transition-transform ${isColorOpen ? 'rotate-180' : ''}`}
+                    />
+                </button>
+                <div className="flex flex-wrap gap-2">
+                    {visibleColorOptions.map((color) => {
+                        const isActive = selectedColor === color;
 
-                                <div className="space-y-4">
-                                    <button
-                                        type="button"
-                                        onClick={() => setIsCharacterOpen((current) => !current)}
-                                        className="flex w-full items-center justify-between gap-3 text-left"
-                                    >
-                                        <span className="flex items-center gap-3">
-                                            <Star className="h-5 w-5 text-[#fe9a4e]" />
-                                            <span className="text-base font-semibold">Personaje</span>
-                                        </span>
-                                        <ChevronDown
-                                            className={`h-5 w-5 cursor-pointer text-[#a15b73] transition-transform ${isCharacterOpen ? 'rotate-180' : ''}`}
-                                        />
-                                    </button>
-                                    <div className="flex flex-wrap gap-2">
-                                         {visibleCharacterOptions.map((character) => {
-                                            const isActive = selectedCharacter === character;
-
-                                            return (
-                                                <button
-                                                    key={character}
-                                                    type="button"
-                                                    onClick={() => setSelectedCharacter(character)}
-                                                    className={`rounded-full border-2 px-4 py-2 text-left text-sm font-semibold transition-all ${
-                                                        isActive
-                                                            ? 'border-[#fe9a4e] bg-[#fff1e5] text-[#b85b1f] shadow-sm'
-                                                            : 'border-[#f1ddce] bg-white text-[#6f5b65] hover:border-[#e7467d] hover:text-[#9f2051]'
-                                                    }`}
-                                                >
-                                                    <span className="flex items-center justify-between gap-3">
-                                                        <span>{character}</span>
-                                                    </span>
-                                                </button>
-                                            );
-                                        })} 
-                                    </div>
-                                </div>
+                        return (
+                            <button
+                                key={color}
+                                type="button"
+                                onClick={() => setSelectedColor(color)}
+                                className={`inline-flex items-center rounded-full border-2 px-4 py-2 text-left text-sm font-semibold transition-all ${isActive
+                                    ? 'border-[#e7467d] bg-[#fff0f5] text-[#9f2051] shadow-sm'
+                                    : 'border-[#f1ddce] bg-white text-[#6f5b65] hover:border-[#fe9a4e] hover:text-[#b45126]'
+                                    }`}
+                            >
+                                <span className="inline-flex items-center gap-2">
+                                    <span
+                                        className={`h-3.5 w-3.5 rounded-full border border-black/10 ${color === 'Todos' || colorHexByName.get(color) ? '' : (colorClasses[color] ?? 'bg-neutral-200')}`}
+                                        style={
+                                            color === 'Todos'
+                                                ? { backgroundImage: ALL_COLORS_GRADIENT }
+                                                : colorHexByName.get(color)
+                                                    ? { backgroundColor: colorHexByName.get(color) as string }
+                                                    : undefined
+                                        }
+                                    />
+                                    {color}
+                                </span>
+                            </button>
+                        );
+                    })}
+                </div>
+            </div>
         </div>
     );
 
@@ -419,12 +415,12 @@ export default function ProductsClient() {
                                 Realizamos pedidos personalizados
                             </span>
                             <h1 className="max-w-3xl text-4xl font-bold leading-tight text-[#4b2737] md:text-6xl">
-                                Encuentra productos por <span className="text-[#e7467d]">ocasión</span> o
+                                Encuentra <span className="text-[#e7467d]">piñatas</span> y
                                 {' '}
-                                <span className="text-[#fe9a4e]">personaje</span>
+                                <span className="text-[#fe9a4e]">artículos para fiestas</span>
                             </h1>
                             <p className="mt-5 max-w-2xl text-base leading-7 text-[#6b4b56] md:text-lg">
-                                Conoce lo que podemos ofrecer para tus fiestas especiales o inspírate para realizar un pedido enfocado en ti
+                                Piñatería en Caracas para tus fiestas especiales. Inspírate para realizar un pedido enfocado en ti
                             </p>
                         </div>
 
@@ -476,6 +472,7 @@ export default function ProductsClient() {
 
             <section ref={catalogSectionRef} className="container-custom mx-auto max-w-7xl scroll-mt-24 px-4 py-12 lg:px-3 md:py-16">
                 <Title
+                    as="h2"
                     mainTitle="Catálogo"
                     subtitle="Explora nuestros productos disponibles y algunos encargos anteriores que podrían inspirarte"
                 />
@@ -614,11 +611,11 @@ export default function ProductsClient() {
                                 <p className="mt-3 text-[#6f5b65]">
                                     {selectedCategory !== 'Todos'
                                         ? `No hay productos disponibles para el tipo "${selectedCategory}".`
-                                    : hasTypeFilterFromUrl && requestedTypeLabel
-                                        ? `No hay productos disponibles para el filtro "${requestedTypeLabel}".`
-                                        : hasOccasionFilterFromUrl
-                                            ? `No hay productos disponibles para la ocasión "${selectedOccasionLabel}".`
-                                            : 'Prueba otra combinacion de filtros o ajusta la busqueda para seguir explorando el catalogo.'}
+                                        : hasTypeFilterFromUrl && requestedTypeLabel
+                                            ? `No hay productos disponibles para el filtro "${requestedTypeLabel}".`
+                                            : hasOccasionFilterFromUrl
+                                                ? `No hay productos disponibles para la ocasión "${selectedOccasionLabel}".`
+                                                : 'Prueba otra combinacion de filtros o ajusta la busqueda para seguir explorando el catalogo.'}
                                 </p>
                             </div>
                         )}

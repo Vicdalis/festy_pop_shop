@@ -6,14 +6,14 @@ import { CONTACT } from '@/config/site';
 import Image from 'next/image';
 import Subtitle from "../ui/subtitle";
 
-export default function ContactUsBanner() {
+export default function ContactUsBanner({ headingAs }: { headingAs?: 'h1' | 'h2' }) {
 
     return (
         <section className="py-15 container-custom">
             <div className="text-center">
                 <Subtitle title="Estamos aquí" color="main-purple" />
             </div>
-            <Title mainTitle="Vísitanos" subtitle="Descubre cómo podemos hacer que tu próxima celebración sea inolvidable" />
+            <Title as={headingAs} mainTitle="Visítanos" subtitle="Descubre cómo podemos hacer que tu próxima celebración sea inolvidable" />
 
             <motion.div
                 initial={{ opacity: 0, y: 10 }}

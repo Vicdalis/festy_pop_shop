@@ -12,7 +12,7 @@ export const metadata: Metadata = {
     default: "FestyPOP | Piñatería y artículos para fiestas en Caracas",
     template: "%s | FestyPOP",
   },
-  description: "Catálogo de globos, piñatas, afiches y decoración para fiestas en La Hoyada, Caracas. Pedidos personalizados, cotizaciones por WhatsApp y temáticas para cada celebración.",
+  description: "Catálogo de globos, piñatas, afiches y decoración para fiestas en La Hoyada, centro de Caracas. Pedidos personalizados, cotizaciones por WhatsApp y temáticas para cada celebración.",
   keywords: [
     "piñatería en Caracas",
     "piñatería en hoyada",

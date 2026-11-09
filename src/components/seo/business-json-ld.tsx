@@ -9,6 +9,7 @@ export default function BusinessJsonLd() {
         '@context': 'https://schema.org',
         '@type': 'LocalBusiness',
         name: BUSINESS.NAME,
+        description: BUSINESS.DESCRIPTION,
         url: siteUrl,
         telephone: BUSINESS.PHONE_E164,
         email: CONTACT.SUPPORT_EMAIL_LINK.replace('mailto:', ''),
