@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 
 export default function ContactPage(){
     return(
-        <main className=" text-[#3B2830] min-h-screen">
+        <div className=" text-[#3B2830] min-h-screen">
             <section className="relative overflow-hidden bg-[linear-gradient(180deg,#fff7ed_0%,#fff0e1_100%)]">
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(255,61,127,0.14),_transparent_30%),radial-gradient(circle_at_bottom_right,_rgba(254,154,78,0.18),_transparent_30%)]" />
                 <div className="container-custom relative mx-auto max-w-7xl px-5 py-16 md:py-24">
@@ -58,6 +58,6 @@ export default function ContactPage(){
                 </div>
             </section>
             <ContactUsBanner headingAs="h2" />
-        </main>
+        </div>
     )
 }
