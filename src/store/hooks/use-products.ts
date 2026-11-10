@@ -1,17 +1,25 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
-import { getProducts, ProductFilters } from '@/lib/products/service';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { getProducts, productFiltersKey, ProductFilters, type ProductsResult } from '@/lib/products/service';
 import type { Product } from '@/types/product';
 
-export function useProducts(filters: ProductFilters = {}) {
-    const [products, setProducts] = useState<Product[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
+// Primera pagina traida en el servidor (HTML inicial) junto con los filtros con los que se pidio
+export type InitialProducts = {
+    filters: ProductFilters;
+    result: ProductsResult;
+};
+
+export function useProducts(filters: ProductFilters = {}, initial?: InitialProducts | null) {
+    const [products, setProducts] = useState<Product[]>(initial?.result.products ?? []);
+    const [isLoading, setIsLoading] = useState(!initial);
     const [isLoadingMore, setIsLoadingMore] = useState(false);
     const [page, setPage] = useState(1);
-    const [total, setTotal] = useState<number | null>(null);
+    const [total, setTotal] = useState<number | null>(initial?.result.pagination?.total ?? null);
     const [error, setError] = useState<string | null>(null);
-    const [source, setSource] = useState<'api' | 'mock'>('mock');
+    // Filtros de la primera pagina traida por el servidor: mientras no cambien, no se vuelve a pedir
+    // (tampoco en el doble montaje de React Strict Mode). Al primer cambio de filtros deja de aplicar.
+    const serverFiltersKey = useRef(initial ? productFiltersKey(initial.filters) : null);
 
     // Un cambio de filtros reinicia la lista desde la primera pagina
     useEffect(() => {
@@ -23,39 +31,33 @@ export function useProducts(filters: ProductFilters = {}) {
         const requestedPage = filters.page ?? page;
         const isFirstPage = requestedPage === 1;
 
+        if (isFirstPage && serverFiltersKey.current !== null) {
+            if (productFiltersKey(filters) === serverFiltersKey.current) return;
+            serverFiltersKey.current = null;
+        }
+
         async function loadProducts() {
-            try {
-                if (isFirstPage) {
-                    setIsLoading(true);
-                } else {
-                    setIsLoadingMore(true);
-                }
-                setError(null);
-                console.log("FILTRANDO ", filters)
-                const result = await getProducts({ ...filters, page: requestedPage });
+            if (isFirstPage) {
+                setIsLoading(true);
+            } else {
+                setIsLoadingMore(true);
+            }
+            setError(null);
+            const result = await getProducts({ ...filters, page: requestedPage });
 
-                if (isMounted) {
-                    setProducts((current) => {
-                        if (isFirstPage) {
-                            return result.products;
-                        }
+            if (isMounted) {
+                setProducts((current) => {
+                    if (isFirstPage) {
+                        return result.products;
+                    }
 
-                        const knownIds = new Set(current.map((product) => product.id));
-                        return [...current, ...result.products.filter((product) => !knownIds.has(product.id))];
-                    });
-                    setTotal(result.pagination?.total ?? null);
-                    setSource(result.source);
-                    setError(result.errorMessage ?? null);
-                }
-            } catch (loadError) {
-                if (isMounted) {
-                    setError(loadError instanceof Error ? loadError.message : 'No se pudieron cargar los productos.');
-                }
-            } finally {
-                if (isMounted) {
-                    setIsLoading(false);
-                    setIsLoadingMore(false);
-                }
+                    const knownIds = new Set(current.map((product) => product.id));
+                    return [...current, ...result.products.filter((product) => !knownIds.has(product.id))];
+                });
+                setTotal(result.pagination?.total ?? null);
+                setError(result.errorMessage ?? null);
+                setIsLoading(false);
+                setIsLoadingMore(false);
             }
         }
 
@@ -66,7 +68,7 @@ export function useProducts(filters: ProductFilters = {}) {
         };
     }, [filters.name, filters.category, filters.character, filters.color, filters.limit, filters.page, filters.personalized, filters.occasion, page]);
 
-    const hasMore = source === 'api' && total !== null && products.length < total;
+    const hasMore = !error && total !== null && products.length < total;
 
     const loadMore = useCallback(() => {
         setPage((current) => current + 1);
@@ -79,6 +81,5 @@ export function useProducts(filters: ProductFilters = {}) {
         hasMore,
         loadMore,
         error,
-        source,
     };
 }

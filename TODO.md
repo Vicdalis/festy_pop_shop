@@ -6,7 +6,7 @@ Actualizado: 2026-11-04 — según las tareas que marcaste como hechas y las que
 
 | Fase | Estado | Hechas | Total | Avance |
 | --- | --- | --- | --- | --- |
-| Fase 1 — Favoritos, compartir, filtros, SEO y seguridad | En curso | 26 | 34 | **76 %** |
+| Fase 1 — Favoritos, compartir, filtros, SEO y seguridad | En curso | 27 | 34 | **79 %** |
 | Fase 2 — Todo lo demás | No iniciada | 0 | 11 | **0 %** |
 
 La fase 1 incluye lo que pediste (favoritos locales sin login, botón compartir, filtros en inicio y catálogo, SEO) más los problemas de seguridad. Cada tarea pesa lo mismo, así que el porcentaje es aproximado.
@@ -16,9 +16,9 @@ La fase 1 incluye lo que pediste (favoritos locales sin login, botón compartir,
 | Hecho | 15 | 15 | 100 % |
 | Favoritos (sesión local) | 0 | 3 | 0 % |
 | Compartir | 2 | 2 | 100 % |
-| SEO | 7 | 12 | 58 % |
+| SEO | 8 | 12 | 67 % |
 | Seguridad | 2 | 2 | 100 % |
-| **Fase 1** | **26** | **34** | **76 %** |
+| **Fase 1** | **27** | **34** | **79 %** |
 
 Al marcar una tarea, actualizar las dos tablas (hechas ÷ 34 en la fase 1, hechas ÷ 11 en la fase 2).
 
@@ -72,16 +72,19 @@ Hoy `handleShare` comparte `window.location.href` (`product-card.tsx:168`), es d
 
 - [x] **Metadata y canonical por página:** `/producto` (canonical `/producto`, también para las URL con filtros), `/contacto` (pasó a página de servidor con `framer-motion/client`; el banner compartido lleva `'use client'`) y `/producto/[id]` (canonical propio) definen su título, descripción y canonical. El inicio usa los de `layout.tsx` (canonical `/`).
 - [x] **Una sola URL para el inicio:** el inicio vive solo en `/` (`(public)/page.tsx`); `/home` redirige con 308 desde `next.config.ts` y el sitemap solo lista `/`. Se eliminó `proxy.ts` (su redirect nunca se ejecutaba).
-- [x] **Definir `NEXT_PUBLIC_SITE_URL` en producción:** variable creada en Vercel (hoy con la URL de `vercel.app`). Al tener el dominio, actualizarla y volver a desplegar. Pendiente: abrir `/sitemap.xml` y `/robots.txt` en producción para confirmar.
+- [x] **Definir `NEXT_PUBLIC_SITE_URL` en producción (2026-11-10):** en Vercel vale `https://www.festypop.com`, sin `/` final (con la barra el sitemap generaba `//producto`). Al ser `NEXT_PUBLIC_*` se fija al compilar: cualquier cambio requiere volver a desplegar.
+- [x] **Dominio propio y redirección (2026-11-10):** el sitio vive en `www.festypop.com`; el `.vercel.app` redirige con 301 al dominio, configurado en Vercel (no en `next.config.ts`).
 - [x] **Imagen Open Graph:** `src/app/opengraph-image.tsx` y `twitter-image.tsx` generan una imagen de 1200×630 (logo `logo_fiesta3.png` sobre degradado morado-rosado) que Next agrega solo como `og:image` y `twitter:image`; las páginas sin imagen propia la heredan como respaldo. Pendiente: verificarla con el depurador de compartir de Facebook/WhatsApp tras desplegar.
 - [x] **Íconos que no existen:** se quitaron `/favicon-16x16.png` y `/apple-touch-icon.png` de la metadata de `layout.tsx` (daban 404); queda solo `/favicon.ico` (`src/app/favicon.ico`). Opcional a futuro: crear un `apple-touch-icon.png` de 180×180 con el logo.
 - [x] **Datos estructurados del negocio:** JSON-LD `LocalBusiness` en `components/seo/business-json-ld.tsx`, renderizado en el `layout.tsx` con los datos de `BUSINESS` en `config/site.ts`. Usa `NEXT_PUBLIC_SITE_URL` (si falta, no se renderiza). Pendiente: validarlo en la "Prueba de resultados enriquecidos" de Google una vez desplegado.
 - [x] **Datos estructurados de producto:** JSON-LD `Product` en `components/seo/product-json-ld.tsx`, renderizado en `/producto/[id]` (nombre, descripción, imágenes con URL absoluta, sku, categoría y oferta en USD solo cuando hay precio). Sin `availability` porque el catálogo no maneja stock. Pendiente: validarlo en la "Prueba de resultados enriquecidos" de Google una vez desplegado.
-- [ ] **Contenido en el HTML inicial:** el inicio y el catálogo cargan los productos con `useEffect` en el navegador, así que los buscadores reciben "Cargando productos...". Traer la primera página en el servidor (con `revalidate`) y pasarla al componente de cliente. **Depende de:** separar las páginas de servidor y cliente (tarea de metadata y canonical).
+- [x] **Contenido en el HTML inicial (2026-11-10):** la primera página de productos se trae en el servidor con `getProductsForServer` (`cache: 'force-cache'`, `revalidate` de 300 s; Next solo guarda respuestas 200) y se pasa al cliente; `useProducts(filters, initial)` no la vuelve a pedir mientras los filtros coincidan. Inicio: `(public)/page.tsx` es de servidor con ISR (`revalidate = 300`) y la UI pasó a `HomeClient.tsx`; si la API falla, el error se lanza (falla el build o se sigue sirviendo la última versión buena). Catálogo: `/producto` lee `?tipo=` y `?ocasion=` en el servidor (ya no usa `useSearchParams` ni `<Suspense>`, la ruta pasa a dinámica) y los pasa como props a `ProductsClient`; si la API falla o `?tipo=` no es un id, el cliente carga los productos como antes. Se quitó el respaldo con `mockProducts` de `service.ts` (en el navegador, un fallo devuelve lista vacía con `errorMessage`) y el campo `source`. Pendiente: confirmar con «Inspección de URL» de Search Console y Lighthouse.
 - [x] **Estructura del `layout.tsx`:** `<Analytics />` y `<SpeedInsights />` ahora están dentro del `<body>` y `<html>` es la raíz del layout.
 - [x] **Sitemap con productos:** `sitemap.ts` (async) recorre `POST /product` paginado (50 por página) y agrega `/producto/[id]`; si la API falla (datos mock) omite los productos. Los productos ocultos los excluye el backend. Pendiente: usar una fecha real en `lastModified` si la API la expone.
-- [ ] **Revisar `/sitemap.xml` y `/robots.txt` en producción:** abrirlos tras desplegar y comprobar que el sitemap lista las páginas estáticas y los `/producto/[id]`, y que `robots.txt` apunta al sitemap con la URL correcta. Repetir al cambiar `NEXT_PUBLIC_SITE_URL` por el dominio. **Depende de:** `NEXT_PUBLIC_SITE_URL` desplegada.
-- [ ] **Verificación:** enviar el sitemap a Google Search Console y medir con Lighthouse (SEO y Core Web Vitals) antes de cerrar la fase. **Depende de:** todas las demás tareas de SEO y `NEXT_PUBLIC_SITE_URL` definida en producción.
+- [x] **Revisar `/sitemap.xml` y `/robots.txt` en producción (2026-11-10):** con el dominio `www.festypop.com` el sitemap lista las páginas estáticas y los `/producto/[id]` sin doble barra, y `robots.txt` apunta a `https://www.festypop.com/sitemap.xml`. Repetir si cambia `NEXT_PUBLIC_SITE_URL`.
+- [x] **Árbol de accesibilidad (Lighthouse, 2026-11-10):** un solo `<main>` en `(public)/layout.tsx` (los de `/producto` y `/contacto` pasaron a `<div>`); `/producto/[id]` usa `<h1>` para el nombre (`ProductDetail` recibe `headingLevel`, en el popup sigue `h2`); las dos `<nav>` de la cabecera tienen `aria-label`; los títulos del pie pasaron de `h3` a `h2` con el mismo estilo; el popup de compartir de escritorio usa `role="group"` en vez de `dialog`; las muestras de color de `product-card.tsx` llevan `role="img"` para que su `aria-label` (nombre del color) sea válido. Pendiente: confirmar con Lighthouse.
+- [x] **CLS en `/producto` (2026-11-10):** el `fallback` del `<Suspense>` con `min-h-screen` quedó reemplazado por «Contenido en el HTML inicial» (ya no hay `Suspense`; los productos vienen en el HTML). Pendiente: confirmar con Lighthouse.
+- [ ] **Verificación:** ~~enviar el sitemap a Google Search Console~~ (hecho 2026-11-10, con el dominio nuevo). Falta: confirmar en Search Console que el sitemap queda en «Correcto» con las URLs descubiertas, y medir con Lighthouse (SEO y Core Web Vitals) antes de cerrar la fase.
 
 ## Seguridad
 
@@ -90,7 +93,7 @@ Hoy `handleShare` comparte `window.location.href` (`product-card.tsx:168`), es d
 
 ## Mejoras (fase 2)
 
-- [ ] Quitar los datos de respaldo y el código muerto: `mock-products.ts` (si la API falla se muestran productos de ejemplo como si fueran reales), `mock-categories.ts`, `mock-ocassions.ts`, `components/lib/data.tsx` (`MOCK_PRODUCTS` en inglés), `components/ui/product.tsx` (enlaza a `/catalogue`, que no existe), `card.tsx`, `page.module.css` y los SVG de plantilla en `public/`.
+- [ ] Quitar los datos de respaldo y el código muerto: `mock-products.ts` (ya no se importa en ningún sitio desde 2026-11-10; borrar el archivo), `mock-categories.ts`, `mock-ocassions.ts`, `components/lib/data.tsx` (`MOCK_PRODUCTS` en inglés), `components/ui/product.tsx` (enlaza a `/catalogue`, que no existe), `card.tsx`, `page.module.css` y los SVG de plantilla en `public/`.
 - [ ] Carga diferida de las imágenes extras del producto (ver `CLAUDE.md`: pedirlas solo al abrir el popup; requiere `GET /product/:id`). No implementar hasta que se pida.
 - [ ] Formulario de contacto: `ContactUsBanner` guarda el estado y hace `console.log` de nombre, correo, teléfono y mensaje (`contactus-banner.tsx:20`), pero no renderiza ningún formulario ni envía nada. Implementarlo (WhatsApp o correo) o eliminar el código.
 - [ ] Productos de temporada del slider: están escritos a mano en `home/page.tsx:177` (nombre, precio e imagen). Traerlos de la API.

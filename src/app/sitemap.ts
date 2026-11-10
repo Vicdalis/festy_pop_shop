@@ -8,15 +8,15 @@ const PAGE_LIMIT = 50;
 // Tope de seguridad para no ciclar si la API devuelve una paginacion inconsistente
 const MAX_PAGES = 200;
 
-// Recorre POST /product paginado. Si la API falla (getProducts devuelve datos mock) se omiten
-// los productos: los ids de respaldo no existen en el backend y generarian URLs 404.
+// Recorre POST /product paginado. Si la API falla (getProducts devuelve errorMessage) se deja de
+// recorrer y el sitemap queda con las paginas estaticas y los productos ya leidos.
 async function getAllProductIds(): Promise<number[]> {
     const ids = new Set<number>();
 
     for (let page = 1; page <= MAX_PAGES; page++) {
-        const { products, pagination, source } = await getProducts({ page, limit: PAGE_LIMIT });
+        const { products, pagination, errorMessage } = await getProducts({ page, limit: PAGE_LIMIT });
 
-        if (source !== 'api') break;
+        if (errorMessage) break;
 
         products.forEach((product) => ids.add(product.id));
 

@@ -4,16 +4,15 @@ import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Brush, Cake, ChevronDown, Filter, Palette, Search, Sparkles, Star, Tag, X } from 'lucide-react';
-import { useSearchParams } from 'next/navigation';
 import Title from '@/components/ui/title';
 import ProductCard from '@/components/products/product-card';
 import { getCategories, type CatalogCategory } from '@/lib/categories/service';
 import { getOccasions } from '@/lib/ocassions/service';
 import type { Ocassion } from '@/types/ocassion';
-import { useProducts } from '@/store/hooks/use-products';
+import { useProducts, type InitialProducts } from '@/store/hooks/use-products';
 import { getColors, type CatalogColor } from '@/lib/colors/service';
+import { PRODUCTS_PER_PAGE } from './constants';
 
-const PRODUCTS_PER_PAGE = 12;
 const SEARCH_DEBOUNCE_MS = 500;
 
 // Circulo multicolor para la opcion "Todos": representa mas de un color
@@ -66,14 +65,20 @@ function extractObjectNames(items?: { name: string } | null) {
     return items ? [items.name] : [];
 }
 
-export default function ProductsClient() {
+type ProductsClientProps = {
+    // Valores crudos de ?tipo= y ?ocasion= (los lee la pagina de servidor)
+    tipo: string;
+    ocasion: string;
+    initialProducts: InitialProducts | null;
+};
+
+export default function ProductsClient({ tipo, ocasion, initialProducts }: ProductsClientProps) {
     // Categorias y tematicas completas desde GET /category y GET /occasion
     const [catalogCategories, setCatalogCategories] = useState<CatalogCategory[]>([]);
     const [catalogOccasions, setCatalogOccasions] = useState<Ocassion[]>([]);
-    const searchParams = useSearchParams();
     const catalogSectionRef = useRef<HTMLElement | null>(null);
-    const requestedTypeParam = searchParams.get('tipo')?.replace(/\+/g, ' ').trim() ?? '';
-    const requestedOccasionParam = searchParams.get('ocasion')?.trim() ?? '';
+    const requestedTypeParam = tipo;
+    const requestedOccasionParam = ocasion;
     const parsedOccasionId = Number(requestedOccasionParam);
     // El API filtra por id de ocasion: el parametro debe ser un entero positivo
     const requestedOccasionId = requestedOccasionParam !== '' && Number.isInteger(parsedOccasionId) && parsedOccasionId > 0
@@ -117,11 +122,7 @@ export default function ProductsClient() {
         ...(debouncedSearch !== '' ? { name: debouncedSearch } : {}),
         limit: PRODUCTS_PER_PAGE,
     };
-    const { products: loadedProducts, isLoading, isLoadingMore, hasMore, loadMore, error, source } = useProducts(productFilters);
-    // Con un filtro activo y un error del API, los datos de respaldo no corresponden al filtro:
-    // se muestra "sin productos" en lugar de la lista de respaldo.
-    const hasActiveApiFilter = Object.keys(productFilters).some((key) => key !== 'limit');
-    const products = hasActiveApiFilter && error ? [] : loadedProducts;
+    const { products, isLoading, isLoadingMore, hasMore, loadMore, error } = useProducts(productFilters, initialProducts);
     products.forEach((product) => {
         if (product.character) characterIdByName.current.set(product.character.name, product.character.id);
     });
@@ -620,7 +621,7 @@ export default function ProductsClient() {
                             </div>
                         )}
 
-                        {process.env.NODE_ENV === 'development' && !isLoading && source === 'mock' && error && (
+                        {process.env.NODE_ENV === 'development' && !isLoading && error && (
                             <div className="rounded-2xl border border-[#efc9b8] bg-[#fff8f4] px-6 py-5 text-sm text-[#7a5662]">
                                 {error}
                             </div>

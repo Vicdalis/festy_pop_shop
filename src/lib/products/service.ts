@@ -1,9 +1,7 @@
 import { fetchJson } from '@/lib/api/http';
-import { mockProducts } from '@/lib/products/mock-products';
 import type { Product, ProductApiItem, ProductColor, Pagination } from '@/types/product';
 
 type ProductsApiResponse = ProductApiItem[] | { products: ProductApiItem[], pagination: Pagination };
-type ProductsSource = 'api' | 'mock';
 
 export type ProductFilters = {
     id?: number;
@@ -21,7 +19,6 @@ export type ProductFilters = {
 export type ProductsResult = {
     products: Product[];
     pagination?: Pagination;
-    source: ProductsSource;
     errorMessage?: string;
 };
 
@@ -87,75 +84,58 @@ function extractProducts(response: ProductsApiResponse): ProductApiItem[] {
     return [];
 }
 
+// Clave estable de los filtros sin la pagina: el cliente la compara con la de los datos que trajo el servidor
+export function productFiltersKey(filters: ProductFilters): string {
+    const { page: _page, ...rest } = filters;
+    return JSON.stringify(Object.keys(rest).sort().map((key) => [key, rest[key as keyof typeof rest]]));
+}
+
 // Peticiones en curso por filtros: un montaje doble (React Strict Mode en desarrollo) o varios
 // componentes pidiendo lo mismo a la vez comparten una sola llamada al API.
 const pendingProducts = new Map<string, Promise<ProductsResult>>();
 
+// Uso en el navegador: si el API falla devuelve una lista vacia con el mensaje de error (nunca datos de respaldo)
 export function getProducts(filters: ProductFilters = {}): Promise<ProductsResult> {
     const key = JSON.stringify(filters);
     const pending = pendingProducts.get(key);
     if (pending) return pending;
 
-    const request = fetchProducts(filters).finally(() => pendingProducts.delete(key));
+    const request = requestProducts(filters)
+        .catch((error): ProductsResult => {
+            console.error('Unable to fetch products from API.', error);
+            return { products: [], errorMessage: 'No se pudieron cargar los productos.' };
+        })
+        .finally(() => pendingProducts.delete(key));
     pendingProducts.set(key, request);
     return request;
 }
 
-async function fetchProducts(filters: ProductFilters): Promise<ProductsResult> {
+// Uso en el servidor (HTML inicial): guarda la respuesta en la cache de datos de Next y lanza el error si
+// el API falla, para que nunca se guarde una pagina vacia (Next solo cachea respuestas 200).
+export function getProductsForServer(filters: ProductFilters = {}, revalidate = 300): Promise<ProductsResult> {
+    return requestProducts(filters, { cache: 'force-cache', next: { revalidate } });
+}
+
+async function requestProducts(filters: ProductFilters, init?: RequestInit): Promise<ProductsResult> {
     if (!process.env.NEXT_PUBLIC_MAIN_API || !process.env.NEXT_PUBLIC_GET_PRODUCTS) {
-        return {
-            products: [],
-            source: 'api',
-            errorMessage: "Api route not available"
-        }
+        throw new Error('Api route not available');
     }
     const isSearch = filters.name !== undefined;
     const endpoint = [process.env.NEXT_PUBLIC_MAIN_API, process.env.NEXT_PUBLIC_GET_PRODUCTS, ...(isSearch ? ['search'] : [])].join('/');
     const body = isSearch
         ? { name: filters.name, category: filters.category, page: filters.page, limit: filters.limit }
         : filters;
-    
-    if (!endpoint) {
-        return {
-            products: mockProducts,
-            source: 'mock',
-        };
-    }
 
-    try {
-        const response = await fetchJson<ProductsApiResponse>(endpoint, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(body),
-        });
+    const response = await fetchJson<ProductsApiResponse>(endpoint, {
+        ...init,
+        method: 'POST',
+        body: JSON.stringify(body),
+    });
 
-        const items = extractProducts(response);
-
-        // Una busqueda sin resultados es una respuesta valida: no se reemplaza por datos de respaldo
-        if (isSearch) {
-            return {
-                products: items.map(normalizeProduct),
-                pagination: extractPagination(response),
-                source: 'api',
-            };
-        }
-
-        return {
-            products: items.length > 0 ? items.map(normalizeProduct) : mockProducts,
-            pagination: items.length > 0 ? extractPagination(response) : undefined,
-            source: items.length > 0 ? 'api' : 'mock',
-            errorMessage: items.length > 0 ? undefined : 'La API no devolvio productos, se usaron datos de respaldo.',
-        };
-    } catch (error) {
-        console.error('Unable to fetch products from API, using mock products instead.', error);
-        return {
-            products: mockProducts,
-            source: 'mock',
-            errorMessage: 'La API no respondio correctamente, se usaron datos de respaldo.',
-        };
-    }
+    return {
+        products: extractProducts(response).map(normalizeProduct),
+        pagination: extractPagination(response),
+    };
 }
 
 // GET /product/:idProduct; acepta el producto directo o envuelto en { product }
