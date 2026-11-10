@@ -180,15 +180,9 @@ export default function HomeClient({ initialProducts }: HomeClientProps) {
   }, []);
 
   const seasonProducts = [
-    { name: "Piñatas", price: "$15", tag: "POPULAR", tagColor: "#e7467d", image: "/products/pinatas/pinata1.jpg" },
-    { name: "Figuras de Anime", price: "$15", tag: "RÁPIDO", tagColor: "#7ed958", image: "/products/product-category/pinata_pony.jpg" },
-    { name: "Chupeteras", price: "$10", tag: "ESPECIAL", tagColor: "#8a3dc1", image: "/products/chupetera.jpeg" },
-  ];
-
-  const petImages = [
-    "/pet/raya1.jpg",
-    "/pet/raya2.jpg",
-    "/pet/raya3.jpg",
+    { name: "Piñatas de figura", price: "$25", tag: "POPULAR", tagColor: "#e7467d", image: "/products/pinatas/pinata_dinosaurio.jpeg" },
+    { name: "Piñatas de numero", price: "$25", tag: "ESPECIAL", tagColor: "#7ed958", image: "/products/pinatas/pinata_numero.jpeg" },
+    { name: "Piñatas Cuadradas", price: "$4", tag: "RÁPIDO", tagColor: "#8a3dc1", image: "/products/pinatas/pinata_tambor.jpeg" },
   ];
 
   const visibleFeaturedProducts = useMemo(() => {
@@ -399,7 +393,7 @@ export default function HomeClient({ initialProducts }: HomeClientProps) {
           </div>
 
         </section>
-        <PetBanner imagesUrl={petImages} />
+        <PetBanner/>
         <section className="py-16 bg-muted/50 bg-light-cream">
           <div className="text-center">
             <Subtitle title="Destacados" color="main-purple" />
