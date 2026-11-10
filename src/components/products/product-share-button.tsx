@@ -160,7 +160,7 @@ export default function ProductShareButton({ product, variant = 'card' }: Produc
 
             {isOpen && (
                 <div
-                    role="dialog"
+                    role="group"
                     aria-label="Compartir"
                     className="fixed bottom-6 left-1/2 z-20 w-[94vw] max-w-md -translate-x-1/2 rounded-2xl bg-white p-3 shadow-[0_12px_40px_rgba(38,16,51,0.25)] sm:absolute sm:bottom-full sm:left-auto sm:right-0 sm:mb-3 sm:w-[22rem] sm:max-w-none sm:translate-x-0 sm:p-4"
                 >

@@ -69,7 +69,7 @@ export default function Footer() {
                         </div>
 
                         <div>
-                            <h3 className="font-display text-lg font-bold mb-4">Temáticas</h3>
+                            <h2 className="font-display text-lg font-bold mb-4">Temáticas</h2>
                             <ul className="flex flex-col gap-2">
                                 {TEAM_LINKS.map((link) => (
                                     <li key={link.to}>
@@ -83,7 +83,7 @@ export default function Footer() {
 
                         {/* Quick Links */}
                         <div>
-                            <h3 className="font-display text-lg font-bold mb-4">Enlaces</h3>
+                            <h2 className="font-display text-lg font-bold mb-4">Enlaces</h2>
                             <ul className="flex flex-col gap-2">
                                 {NAV_LINKS.map((link) => (
                                     <li key={link.to}>
@@ -99,7 +99,7 @@ export default function Footer() {
 
                         {/* Contact Info */}
                         <div>
-                            <h3 className="font-display text-lg font-bold mb-4">Contáctanos</h3>
+                            <h2 className="font-display text-lg font-bold mb-4">Contáctanos</h2>
                             <ul className="flex flex-col gap-3 text-sm text-white/80">
                                 <li className="flex items-center gap-2">
                                     <Phone className="h-4 w-4 text-tertiary" />

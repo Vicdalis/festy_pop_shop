@@ -11,7 +11,6 @@ type PageProps = {
     params: Promise<{ id: string }>;
 };
 
-// generateMetadata y la pagina piden el mismo producto: cache evita repetir GET /product/:id en un mismo render
 const getProduct = cache(getProductById);
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
@@ -98,6 +97,7 @@ export default async function ProductPage({ params }: PageProps) {
                     }}
                     badge={hasGeneralCharacter ? category : primaryCharacter}
                     badgeColor={hasGeneralCharacter ? '#8a3dc1' : '#e7467d'}
+                    headingLevel="h1"
                 />
             </div>
         </section>

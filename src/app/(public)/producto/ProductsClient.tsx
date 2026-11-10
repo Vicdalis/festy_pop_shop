@@ -75,7 +75,7 @@ export default function ProductsClient() {
     const requestedTypeParam = searchParams.get('tipo')?.replace(/\+/g, ' ').trim() ?? '';
     const requestedOccasionParam = searchParams.get('ocasion')?.trim() ?? '';
     const parsedOccasionId = Number(requestedOccasionParam);
-    // El API filtra por id de ocasion: el parametro debe ser un entero positivo
+    
     const requestedOccasionId = requestedOccasionParam !== '' && Number.isInteger(parsedOccasionId) && parsedOccasionId > 0
         ? parsedOccasionId
         : null;
@@ -97,12 +97,11 @@ export default function ProductsClient() {
     const [isCharacterOpen, setIsCharacterOpen] = useState(true);
     const [isCategoryOpen, setIsCategoryOpen] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
-    // El API se consulta con el texto ya estable, no con cada letra escrita
+
     const [debouncedSearch, setDebouncedSearch] = useState('');
     const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
     // Lista completa de colores desde GET /colors; el API filtra por id de color
     const [catalogColors, setCatalogColors] = useState<CatalogColor[]>([]);
-    // Igual con los personajes: el id sale de los productos cargados y la lista acumulada evita que las opciones desaparezcan al filtrar
     const characterIdByName = useRef(new Map<string, number>());
     const selectedCategoryMatch = catalogCategories.find((category) => category.name === selectedCategory) ?? null;
     const selectedColorMatch = catalogColors.find((color) => color.name === selectedColor) ?? null;
@@ -401,7 +400,7 @@ export default function ProductsClient() {
     );
 
     return (
-        <main className="bg-white text-[#3B2830]">
+        <div className="bg-white text-[#3B2830]">
             <section className="relative overflow-hidden">
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(255,61,127,0.16),_transparent_36%),radial-gradient(circle_at_bottom_right,_rgba(254,154,78,0.22),_transparent_32%),linear-gradient(180deg,#fff7ed_0%,#fff2e2_100%)]" ></div>
                 <div className="absolute left-[-4rem] top-12 h-36 w-36 rounded-full bg-[#ffbfd3]/60 blur-3xl" ></div>
@@ -672,6 +671,6 @@ export default function ProductsClient() {
                     </div>
                 </div>
             )}
-        </main>
+        </div>
     );
 }

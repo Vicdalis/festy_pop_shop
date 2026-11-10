@@ -45,6 +45,8 @@ type ProductDetailProps = {
     badge?: string;
     badgeColor?: string;
     quoteHref?: string;
+    // h1 en la pagina /producto/[id]; h2 en el popup del catalogo (la pagina ya tiene su h1)
+    headingLevel?: 'h1' | 'h2';
 };
 
 // Contenido del detalle de producto: lo usa el popup de la tarjeta y la pagina /producto/[id]
@@ -53,7 +55,9 @@ export default function ProductDetail({
     badge = 'Destacado',
     badgeColor = '#8a3dc1',
     quoteHref,
+    headingLevel = 'h2',
 }: ProductDetailProps) {
+    const Heading = headingLevel;
     const siteOrigin = useSiteOrigin();
     const [isQuoted, setIsQuoted] = useState(false);
     const [activeImageIndex, setActiveImageIndex] = useState(0);
@@ -248,9 +252,9 @@ export default function ProductDetail({
                     )}
                 </div>
 
-                <h2 className="font-display text-2xl font-black leading-tight text-[#261033] md:text-4xl">
+                <Heading className="font-display text-2xl font-black leading-tight text-[#261033] md:text-4xl">
                     {product.name}
-                </h2>
+                </Heading>
 
                 {hasPrice && (
                     <div>
