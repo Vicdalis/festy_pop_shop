@@ -82,7 +82,7 @@ export default function Header() {
                     />
                 </Link>
 
-                <nav className="hidden items-center gap-6 md:flex">
+                <nav aria-label="Principal" className="hidden items-center gap-6 md:flex">
                     {NAV_LINKS.map((link) =>
                         link.subItems ? (
                             <div
@@ -167,7 +167,7 @@ export default function Header() {
             </div>
 
             {open && (
-                <nav className="border-t border-white/10 py-4 md:hidden">
+                <nav aria-label="Menú móvil" className="border-t border-white/10 py-4 md:hidden">
                     <div className="flex flex-col gap-3">
                         {NAV_LINKS.map((link) =>
                             link.subItems ? (

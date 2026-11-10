@@ -128,6 +128,7 @@ export default function ProductCard({
                             className="h-3.5 w-3.5 md:h-4 md:w-4 rounded-full border border-black/10 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.18)]"
                             style={{ backgroundColor: color.hex || colorSwatchMap[color.name] || '#d9c2f3' }}
                             title={color.name}
+                            role="img"
                             aria-label={color.name}
                         />
                     ))}
