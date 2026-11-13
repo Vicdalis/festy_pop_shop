@@ -39,6 +39,8 @@ const securityHeaders = [
 const nextConfig: NextConfig = {
   /* config options here */
   reactCompiler: true,
+  // Evita que `next dev` cree/actualice AGENTS.md al detectar un agente de IA
+  agentRules: false,
   async headers() {
     return [{ source: '/:path*', headers: securityHeaders }];
   },
