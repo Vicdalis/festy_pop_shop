@@ -21,7 +21,7 @@ export const config = {
         '/product/:path*',
         '/product-category/:path*',
         '/product-tag/:path*',
-        '/shop/:path*',
+        // OJO: no agregar '/shop' — choca con public/shop/ (imagenes del sitio)
         '/tienda/:path*',
         '/cart/:path*',
         '/carrito/:path*',
